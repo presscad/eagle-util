@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="iniparser">
+      <UniqueIdentifier>{57cd624d-d841-4f45-aae4-7fdaefc22486}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="HDB">
+      <UniqueIdentifier>{dba46fbb-0c9f-4268-9483-03b796e11083}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\insert_sim_utils.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\External\iniparser\src\dictionary.h">
+      <Filter>iniparser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\External\iniparser\src\iniparser.h">
+      <Filter>iniparser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Utils\DB\Hana\hdb_utils.h">
+      <Filter>HDB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Utils\DB\Hana\hdb_types.h">
+      <Filter>HDB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Utils\DB\Hana\hdb_columns.h">
+      <Filter>HDB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Utils\DB\Hana\hdb_odbc.h">
+      <Filter>HDB</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\TestHanaOdbc.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\insert_sim_utils.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\batch_inserts.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\External\iniparser\src\dictionary.c">
+      <Filter>iniparser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\External\iniparser\src\iniparser.c">
+      <Filter>iniparser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\DB\Hana\hdb_utils.cpp">
+      <Filter>HDB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\DB\Hana\Test\test_hdb.cpp">
+      <Filter>HDB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\DB\Hana\hdb_columns.cpp">
+      <Filter>HDB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\DB\Hana\hdb_odbc.cpp">
+      <Filter>HDB</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

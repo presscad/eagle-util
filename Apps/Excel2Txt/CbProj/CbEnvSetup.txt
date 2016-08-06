@@ -1,0 +1,49 @@
+
+Setup CB for VC 2010 Express on Windows XP
+=====================================================================
+- Open CB, Settings > Compiler and debugger > Global compiler settings > Select compiler => Microsoft Visual C++ 2010
+- Make sure Search Directory > Compiler contains:
+    C:\Program Files\Microsoft Visual Studio 10.0\VC\include
+    C:\Program Files\Microsoft SDKs\Windows\v7.0A\Include
+    D:\Dev\MyProgram\eagle-utils\External\WinDDK\7600.16385.1\inc\mfc42
+    D:\Dev\MyProgram\eagle-utils\External\WinDDK\7600.16385.1\inc\atl71
+- Make sure Search Directory > Linker contains:
+    C:\Program Files\Microsoft Visual Studio 10.0\VC\lib
+    C:\Program Files\Microsoft SDKs\Windows\v7.0A\Lib
+    D:\Dev\MyProgram\eagle-utils\External\WinDDK\7600.16385.1\lib\ATL\i386
+    D:\Dev\MyProgram\eagle-utils\External\WinDDK\7600.16385.1\lib\MFC\i386
+- Make sure Search Directory > Resource compiler contains:
+    C:\Program Files\Microsoft Visual Studio 10.0\VC\include
+    C:\Program Files\Microsoft SDKs\Windows\v7.0A\Include
+- Toolchain executables: auto detect; Additional paths should contain:
+    C:\Program Files\Microsoft Visual Studio 10.0\Common7\IDE
+    C:\Program Files\Debugging Tools for Windows (x86) - this is for debugger
+
+
+Setup CB for VC 2010 on Windows 7
+=====================================================================
+- Open CB, Settings > Compiler and debugger > Global compiler settings > Select compiler => Microsoft Visual C++ 2010
+- Make sure Search Directory > Compiler contains:
+    c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include
+    C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Include
+    C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\atlmfc\include
+- Make sure Search Directory > Linker contains:
+    c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\lib
+    C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Lib
+    C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\atlmfc\lib
+- Make sure Search Directory > Resource compiler contains:
+    c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include
+    C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Include
+- Toolchain executables: auto detect; Additional paths should contain:
+    C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE
+    C:\Program Files\Debugging Tools for Windows (x64) - this is for debugger
+  
+Project Settings
+=====================================================================
+VC Project: Use MFC in a Static Library, Static Link to ATL, Use Unicode Character Set
+CB Project:
+- Common options: /EHsc /Zc:wchar_t-.
+  /Zc:wchar_t- is for compability with lower version of MFC
+- Common defines: WIN32 _UNICODE UNICODE _ATL_STATIC_REGISTRY
+- Important compiler flags: Debug /MTd, Release /MT,
+- Debug define _DEBUG, Release define NDEBUG

@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\examples">
+      <UniqueIdentifier>{15a4dd4a-5d16-4a13-817f-42490fbc956b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\iTaxi">
+      <UniqueIdentifier>{2a7a9832-0d21-46e0-856f-27f6f61cbdf8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{46092a42-242d-416f-b47b-5cc43aab7840}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\Inet">
+      <UniqueIdentifier>{4387bb6f-2fc0-4c4e-9f15-c80cd8843dbd}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="examples\addressbook.pb.h">
+      <Filter>Source Files\examples</Filter>
+    </ClInclude>
+    <ClInclude Include="iTaxi\VehicleRecords.pb.h">
+      <Filter>Source Files\iTaxi</Filter>
+    </ClInclude>
+    <ClInclude Include="iTaxi\VehicleRecords_Col.h">
+      <Filter>Source Files\iTaxi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Utils\Net\GenericHTTPClient.h">
+      <Filter>Utils\Inet</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProtoTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="examples\Test_AddressBook.cpp">
+      <Filter>Source Files\examples</Filter>
+    </ClCompile>
+    <ClCompile Include="examples\addressbook.pb.cc">
+      <Filter>Source Files\examples</Filter>
+    </ClCompile>
+    <ClCompile Include="iTaxi\VehicleRecords.pb.cc">
+      <Filter>Source Files\iTaxi</Filter>
+    </ClCompile>
+    <ClCompile Include="iTaxi\Test_VehicleRecords.cpp">
+      <Filter>Source Files\iTaxi</Filter>
+    </ClCompile>
+    <ClCompile Include="iTaxi\VehicleRecords_Col.cpp">
+      <Filter>Source Files\iTaxi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Utils\Net\GenericHTTPClient.cpp">
+      <Filter>Utils\Inet</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="examples\addressbook.proto">
+      <Filter>Source Files\examples</Filter>
+    </None>
+    <None Include="iTaxi\VehicleRecords.proto">
+      <Filter>Source Files\iTaxi</Filter>
+    </None>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Excel2Txt" />
+		<Option pch_mode="2" />
+		<Option compiler="msvc10" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin\Debug\Excel2Txt" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Debug\" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Option use_console_runner="0" />
+				<Compiler>
+					<Add option="/MTd" />
+					<Add option="/RTC1" />
+					<Add option="/Zi" />
+					<Add option="/D_DEBUG" />
+				</Compiler>
+				<Linker>
+					<Add option="/DEBUG" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin\Release\Excel2Txt" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Release\" />
+				<Option type="0" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/MT" />
+					<Add option="/Ox" />
+					<Add option="/DNDEBUG" />
+				</Compiler>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="/fp:precise" />
+			<Add option="/GS" />
+			<Add option="/W3" />
+			<Add option="/Zc:forScope" />
+			<Add option="/EHsc" />
+			<Add option="/Zc:wchar_t-" />
+			<Add option="/DWIN32" />
+			<Add option="/D_UNICODE" />
+			<Add option="/DUNICODE" />
+			<Add option="/D_ATL_STATIC_REGISTRY" />
+			<Add directory="..\..\..\Utils\DB" />
+			<Add directory="..\..\..\Utils\Basic" />
+			<Add directory="$(#psdk.include)" />
+		</Compiler>
+		<Linker>
+			<Add library="gdi32" />
+			<Add library="user32" />
+			<Add library="kernel32" />
+			<Add directory="$(#psdk.lib)" />
+		</Linker>
+		<Unit filename="..\Excel2Txt.cpp" />
+		<Unit filename="..\stdafx.h" />
+		<Unit filename="..\targetver.h" />
+		<Unit filename="..\..\..\Utils\Basic\FileUtil.h" />
+		<Unit filename="..\..\..\Utils\Basic\FileUtilWin.cpp" />
+		<Unit filename="..\..\..\Utils\Basic\StrUtil.h" />
+		<Unit filename="..\..\..\Utils\Basic\StrUtilWin.cpp" />
+		<Unit filename="..\..\..\Utils\DB\DbBasics.cpp" />
+		<Unit filename="..\..\..\Utils\DB\DbBasics.h" />
+		<Unit filename="..\..\..\Utils\DB\DbExcel.cpp" />
+		<Unit filename="..\..\..\Utils\DB\DbExcel.h" />
+		<Unit filename="..\..\..\Utils\DB\Excel\Excel.cpp" />
+		<Unit filename="..\..\..\Utils\DB\Excel\Excel.h" />
+		<Unit filename="..\..\..\Utils\DB\Excel\excel9.cpp" />
+		<Unit filename="..\..\..\Utils\DB\Excel\excel9.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

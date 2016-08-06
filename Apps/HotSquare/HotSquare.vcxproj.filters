@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Test">
+      <UniqueIdentifier>{5557baa5-730d-4835-8a92-944fe52536f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External">
+      <UniqueIdentifier>{b52b94c9-4e31-4531-bc97-6af5e06dac57}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\INI">
+      <UniqueIdentifier>{73e55c4c-082e-4de8-a3c2-cec1510d45f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ODBC">
+      <UniqueIdentifier>{8f153154-ab8c-4b3f-a7fd-f7b15e6153d3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HotSquare.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SquareManager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TileManager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SegManager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CsvExporter.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\External\iniparser\src\dictionary.h">
+      <Filter>External\INI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\External\iniparser\src\iniparser.h">
+      <Filter>External\INI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Utils\DB\Hana\hdb_columns.h">
+      <Filter>ODBC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Utils\DB\Hana\hdb_odbc.h">
+      <Filter>ODBC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Utils\DB\Hana\hdb_types.h">
+      <Filter>ODBC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Utils\DB\Hana\hdb_utils.h">
+      <Filter>ODBC</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HotSquare.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HotSquareUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Test\Test_HotSquare.cpp">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="SegManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TileManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SquareManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CsvExporter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\External\iniparser\src\dictionary.c">
+      <Filter>External\INI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\External\iniparser\src\iniparser.c">
+      <Filter>External\INI</Filter>
+    </ClCompile>
+    <ClCompile Include="HotSquare_NJ.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Utils\DB\Hana\hdb_columns.cpp">
+      <Filter>ODBC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Utils\DB\Hana\hdb_odbc.cpp">
+      <Filter>ODBC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Utils\DB\Hana\hdb_utils.cpp">
+      <Filter>ODBC</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

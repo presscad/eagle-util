@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE32EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+    <Filter Include="Basic">
+      <UniqueIdentifier>{eedda4a0-c515-4e47-bba6-c695071928af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External">
+      <UniqueIdentifier>{54dfa7c7-1992-4986-ad90-eaeab865b525}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\iniparser">
+      <UniqueIdentifier>{0331d7b4-9236-4062-b507-586e29bbba84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Ini">
+      <UniqueIdentifier>{d4d8b9f9-628a-421e-82cc-ea0afaf1676f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="CbProj.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Utils\Basic\FileUtilWin.cpp">
+      <Filter>Basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Utils\Basic\StrUtilWin.cpp">
+      <Filter>Basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\External\iniparser\src\dictionary.c">
+      <Filter>External\iniparser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\External\iniparser\src\iniparser.c">
+      <Filter>External\iniparser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Utils\Ini\SimpleIni.cpp">
+      <Filter>Ini</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CbProj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Utils\Basic\FileUtil.h">
+      <Filter>Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Utils\Basic\StrUtil.h">
+      <Filter>Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\External\iniparser\src\dictionary.h">
+      <Filter>External\iniparser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\External\iniparser\src\iniparser.h">
+      <Filter>External\iniparser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Utils\Ini\SimpleIni.h">
+      <Filter>Ini</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="CbProj.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

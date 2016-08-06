@@ -1,0 +1,93 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>OpenLayers Simplest Example</title>
+</head>
+<body>
+<div id="Map" style="height:1000px"></div>
+<script src="../../../External/OpenLayers/OpenLayers.js"></script>
+<script>
+    // Nanjing
+    var latCenter = 32.028;
+    var lngCenter = 118.796;
+    var zoom      = 17;
+ 
+    var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
+    var toProjection   = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
+    var position       = new OpenLayers.LonLat(lngCenter, latCenter).transform(fromProjection, toProjection);
+ 
+    map = new OpenLayers.Map("Map");
+    var mapnik = new OpenLayers.Layer.OSM();
+    map.addLayer(mapnik);
+ 
+    var markers = new OpenLayers.Layer.Markers( "Markers" );
+    map.addLayer(markers);
+    markers.addMarker(new OpenLayers.Marker(position));
+ 
+    var positionCenter  = new OpenLayers.LonLat(lngCenter, latCenter).transform( fromProjection, toProjection);
+    map.setCenter(positionCenter, zoom);
+
+    vectors = new OpenLayers.Layer.Vector("Vector Layer");
+    map.addLayer(vectors);
+
+
+    // see http://openlayers.org/dev/examples/vector-features.html
+ 
+    // Layer style
+    // we want opaque external graphics and non-opaque internal graphics
+    var layer_style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
+
+    // Blue style
+    var style_blue = OpenLayers.Util.extend({}, layer_style);
+    style_blue.strokeColor = "black";
+    style_blue.fillColor = "blue";
+    style_blue.graphicName = "star";
+    style_blue.pointRadius = 6;
+
+    var style_red = OpenLayers.Util.extend({}, layer_style);
+    style_red.strokeColor = "black";
+    style_red.fillColor = "red";
+    style_red.pointRadius = 6;
+    
+    function addPoints(coordinates) {
+        features = [];
+        for (i in coordinates) {
+            point = new OpenLayers.Geometry.Point(coordinates[i].lng, coordinates[i].lat);
+            point.transform(fromProjection, toProjection);
+            pointsFeature = new OpenLayers.Feature.Vector(point, null, style_red);
+            features.push(pointsFeature);
+        }
+        vectors.addFeatures(features);
+    }
+
+    function addPointsWithColor(coordinates) {
+
+
+        features = [];
+        for (i in coordinates) {
+            point = new OpenLayers.Geometry.Point(coordinates[i].lng, coordinates[i].lat);
+            point.transform(fromProjection, toProjection);
+
+            var style = OpenLayers.Util.extend({}, layer_style);
+            style.graphicName = "square";
+            style.strokeColor = coordinates[i].color;
+            style.pointRadius = 6;
+            style.fillOpacity = 0.8;
+            style.fillColor = coordinates[i].color;
+
+            pointsFeature = new OpenLayers.Feature.Vector(point, null, style);
+            features.push(pointsFeature);
+        }
+        vectors.addFeatures(features);
+    }
+    
+    addPointsWithColor([
+        {lat: 32.02888, lng: 118.79529, color: "red"},
+        {lat: 32.02888, lng: 118.7974, color: "black"},
+        {lat: 32.02758, lng: 118.7974, color: "green"},
+        {lat: 32.02758, lng: 118.79529, color: "red"},
+    ]);
+
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+
+  <remote  name="repo-blurdev"
+           fetch="ssh://gerrit.pcs.mot.com"
+           review="http://gerrit.pcs.mot.com" />
+
+  <default revision="hss7"
+           remote="repo-blurdev" />
+
+  <project path="build" name="home/repo/dev/platform/android/platform/build" >
+    <copyfile src="core/root.mk" dest="Makefile" />
+  </project>
+  <project path="abi/cpp" name="home/repo/dev/platform/android/platform/abi/cpp" />
+  <project path="bionic" name="home/repo/dev/platform/android/platform/bionic" />
+
+  <project path="docs/source.android.com" name="home/repo/dev/platform/android/platform/docs/source.android.com" />
+  <project path="external/android-mock" name="home/repo/dev/platform/android/platform/external/android-mock" />
+  <project path="external/antlr" name="home/repo/dev/platform/android/platform/external/antlr" />
+
+</manifest>

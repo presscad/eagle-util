@@ -27,3 +27,33 @@
 *.exe
 *.out
 *.app
+
+# VC files
+*.suo
+*.ncb
+*.user
+*.aps
+*.pdb
+_UpgradeReport_Files/
+
+# VC 2010 files
+*.sdf
+*.opensdf
+ipch/
+
+# VC build output directories
+Debug/
+Release/
+
+# MS Office
+~*.*
+
+# Code Blocks files
+*.layout
+*.depend
+*.cbTemp
+out/
+bin/
+
+# Misc.
+*.bak

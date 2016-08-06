@@ -1,0 +1,121 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{f1e6d9a3-a546-4f51-ad22-90add1602292}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\NetUtil">
+      <UniqueIdentifier>{4c5bd0b7-2f75-48cc-99a8-6e15d797b69c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\Ini">
+      <UniqueIdentifier>{c9365810-00b3-47d3-b9c8-d65e62289046}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\FS">
+      <UniqueIdentifier>{d5f77027-14be-4f91-aa0d-c5210e7a6bce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External">
+      <UniqueIdentifier>{342a3b92-a62c-4494-8374-4a6508f1e2fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\libini">
+      <UniqueIdentifier>{525012de-9c3a-408f-ae7e-46c0f1d3a61c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="IE-Proxy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IE-ProxyDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Utils\Net\InetUtilWin.cpp">
+      <Filter>Utils\NetUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Utils\Ini\SimpleIni.cpp">
+      <Filter>Utils\Ini</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Utils\Ini\test\SimpleIniTest.cpp">
+      <Filter>Utils\Ini</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Utils\FS\FileUtilWin.cpp">
+      <Filter>Utils\FS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\External\libini\src\ini.cpp">
+      <Filter>External\libini</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="IE-Proxy.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IE-ProxyDlg.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Utils\Net\InetUtil.h">
+      <Filter>Utils\NetUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Utils\Ini\SimpleIni.h">
+      <Filter>Utils\Ini</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Utils\FS\FileUtil.h">
+      <Filter>Utils\FS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\External\libini\include\config.h">
+      <Filter>External\libini</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\External\libini\src\headings.h">
+      <Filter>External\libini</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\External\libini\src\keys.h">
+      <Filter>External\libini</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\External\libini\include\libini.h">
+      <Filter>External\libini</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\External\libini\src\list.h">
+      <Filter>External\libini</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\IE-Proxy.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\IE-Proxy.rc2">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\External\libini\src\headings.i">
+      <Filter>External\libini</Filter>
+    </None>
+    <None Include="..\..\External\libini\src\keys.i">
+      <Filter>External\libini</Filter>
+    </None>
+    <None Include="..\..\External\libini\src\list.i">
+      <Filter>External\libini</Filter>
+    </None>
+    <None Include="..\..\External\libini\src\types.i">
+      <Filter>External\libini</Filter>
+    </None>
+    <None Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="IE-Proxy.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

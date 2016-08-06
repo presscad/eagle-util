@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Main">
+      <UniqueIdentifier>{178843ec-b435-426e-a052-ff450a5f4155}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Geo">
+      <UniqueIdentifier>{3545d6e2-0bd1-4c44-91e9-abae5e93e832}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\insert_sim_utils.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TestGeo1.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\Geo\geo_utils.cpp">
+      <Filter>Geo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\geo\geo_utils_in_china.cpp">
+      <Filter>Geo</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\insert_sim_utils.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Utils\Geo\geo_utils.h">
+      <Filter>Geo</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

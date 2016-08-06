@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>OpenLayers Simplest Example</title>
+</head>
+<body>
+<div id="Map" style="height:1000px"></div>
+<script src="../../../External/OpenLayers/OpenLayers.js"></script>
+<script>
+    // Nanjing
+    var latCenter = 32.028;
+    var lngCenter = 118.796;
+    var zoom      = 17;
+ 
+    var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
+    var toProjection   = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
+    var position       = new OpenLayers.LonLat(lngCenter, latCenter).transform(fromProjection, toProjection);
+ 
+    map = new OpenLayers.Map("Map");
+    var mapnik = new OpenLayers.Layer.OSM();
+    map.addLayer(mapnik);
+ 
+    var markers = new OpenLayers.Layer.Markers( "Markers" );
+    map.addLayer(markers);
+    markers.addMarker(new OpenLayers.Marker(position));
+ 
+    var positionCenter  = new OpenLayers.LonLat(lngCenter, latCenter).transform( fromProjection, toProjection);
+    map.setCenter(positionCenter, zoom);
+
+    vectors = new OpenLayers.Layer.Vector("Line Layer");
+    map.addLayer(vectors);
+
+    var lineStyle = {
+        strokeColor: '#0000ff',
+        strokeOpacity: 0.5,
+        strokeWidth: 5
+    };
+
+    function addLines(coordinates) {
+        var site_points = [];
+        for (i in coordinates) {
+            point = new OpenLayers.Geometry.Point(coordinates[i].lng, coordinates[i].lat);
+            point.transform(fromProjection, toProjection);
+            site_points.push(point);
+        }
+        var line = new OpenLayers.Geometry.LineString(site_points);
+        var feature = new OpenLayers.Feature.Vector(line, null, lineStyle);
+        vectors.addFeatures([feature]);
+    }
+
+    addLines([
+        {lat: 32.02888, lng: 118.79529},
+        {lat: 32.02888, lng: 118.7974},
+        {lat: 32.02758, lng: 118.7974},
+        {lat: 32.02758, lng: 118.79529},
+    ]);
+
+</script>
+</body>
+</html>

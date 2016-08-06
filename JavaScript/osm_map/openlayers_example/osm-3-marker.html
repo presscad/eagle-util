@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>OpenLayers Simplest Example</title>
+</head>
+<body>
+<div id="Map" style="height:1000px"></div>
+<script src="../../../External/OpenLayers/OpenLayers.js"></script>
+<script>
+    // Nanjing
+    var latCenter = 32.0500;
+    var lngCenter = 118.7667;
+    var zoom      = 17;
+ 
+    var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
+    var toProjection   = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
+    //var position       = new OpenLayers.LonLat(lngCenter, latCenter).transform(fromProjection, toProjection);
+ 
+    map = new OpenLayers.Map("Map");
+    var mapnik = new OpenLayers.Layer.OSM();
+    map.addLayer(mapnik);
+ 
+    var markers = new OpenLayers.Layer.Markers( "Markers" );
+    map.addLayer(markers);
+    //markers.addMarker(new OpenLayers.Marker(position));
+ 
+    var positionCenter  = new OpenLayers.LonLat(lngCenter, latCenter).transform( fromProjection, toProjection);
+    map.setCenter(positionCenter, zoom);
+
+    function addMarker(lat, lng)
+    {
+        var position = new OpenLayers.LonLat(lng, lat).transform(fromProjection, toProjection);
+        markers.addMarker(new OpenLayers.Marker(position));
+    }
+
+    addMarker(latCenter, lngCenter); 
+</script>
+</body>
+</html>
