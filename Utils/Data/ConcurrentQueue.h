@@ -2,8 +2,9 @@
 #define __CONCURRENT_QUEUE
 
 #include <queue>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition_variable.hpp>
+#include <mutex>
+#include <thread>
+
 
 // See http://www.justsoftwaresolutions.co.uk/threading/implementing-a-thread-safe-queue-using-condition-variables.html
 
@@ -12,13 +13,13 @@ class concurrent_queue
 {
 private:
     std::queue<Data> the_queue;
-    mutable boost::mutex the_mutex;
-    boost::condition_variable the_condition_variable;
+    mutable std::mutex the_mutex;
+    std::condition_variable the_condition_variable;
 
 public:
     void push(Data const& data)
     {
-        boost::mutex::scoped_lock lock(the_mutex);
+        std::unique_lock<std::mutex> lock(the_mutex, std::try_to_lock);
         the_queue.push(data);
         lock.unlock();
         the_condition_variable.notify_one();
@@ -26,13 +27,13 @@ public:
 
     bool empty() const
     {
-        boost::mutex::scoped_lock lock(the_mutex);
+        std::unique_lock<std::mutex> lock(the_mutex, std::try_to_lock);
         return the_queue.empty();
     }
 
     bool try_pop(Data& popped_value)
     {
-        boost::mutex::scoped_lock lock(the_mutex);
+        std::unique_lock<std::mutex> lock(the_mutex, std::try_to_lock);
         if(the_queue.empty())
         {
             return false;
@@ -45,7 +46,7 @@ public:
 
     void wait_and_pop(Data& popped_value)
     {
-        boost::mutex::scoped_lock lock(the_mutex);
+        std::unique_lock<std::mutex> lock(the_mutex, std::try_to_lock);
         while(the_queue.empty())
         {
             the_condition_variable.wait(lock);

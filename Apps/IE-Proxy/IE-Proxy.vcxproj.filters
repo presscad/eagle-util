@@ -10,22 +10,22 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
     </Filter>
     <Filter Include="Utils">
-      <UniqueIdentifier>{f1e6d9a3-a546-4f51-ad22-90add1602292}</UniqueIdentifier>
+      <UniqueIdentifier>{e914b59d-e8b5-456e-9338-cc225965f9d0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Utils\NetUtil">
-      <UniqueIdentifier>{4c5bd0b7-2f75-48cc-99a8-6e15d797b69c}</UniqueIdentifier>
+      <UniqueIdentifier>{b8e44bdb-4c5e-4c7b-a7c9-8812809c8ae2}</UniqueIdentifier>
     </Filter>
     <Filter Include="Utils\Ini">
-      <UniqueIdentifier>{c9365810-00b3-47d3-b9c8-d65e62289046}</UniqueIdentifier>
+      <UniqueIdentifier>{71ae704c-d1f4-4766-8657-4c2cc6593126}</UniqueIdentifier>
     </Filter>
     <Filter Include="Utils\FS">
-      <UniqueIdentifier>{d5f77027-14be-4f91-aa0d-c5210e7a6bce}</UniqueIdentifier>
+      <UniqueIdentifier>{7ac0fd8e-46bc-4f13-96e0-88898049aa42}</UniqueIdentifier>
     </Filter>
     <Filter Include="External">
-      <UniqueIdentifier>{342a3b92-a62c-4494-8374-4a6508f1e2fa}</UniqueIdentifier>
+      <UniqueIdentifier>{9fc5107e-2b18-4ffe-ab9e-63f054c3fab7}</UniqueIdentifier>
     </Filter>
     <Filter Include="External\libini">
-      <UniqueIdentifier>{525012de-9c3a-408f-ae7e-46c0f1d3a61c}</UniqueIdentifier>
+      <UniqueIdentifier>{7da9b144-944a-47c2-b383-6bd0ba1f3698}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -93,9 +93,16 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\IE-Proxy.ico">
+    <Image Include="res\IE-Proxy.ico">
       <Filter>Resource Files</Filter>
-    </None>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="IE-Proxy.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
     <None Include="res\IE-Proxy.rc2">
       <Filter>Resource Files</Filter>
     </None>
@@ -111,11 +118,8 @@
     <None Include="..\..\External\libini\src\types.i">
       <Filter>External\libini</Filter>
     </None>
-    <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="IE-Proxy.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
+    <Text Include="ReadMe.txt" />
   </ItemGroup>
 </Project>

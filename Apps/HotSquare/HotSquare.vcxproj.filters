@@ -19,11 +19,17 @@
     <Filter Include="External">
       <UniqueIdentifier>{b52b94c9-4e31-4531-bc97-6af5e06dac57}</UniqueIdentifier>
     </Filter>
-    <Filter Include="External\INI">
+    <Filter Include="External\ini parser">
       <UniqueIdentifier>{73e55c4c-082e-4de8-a3c2-cec1510d45f7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ODBC">
+    <Filter Include="utils">
+      <UniqueIdentifier>{ed1a7ce1-5ce3-4154-a3ef-489c2897bc5d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils\hdb">
       <UniqueIdentifier>{8f153154-ab8c-4b3f-a7fd-f7b15e6153d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils\common">
+      <UniqueIdentifier>{916ba9bb-c90e-41fb-9f83-2deb342a0d18}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -48,23 +54,26 @@
     <ClInclude Include="CsvExporter.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\External\iniparser\src\dictionary.h">
-      <Filter>External\INI</Filter>
+    <ClInclude Include="..\..\utils\hdb\hdb_columns.h">
+      <Filter>utils\hdb</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\External\iniparser\src\iniparser.h">
-      <Filter>External\INI</Filter>
+    <ClInclude Include="..\..\utils\hdb\hdb_odbc.h">
+      <Filter>utils\hdb</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Utils\DB\Hana\hdb_columns.h">
-      <Filter>ODBC</Filter>
+    <ClInclude Include="..\..\utils\hdb\hdb_types.h">
+      <Filter>utils\hdb</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Utils\DB\Hana\hdb_odbc.h">
-      <Filter>ODBC</Filter>
+    <ClInclude Include="..\..\utils\hdb\hdb_utils.h">
+      <Filter>utils\hdb</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Utils\DB\Hana\hdb_types.h">
-      <Filter>ODBC</Filter>
+    <ClInclude Include="..\..\..\external-libs\iniparser\src\dictionary.h">
+      <Filter>External\ini parser</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Utils\DB\Hana\hdb_utils.h">
-      <Filter>ODBC</Filter>
+    <ClInclude Include="..\..\..\external-libs\iniparser\src\iniparser.h">
+      <Filter>External\ini parser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\utils\common\common_utils.h">
+      <Filter>utils\common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -92,23 +101,26 @@
     <ClCompile Include="CsvExporter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\External\iniparser\src\dictionary.c">
-      <Filter>External\INI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\External\iniparser\src\iniparser.c">
-      <Filter>External\INI</Filter>
-    </ClCompile>
     <ClCompile Include="HotSquare_NJ.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Utils\DB\Hana\hdb_columns.cpp">
-      <Filter>ODBC</Filter>
+    <ClCompile Include="..\..\utils\hdb\hdb_columns.cpp">
+      <Filter>utils\hdb</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Utils\DB\Hana\hdb_odbc.cpp">
-      <Filter>ODBC</Filter>
+    <ClCompile Include="..\..\utils\hdb\hdb_odbc.cpp">
+      <Filter>utils\hdb</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Utils\DB\Hana\hdb_utils.cpp">
-      <Filter>ODBC</Filter>
+    <ClCompile Include="..\..\utils\hdb\hdb_utils.cpp">
+      <Filter>utils\hdb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\external-libs\iniparser\src\dictionary.c">
+      <Filter>External\ini parser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\external-libs\iniparser\src\iniparser.c">
+      <Filter>External\ini parser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\utils\common\common_utils.cpp">
+      <Filter>utils\common</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

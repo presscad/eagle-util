@@ -22,7 +22,7 @@
 
 
 #ifdef _WIN32
-typedef unsigned long long SOCKET;
+typedef unsigned int SOCKET;
 #else
 typedef int SOCKET;
 #endif

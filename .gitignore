@@ -36,10 +36,12 @@
 *.pdb
 _UpgradeReport_Files/
 
-# VC 2010 files
+# VC files
 *.sdf
 *.opensdf
 ipch/
+*.VC.opendb
+*.VC.db
 
 # VC build output directories
 Debug/

@@ -4,6 +4,7 @@
 
 #include <Windows.h>
 #include <fstream>
+#include <unordered_set>
 #include "HotSquare.h"
 #include "SquareManager.h"
 #include "CsvExporter.h"
@@ -18,7 +19,7 @@ typedef struct {
     SEGMENT_T *pSegStart;
     unsigned int nSegCount;
     unsigned int nFinishedCount;
-    hash_set<SQUARE_ID_T> squareIdSet;
+    unordered_set<SQUARE_ID_T> squareIdSet;
 } THREAD_DATA1;
 
 typedef struct {
@@ -88,7 +89,7 @@ void TimerProc_OnGenSquareArray(void *pData)
 }
 
 static
-bool GetSegmentNeighboringSquareIds(SquareManager *This, const SEGMENT_T *pSegment, hash_set<SQUARE_ID_T> &sqIdSet)
+bool GetSegmentNeighboringSquareIds(SquareManager *This, const SEGMENT_T *pSegment, unordered_set<SQUARE_ID_T> &sqIdSet)
 {
     static const double MARGIN = SEG_ASSIGN_DISTANCE_MAX * 1.1 / LAT_METERS_PER_DEGREE;
     static const double STEP = 2.0 / LAT_METERS_PER_DEGREE;
@@ -131,7 +132,7 @@ bool GetSegmentNeighboringSquareIds(SquareManager *This, const SEGMENT_T *pSegme
 static
 bool GenerateSquareIds(THREAD_DATA1 *pData1)
 {
-    hash_set<SQUARE_ID_T> subSet;
+    unordered_set<SQUARE_ID_T> subSet;
     pData1->squareIdSet.clear();
 
     for (unsigned int i=0; i<pData1->nSegCount; i++) {
@@ -142,7 +143,7 @@ bool GenerateSquareIds(THREAD_DATA1 *pData1)
         subSet.clear();
         GetSegmentNeighboringSquareIds(pData1->pSqManager, &pData1->pSegStart[i], subSet);
 
-        for (hash_set<SQUARE_ID_T>::iterator it = subSet.begin(); it != subSet.end(); it++) {
+        for (unordered_set<SQUARE_ID_T>::iterator it = subSet.begin(); it != subSet.end(); it++) {
             if (pData1->squareIdSet.find(*it) == pData1->squareIdSet.end()) {
                 pData1->squareIdSet.insert(*it);
             }
@@ -163,7 +164,7 @@ static unsigned long WINAPI ThreadFun_GenSquareIds( LPVOID lpParam )
 
 static
 bool GenerateSquareIds_Multi(SquareManager *pSqManager, const SEGMENT_T segments[], int nSegs,
-    int nThreadCount, hash_set<SQUARE_ID_T> &squareIdSet)
+    int nThreadCount, unordered_set<SQUARE_ID_T> &squareIdSet)
 {
     if (segments == NULL || nThreadCount <= 0 || nSegs == 0) {
         printf("CalculateSquareIds_Multi: invalid parameter passed in\n");
@@ -215,12 +216,12 @@ bool GenerateSquareIds_Multi(SquareManager *pSqManager, const SEGMENT_T segments
 
     // combine the result set
     squareIdSet.clear();
-	const hash_set<SQUARE_ID_T>::iterator squareIdSet_End = squareIdSet.end();
+	const unordered_set<SQUARE_ID_T>::iterator squareIdSet_End = squareIdSet.end();
 
     for (int i=0; i<nThreadCount; i++) {
-        hash_set<SQUARE_ID_T> &subSet = dataArray[i].squareIdSet;
-		const hash_set<SQUARE_ID_T>::iterator subSet_End = subSet.end();
-        for (stdext::hash_set<SQUARE_ID_T>::iterator it = subSet.begin(); it != subSet_End; it++) {
+        unordered_set<SQUARE_ID_T> &subSet = dataArray[i].squareIdSet;
+		const unordered_set<SQUARE_ID_T>::iterator subSet_End = subSet.end();
+        for (std::unordered_set<SQUARE_ID_T>::iterator it = subSet.begin(); it != subSet_End; it++) {
             if (squareIdSet_End == squareIdSet.find(*it)) {
                 squareIdSet.insert(*it);
             }
@@ -230,10 +231,10 @@ bool GenerateSquareIds_Multi(SquareManager *pSqManager, const SEGMENT_T segments
     return !squareIdSet.empty();
 }
 
-static void SquareSetToArray(hash_set<SQUARE_ID_T> &squareIdSet, vector<SQUARE_ID_T> &arrIds)
+static void SquareSetToArray(unordered_set<SQUARE_ID_T> &squareIdSet, vector<SQUARE_ID_T> &arrIds)
 {
     arrIds.reserve(squareIdSet.size());
-	for (hash_set<SQUARE_ID_T>::iterator it = squareIdSet.begin(); it != squareIdSet.end(); it++) {
+	for (unordered_set<SQUARE_ID_T>::iterator it = squareIdSet.begin(); it != squareIdSet.end(); it++) {
         arrIds.push_back(*it);
     }
 }
@@ -373,7 +374,7 @@ bool SquareManager::BuildSquareMap_Multi(SegManager &segMgr, TileManager &tileMg
     mpTileMgr = &tileMgr;
 
     printf("%s: To generate square IDs, waiting ...\n", ElapsedTimeStr().c_str());
-    hash_set<SQUARE_ID_T> squareIdSet;
+    unordered_set<SQUARE_ID_T> squareIdSet;
     bool res = GenerateSquareIds_Multi(this, segMgr.GetSegArray(), segMgr.GetSegArrayCount(),
         nThreadCount, squareIdSet);
     if (res == false)

@@ -1,7 +1,7 @@
 #ifndef TILE_MANAGER_H_
 #define TILE_MANAGER_H_
 
-#include <hash_set>
+#include <unordered_set>
 #include "SegManager.h"
 
 
@@ -14,7 +14,7 @@ typedef struct {
     // low 32 bit from lng coordinate, hi 32 bit from lat coordinate
     TILE_ID_T tile_id;
     // hash set for all intersected segments
-    stdext::hash_set<SEG_ID_T> segIdsSet;
+    std::unordered_set<SEG_ID_T> segIdsSet;
     // array of segments containing segments from extra 8 neighbor 
     std::vector<SEGMENT_T *> segsWithNeighbors;
 } TILE_T, *P_TILE_T;

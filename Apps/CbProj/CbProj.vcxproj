@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -20,12 +20,14 @@
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Static</UseOfMfc>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>Static</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfAtl>Static</UseOfAtl>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -90,8 +92,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\External\iniparser\src\dictionary.c" />
-    <ClCompile Include="..\..\External\iniparser\src\iniparser.c" />
+    <ClCompile Include="..\..\..\external-libs\iniparser\src\dictionary.c" />
+    <ClCompile Include="..\..\..\external-libs\iniparser\src\iniparser.c" />
     <ClCompile Include="..\..\Utils\Basic\FileUtilWin.cpp" />
     <ClCompile Include="..\..\Utils\Basic\StrUtilWin.cpp" />
     <ClCompile Include="..\..\Utils\Ini\SimpleIni.cpp" />
@@ -104,8 +106,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\External\iniparser\src\dictionary.h" />
-    <ClInclude Include="..\..\External\iniparser\src\iniparser.h" />
+    <ClInclude Include="..\..\..\external-libs\iniparser\src\dictionary.h" />
+    <ClInclude Include="..\..\..\external-libs\iniparser\src\iniparser.h" />
     <ClInclude Include="..\..\Utils\Basic\FileUtil.h" />
     <ClInclude Include="..\..\Utils\Basic\StrUtil.h" />
     <ClInclude Include="..\..\Utils\Ini\SimpleIni.h" />

@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <fstream>
-#include "hdb_utils.h"
+#include "hdb/hdb_utils.h"
 #include "HotSquare.h"
 #include "SquareManager.h"
 

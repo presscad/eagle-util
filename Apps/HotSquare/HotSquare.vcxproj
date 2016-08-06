@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -28,6 +28,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -40,6 +41,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -83,7 +85,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>./;../../External/iniparser/src;../../Utils/DB/Hana</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./;../../../external-libs/iniparser/src;../../Utils</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -113,7 +115,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>./;../../External/iniparser/src;../../Utils/DB/Hana</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./;../../../external-libs/iniparser/src;../../Utils</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -141,12 +143,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\External\iniparser\src\dictionary.h" />
-    <ClInclude Include="..\..\External\iniparser\src\iniparser.h" />
-    <ClInclude Include="..\..\Utils\DB\Hana\hdb_columns.h" />
-    <ClInclude Include="..\..\Utils\DB\Hana\hdb_odbc.h" />
-    <ClInclude Include="..\..\Utils\DB\Hana\hdb_types.h" />
-    <ClInclude Include="..\..\Utils\DB\Hana\hdb_utils.h" />
+    <ClInclude Include="..\..\..\external-libs\iniparser\src\dictionary.h" />
+    <ClInclude Include="..\..\..\external-libs\iniparser\src\iniparser.h" />
+    <ClInclude Include="..\..\utils\common\common_utils.h" />
+    <ClInclude Include="..\..\utils\hdb\hdb_columns.h" />
+    <ClInclude Include="..\..\utils\hdb\hdb_odbc.h" />
+    <ClInclude Include="..\..\utils\hdb\hdb_types.h" />
+    <ClInclude Include="..\..\utils\hdb\hdb_utils.h" />
     <ClInclude Include="CsvExporter.h" />
     <ClInclude Include="HotSquare.h" />
     <ClInclude Include="SegManager.h" />
@@ -156,11 +159,12 @@
     <ClInclude Include="TileManager.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\External\iniparser\src\dictionary.c" />
-    <ClCompile Include="..\..\External\iniparser\src\iniparser.c" />
-    <ClCompile Include="..\..\Utils\DB\Hana\hdb_columns.cpp" />
-    <ClCompile Include="..\..\Utils\DB\Hana\hdb_odbc.cpp" />
-    <ClCompile Include="..\..\Utils\DB\Hana\hdb_utils.cpp" />
+    <ClCompile Include="..\..\..\external-libs\iniparser\src\dictionary.c" />
+    <ClCompile Include="..\..\..\external-libs\iniparser\src\iniparser.c" />
+    <ClCompile Include="..\..\utils\common\common_utils.cpp" />
+    <ClCompile Include="..\..\utils\hdb\hdb_columns.cpp" />
+    <ClCompile Include="..\..\utils\hdb\hdb_odbc.cpp" />
+    <ClCompile Include="..\..\utils\hdb\hdb_utils.cpp" />
     <ClCompile Include="CsvExporter.cpp" />
     <ClCompile Include="HotSquare.cpp" />
     <ClCompile Include="HotSquareUtils.cpp" />

@@ -7,7 +7,7 @@
 #include <io.h>
 #include <fstream>
 #include "HotSquare.h"
-#include "hdb_utils.h"
+#include "hdb/hdb_utils.h"
 
 using namespace std;
 
@@ -121,7 +121,7 @@ bool CreateDirNested(const char *pDir)
 
 void CsvLinePopulate(vector<string> &record, const string &line, char delimiter)
 {
-    hdb::CsvLinePopulate(record, line.c_str(), delimiter);
+    util::ParseCsvLine(record, line.c_str(), delimiter);
 }
 
 bool read_ini_int(dictionary *dict, const char*section, int &value) {

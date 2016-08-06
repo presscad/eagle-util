@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include <float.h>
+#include <unordered_set>
 #include "TileManager.h"
 #include "CsvExporter.h"
 
@@ -77,8 +78,8 @@ static inline void CheckUpdateTile(TILE_MAP_T &tileMap, const TILE_ID_T &tileId,
 }
 
 static inline void AddToSegsNoDuplicate(SegManager &mSegMgr, vector<SEGMENT_T *> &segs,
-    hash_set<SEG_ID_T> &segIdsSet) {
-    for (hash_set<SEG_ID_T>::iterator it = segIdsSet.begin(); it != segIdsSet.end(); it++) {
+    unordered_set<SEG_ID_T> &segIdsSet) {
+    for (unordered_set<SEG_ID_T>::iterator it = segIdsSet.begin(); it != segIdsSet.end(); it++) {
         const SEG_ID_T &segId = *it;
         bool found = false;
         for (int i = (int)segs.size() - 1; i >= 0; i--) {
@@ -118,7 +119,7 @@ static inline void UpdateTileForNeighborSegs(SegManager &mSegMgr, TILE_MAP_T &mT
     pTile->segsWithNeighbors.reserve(pTile->segIdsSet.size() * 3);
 
     // copy the segments into pTile->segsWithNeighbors
-	for (hash_set<SEG_ID_T>::iterator it = pTile->segIdsSet.begin(); it != pTile->segIdsSet.end(); it++) {
+	for (unordered_set<SEG_ID_T>::iterator it = pTile->segIdsSet.begin(); it != pTile->segIdsSet.end(); it++) {
         //pTile->segsWithNeighbors.push_back(*it);
         pTile->segsWithNeighbors.push_back((SEGMENT_T *)mSegMgr.GetSegByID(*it));
     }
