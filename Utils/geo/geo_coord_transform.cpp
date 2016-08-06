@@ -1,41 +1,42 @@
-#ifdef _WIN32
-#ifndef _CRT_SECURE_NO_WARNINGS
-#define _CRT_SECURE_NO_WARNINGS
-#endif
-#endif
 
 #define _USE_MATH_DEFINES
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 #include "geo_utils.h"
 
 
 using namespace std;
 
-namespace geo {
+GEO_BEGIN_NAMESPACE
+
+#ifndef M_PI
+#define M_PI    3.14159265358979323846
+#endif
+static const double X_PI = M_PI * 3000.0 / 180.0;
 
 //
 // GCJ-02 to BD-09
-// see http://blog.csdn.net/yorling/article/details/9175913
+// see http://blog.csdn.net/coolypf/article/details/8569813
 //
-void bd_encrypt(const double gg_lat, const double gg_lon, double &bd_lat, double &bd_lon)
+
+void bd_encrypt(double gg_lat, double gg_lon, double &bd_lat, double &bd_lon)
 {
     double x = gg_lon, y = gg_lat;
-    double z = sqrt(x * x + y * y) + 0.00002 * sin(y * M_PI);
-    double theta = atan2(y, x) + 0.000003 * cos(x * M_PI);
+    double z = sqrt(x * x + y * y) + 0.00002 * sin(y * X_PI);
+    double theta = atan2(y, x) + 0.000003 * cos(x * X_PI);
     bd_lon = z * cos(theta) + 0.0065;
     bd_lat = z * sin(theta) + 0.006;
 }
 
 //
 // BD-09 to GCJ-02 (Mars Geodetic System)
-// see http://blog.csdn.net/yorling/article/details/9175913
+// see http://blog.csdn.net/coolypf/article/details/8569813
 //
-void bd_decrypt(const double bd_lat, const double bd_lon, double &gg_lat, double &gg_lon)
+void bd_decrypt(double bd_lat, double bd_lon, double &gg_lat, double &gg_lon)
 {
     double x = bd_lon - 0.0065, y = bd_lat - 0.006;
-    double z = sqrt(x * x + y * y) - 0.00002 * sin(y * M_PI);
-    double theta = atan2(y, x) - 0.000003 * cos(x * M_PI);
+    double z = sqrt(x * x + y * y) - 0.00002 * sin(y * X_PI);
+    double theta = atan2(y, x) - 0.000003 * cos(x * X_PI);
     gg_lon = z * cos(theta);
     gg_lat = z * sin(theta);
 }
@@ -44,29 +45,28 @@ void bd_decrypt(const double bd_lat, const double bd_lon, double &gg_lat, double
 // BD-09 to WGS84
 // See http://blog.csdn.net/coolypf/article/details/8686588
 //
-void bd09_to_wgs84(const double bd_lat, const double bd_lng, double &lat, double &lng)
+void bd09_to_wgs84(double bd_lat, double bd_lng, double &lat, double &lng)
 {
     // BD09 to Mars
     double mars_lat, mars_lng;
     bd_decrypt(bd_lat, bd_lng, mars_lat, mars_lng);
 
     // Mars to WGS84
-    wgs84_to_mars(mars_lat, mars_lng, lat, lng);
-    lat = mars_lat - (lat - mars_lat);
-    lng = mars_lng - (lng - mars_lng);
+    mars_to_wgs84(mars_lat, mars_lng, lat, lng);
 }
 
 //
 // WGS84 to BD-09
 // See http://blog.csdn.net/coolypf/article/details/8686588
 //
-void wgs84_to_bd09(const double lat, const double lng, double &bd_lat, double &bd_lng)
+void wgs84_to_bd09(double lat, double lng, double &bd_lat, double &bd_lng)
 {
     double mars_lat, mars_lng;
     wgs84_to_mars(lat, lng, mars_lat, mars_lng);
     bd_encrypt(mars_lat, mars_lng, bd_lat, bd_lng);
 }
 
+#if 0
 static bool outOfChina(double lat, double lon)
 {
     if (lon < 72.004 || lon > 137.8347)
@@ -75,6 +75,7 @@ static bool outOfChina(double lat, double lon)
         return true;
     return false;
 }
+#endif
 
 static double transformLat(double x, double y)
 {
@@ -100,12 +101,13 @@ static double transformLon(double x, double y)
 //
 void wgs84_to_mars(double wgLat, double wgLon, double &mgLat, double &mgLon)
 {
+#if 0
     if (!is_inside_china(wgLat, wgLon)) {
         mgLat = wgLat;
         mgLon = wgLon;
         return;
     }
-
+#endif
     //
     // Krasovsky 1940
     //
@@ -127,4 +129,24 @@ void wgs84_to_mars(double wgLat, double wgLon, double &mgLat, double &mgLon)
     mgLon = wgLon + dLon;
 }
 
+void mars_to_wgs84(double mgLat, double mgLon, double &wgLat, double &wgLon, int loop_time)
+{
+    double lat_new, lng_new;
+
+    wgLat = mgLat;
+    wgLon = mgLon;
+    for (int i = 0; i < loop_time; ++i)
+    {
+        geo::wgs84_to_mars(wgLat, wgLon, lat_new, lng_new);
+        wgLat = mgLat - (lat_new - wgLat);
+        wgLon = mgLon - (lng_new - wgLon);
+    }
+
+    // no need to verify, after a couple of rounds, it is already very accurate
+#if 0
+    geo::wgs84_to_mars(wgLat, wgLon, lat_new, lng_new);
+    double distance = geo::distance_in_meter(lat_new, lng_new, mgLat, mgLon);
+#endif
 }
+
+GEO_END_NAMESPACE
