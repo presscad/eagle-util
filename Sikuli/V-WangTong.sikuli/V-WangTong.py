@@ -79,8 +79,26 @@ def startVWT(phoneNum):
         ok = logonVWT("", "518518")
 
 
-phoneNum = "13851814288"
-IMEI = "864394010761871"
-setNoxMEID(phoneNum, IMEI)
-startVWT(phoneNum)
-logoutVWT(False)
+#phoneNum = "13851814288"
+#IMEI = "864394010761871"
+#setNoxMEID(phoneNum, IMEI)
+#startVWT(phoneNum)
+#logoutVWT(False)
+
+
+import xlrd
+wb = xlrd.open_workbook(os.path.join(getBundlePath(), 'data\\tasks.xls'))
+sh = wb.sheet_by_index(0)
+for rownum in range(1, sh.nrows):
+    phoneNum = str(sh.row_values(rownum)[0])
+    if phoneNum.find('.') > 0:
+        phoneNum = phoneNum.split('.')[0]
+
+    IMEI = str(sh.row_values(rownum)[1])
+    done = str(sh.row_values(rownum)[2])
+    print '[',rownum,']:', 'phoneNum =', phoneNum, ', IMEI =', IMEI, ', done=', done
+
+    if done != '1':
+        setNoxMEID(phoneNum, IMEI)
+        startVWT(phoneNum)
+        logoutVWT(False)
