@@ -100,10 +100,11 @@
     <span class="skw">click</span>(r.<span class="skw">find</span>(<img src="close.png" />))
 
 <span class="kw">def</span> logonVWT(phoneNum, password):
-    r = <span class="skw">find</span>(<img src="vwt-accountLabel.png" />).right(<span class="dig">100</span>)
-    <span class="skw">doubleClick</span>(r)
-    <span class="skw">type</span>(Key.BACKSPACE)
-    <span class="skw">type</span>(r, phoneNum)
+    <span class="kw">if</span> phoneNum != <span class="str">""</span>:
+        r = <span class="skw">find</span>(<img src="vwt-accountLabel.png" />).right(<span class="dig">100</span>)
+        <span class="skw">doubleClick</span>(r)
+        <span class="skw">type</span>(Key.BACKSPACE)
+        <span class="skw">type</span>(r, phoneNum)
     r = <span class="skw">find</span>(<img src="vwt-passwordLabel.png" />).right(<span class="dig">80</span>)
     <span class="skw">doubleClick</span>(r)
     <span class="skw">type</span>(Key.BACKSPACE)
@@ -140,17 +141,17 @@
 
     ok = logonVWT(phoneNum, <span class="str">"123123"</span>)
     <span class="kw">if</span> <span class="kw">not</span> ok:
-        ok = logonVWT(phoneNum, <span class="str">"123321"</span>)
+        ok = logonVWT(<span class="str">""</span>, <span class="str">"123321"</span>)
     <span class="kw">if</span> <span class="kw">not</span> ok:
-        ok = logonVWT(phoneNum, <span class="str">"112233"</span>)
+        ok = logonVWT(<span class="str">""</span>, <span class="str">"112233"</span>)
     <span class="kw">if</span> <span class="kw">not</span> ok:
-        ok = logonVWT(phoneNum, <span class="str">"321321"</span>)
+        ok = logonVWT(<span class="str">""</span>, <span class="str">"321321"</span>)
     <span class="kw">if</span> <span class="kw">not</span> ok:
-        ok = logonVWT(phoneNum, <span class="str">"518518"</span>)
+        ok = logonVWT(<span class="str">""</span>, <span class="str">"518518"</span>)
 
 
 phoneNum = <span class="str">"13851814288"</span>
-IMEI = <span class="str">"864394010761872"</span>
+IMEI = <span class="str">"864394010761871"</span>
 setNoxMEID(phoneNum, IMEI)
 startVWT(phoneNum)
 logoutVWT(False)

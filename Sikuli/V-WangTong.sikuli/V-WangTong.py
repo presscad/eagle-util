@@ -29,10 +29,11 @@ def setNoxMEID(phoneNum, IMEI):
     click(r.find("close.png"))
 
 def logonVWT(phoneNum, password):
-    r = find("vwt-accountLabel.png").right(100)
-    doubleClick(r)
-    type(Key.BACKSPACE)
-    type(r, phoneNum)
+    if phoneNum != "":
+        r = find("vwt-accountLabel.png").right(100)
+        doubleClick(r)
+        type(Key.BACKSPACE)
+        type(r, phoneNum)
     r = find("vwt-passwordLabel.png").right(80)
     doubleClick(r)
     type(Key.BACKSPACE)
@@ -69,17 +70,17 @@ def startVWT(phoneNum):
 
     ok = logonVWT(phoneNum, "123123")
     if not ok:
-        ok = logonVWT(phoneNum, "123321")
+        ok = logonVWT("", "123321")
     if not ok:
-        ok = logonVWT(phoneNum, "112233")
+        ok = logonVWT("", "112233")
     if not ok:
-        ok = logonVWT(phoneNum, "321321")
+        ok = logonVWT("", "321321")
     if not ok:
-        ok = logonVWT(phoneNum, "518518")
+        ok = logonVWT("", "518518")
 
 
 phoneNum = "13851814288"
-IMEI = "864394010761872"
+IMEI = "864394010761871"
 setNoxMEID(phoneNum, IMEI)
 startVWT(phoneNum)
 logoutVWT(False)
