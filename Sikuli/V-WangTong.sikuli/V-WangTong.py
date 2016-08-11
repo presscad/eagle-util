@@ -40,10 +40,13 @@ def logonVWT(phoneNum, password):
     type(r, password)
     click("logonButton.png")
     waitVanish("v_is_working.png")
-    if exists("vwt-reenter-passwd.png"):
+    if exists("vwt-password-error.png"):
         click("vwt-close.png")
+        print "logonVWT(" + phoneNum + ", " + password + "), return False"
         return False
-    return True
+    else:
+        print "logonVWT(" + phoneNum + ", " + password + "), return True"
+        return True
 
 
 def logoutVWT(ready):
