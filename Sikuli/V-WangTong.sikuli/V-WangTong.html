@@ -110,7 +110,10 @@
     <span class="skw">type</span>(Key.BACKSPACE)
     <span class="skw">type</span>(r, password)
     <span class="skw">click</span>(<img src="logonButton.png" />)
+    <span class="cmt"># sometimes, the below message may appear too slowly, or stay for too long, need to wait vanish twice</span>
     waitVanish(<img src="v_is_working.png" />)
+    waitVanish(<img src="v_is_working.png" />)
+
     <span class="kw">if</span> exists(<img src="vwt-password-error.png" />):
         <span class="skw">click</span>(<img src="vwt-close.png" />)
         <span class="kw">print</span> <span class="str">"logonVWT("</span> + phoneNum + <span class="str">", "</span> + password + <span class="str">"), return False"</span>
@@ -151,13 +154,7 @@
         ok = logonVWT(<span class="str">""</span>, <span class="str">"321321"</span>)
     <span class="kw">if</span> <span class="kw">not</span> ok:
         ok = logonVWT(<span class="str">""</span>, <span class="str">"518518"</span>)
-
-
-<span class="cmt">#phoneNum = "13851814288"</span>
-<span class="cmt">#IMEI = "864394010761871"</span>
-<span class="cmt">#setNoxMEID(phoneNum, IMEI)</span>
-<span class="cmt">#startVWT(phoneNum)</span>
-<span class="cmt">#logoutVWT(False)</span>
+    <span class="kw">return</span> ok;
 
 
 <span class="kw">import</span> xlrd
@@ -174,7 +171,11 @@ sh = wb.sheet_by_index(<span class="dig">0</span>)
 
     <span class="kw">if</span> done != <span class="str">'1'</span>:
         setNoxMEID(phoneNum, IMEI)
-        startVWT(phoneNum)
+        ok = startVWT(phoneNum)
+        <span class="kw">if</span> <span class="kw">not</span> ok:
+            ok = startVWT(phoneNum)
+        <span class="cmt"># TODO: if ok: write to excel</span>
+
         logoutVWT(False)
 </pre>
 </body>

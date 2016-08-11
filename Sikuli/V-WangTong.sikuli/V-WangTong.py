@@ -39,7 +39,10 @@ def logonVWT(phoneNum, password):
     type(Key.BACKSPACE)
     type(r, password)
     click("logonButton.png")
+    # sometimes, the below message may appear too slowly, or stay for too long, need to wait vanish twice
     waitVanish("v_is_working.png")
+    waitVanish("v_is_working.png")
+
     if exists("vwt-password-error.png"):
         click("vwt-close.png")
         print "logonVWT(" + phoneNum + ", " + password + "), return False"
@@ -80,13 +83,7 @@ def startVWT(phoneNum):
         ok = logonVWT("", "321321")
     if not ok:
         ok = logonVWT("", "518518")
-
-
-#phoneNum = "13851814288"
-#IMEI = "864394010761871"
-#setNoxMEID(phoneNum, IMEI)
-#startVWT(phoneNum)
-#logoutVWT(False)
+    return ok;
 
 
 import xlrd
@@ -103,5 +100,9 @@ for rownum in range(1, sh.nrows):
 
     if done != '1':
         setNoxMEID(phoneNum, IMEI)
-        startVWT(phoneNum)
+        ok = startVWT(phoneNum)
+        if not ok:
+            ok = startVWT(phoneNum)
+        # TODO: if ok: write to excel
+
         logoutVWT(False)
