@@ -145,38 +145,48 @@
             <span class="kw">print</span> <span class="str">"logoutVWT(True)"</span>
             logoutVWT(True)
 
-    ok = logonVWT(phoneNum, <span class="str">"123123"</span>)
+    ok = logonVWT(<span class="str">""</span>, <span class="str">"518518"</span>)
+    <span class="kw">if</span> <span class="kw">not</span> ok:
+        ok = logonVWT(phoneNum, <span class="str">"123123"</span>)
     <span class="kw">if</span> <span class="kw">not</span> ok:
         ok = logonVWT(<span class="str">""</span>, <span class="str">"123321"</span>)
     <span class="kw">if</span> <span class="kw">not</span> ok:
         ok = logonVWT(<span class="str">""</span>, <span class="str">"112233"</span>)
     <span class="kw">if</span> <span class="kw">not</span> ok:
         ok = logonVWT(<span class="str">""</span>, <span class="str">"321321"</span>)
-    <span class="kw">if</span> <span class="kw">not</span> ok:
-        ok = logonVWT(<span class="str">""</span>, <span class="str">"518518"</span>)
     <span class="kw">return</span> ok;
 
+<span class="kw">def</span> main():
+    <span class="kw">import</span> xlrd
+    <span class="kw">from</span> xlutils.copy <span class="kw">import</span> copy
 
-<span class="kw">import</span> xlrd
-wb = xlrd.open_workbook(os.path.join(getBundlePath(), <span class="str">'data\\tasks.xls'</span>))
-sh = wb.sheet_by_index(<span class="dig">0</span>)
-<span class="kw">for</span> rownum <span class="kw">in</span> range(<span class="dig">1</span>, sh.nrows):
-    phoneNum = str(sh.row_values(rownum)[<span class="dig">0</span>])
-    <span class="kw">if</span> phoneNum.<span class="skw">find</span>(<span class="str">'.'</span>) &gt; <span class="dig">0</span>:
-        phoneNum = phoneNum.split(<span class="str">'.'</span>)[<span class="dig">0</span>]
+    rb = xlrd.open_workbook(os.path.join(getBundlePath(), <span class="str">'data\\tasks.xls'</span>))
+    rs = rb.sheet_by_index(<span class="dig">0</span>)
+    wb = copy(rb)
+    ws = wb.get_sheet(<span class="dig">0</span>)
 
-    IMEI = str(sh.row_values(rownum)[<span class="dig">1</span>])
-    done = str(sh.row_values(rownum)[<span class="dig">2</span>])
-    <span class="kw">print</span> <span class="str">'['</span>,rownum,<span class="str">']:'</span>, <span class="str">'phoneNum ='</span>, phoneNum, <span class="str">', IMEI ='</span>, IMEI, <span class="str">', done='</span>, done
+    <span class="kw">for</span> rownum <span class="kw">in</span> range(<span class="dig">1</span>, rs.nrows):
+        phoneNum = str(rs.row_values(rownum)[<span class="dig">0</span>])
+        <span class="kw">if</span> phoneNum.<span class="skw">find</span>(<span class="str">'.'</span>) &gt; <span class="dig">0</span>:
+            phoneNum = phoneNum.split(<span class="str">'.'</span>)[<span class="dig">0</span>]
+        <span class="kw">if</span> phoneNum == <span class="str">''</span>: <span class="kw">continue</span>
 
-    <span class="kw">if</span> done != <span class="str">'1'</span>:
-        setNoxMEID(phoneNum, IMEI)
-        ok = startVWT(phoneNum)
-        <span class="kw">if</span> <span class="kw">not</span> ok:
+        IMEI = str(rs.row_values(rownum)[<span class="dig">1</span>])
+        done = str(rs.row_values(rownum)[<span class="dig">2</span>])
+        <span class="kw">print</span> <span class="str">'['</span>,rownum,<span class="str">']:'</span>, <span class="str">'phoneNum ='</span>, phoneNum, <span class="str">', IMEI ='</span>, IMEI, <span class="str">', done='</span>, done
+
+        <span class="kw">if</span> done != <span class="str">'1'</span>:
+            setNoxMEID(phoneNum, IMEI)
             ok = startVWT(phoneNum)
-        <span class="cmt"># TODO: if ok: write to excel</span>
+            <span class="kw">if</span> <span class="kw">not</span> ok:
+                ok = startVWT(phoneNum)
+            logoutVWT(False)
+            <span class="kw">if</span> ok:
+                ws.write(rownum, <span class="dig">2</span>, <span class="str">'1'</span>)
 
-        logoutVWT(False)
+        wb.save(os.path.join(getBundlePath(), <span class="str">'data\\tasks.xls'</span>))
+
+main()
 </pre>
 </body>
 </html>

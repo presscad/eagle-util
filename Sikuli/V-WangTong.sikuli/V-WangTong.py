@@ -74,35 +74,45 @@ def startVWT(phoneNum):
             print "logoutVWT(True)"
             logoutVWT(True)
 
-    ok = logonVWT(phoneNum, "123123")
+    ok = logonVWT("", "518518")
+    if not ok:
+        ok = logonVWT(phoneNum, "123123")
     if not ok:
         ok = logonVWT("", "123321")
     if not ok:
         ok = logonVWT("", "112233")
     if not ok:
         ok = logonVWT("", "321321")
-    if not ok:
-        ok = logonVWT("", "518518")
     return ok;
 
-
-import xlrd
-wb = xlrd.open_workbook(os.path.join(getBundlePath(), 'data\\tasks.xls'))
-sh = wb.sheet_by_index(0)
-for rownum in range(1, sh.nrows):
-    phoneNum = str(sh.row_values(rownum)[0])
-    if phoneNum.find('.') > 0:
-        phoneNum = phoneNum.split('.')[0]
-
-    IMEI = str(sh.row_values(rownum)[1])
-    done = str(sh.row_values(rownum)[2])
-    print '[',rownum,']:', 'phoneNum =', phoneNum, ', IMEI =', IMEI, ', done=', done
-
-    if done != '1':
-        setNoxMEID(phoneNum, IMEI)
-        ok = startVWT(phoneNum)
-        if not ok:
+def main():
+    import xlrd
+    from xlutils.copy import copy
+    
+    rb = xlrd.open_workbook(os.path.join(getBundlePath(), 'data\\tasks.xls'))
+    rs = rb.sheet_by_index(0)
+    wb = copy(rb)
+    ws = wb.get_sheet(0)
+    
+    for rownum in range(1, rs.nrows):
+        phoneNum = str(rs.row_values(rownum)[0])
+        if phoneNum.find('.') > 0:
+            phoneNum = phoneNum.split('.')[0]
+        if phoneNum == '': continue
+    
+        IMEI = str(rs.row_values(rownum)[1])
+        done = str(rs.row_values(rownum)[2])
+        print '[',rownum,']:', 'phoneNum =', phoneNum, ', IMEI =', IMEI, ', done=', done
+    
+        if done != '1':
+            setNoxMEID(phoneNum, IMEI)
             ok = startVWT(phoneNum)
-        # TODO: if ok: write to excel
+            if not ok:
+                ok = startVWT(phoneNum)
+            logoutVWT(False)
+            if ok:
+                ws.write(rownum, 2, '1')
 
-        logoutVWT(False)
+        wb.save(os.path.join(getBundlePath(), 'data\\tasks.xls'))
+
+main()
