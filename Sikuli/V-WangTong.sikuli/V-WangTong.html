@@ -70,6 +70,8 @@
 <h2>V-WangTong.sikuli</h2> <a href="V-WangTong.zip">(Download this script)</a>
 </div>
 <pre class="sikuli-code">
+DEBUG = <span class="dig">0</span>
+
 <span class="kw">def</span> clearToMain():
     <span class="skw">click</span>(<img src="android-back.png" />)
     time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
@@ -166,6 +168,39 @@
     <span class="kw">return</span> ok;
 
 
+<span class="kw">def</span> YuQing(phoneNum):
+    setNoxMEID(phoneNum, <span class="str">""</span>)
+    ok = startVWT(phoneNum)
+    <span class="kw">if</span> <span class="kw">not</span> ok:
+        ok = startVWT(phoneNum)
+    <span class="kw">if</span> ok:
+        <span class="skw">click</span>(<img src="vwt-lower-work.png" />)
+        time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+        <span class="kw">if</span> exists(<img src="vwt-work-i-know-1.png" />):
+            <span class="skw">click</span>(<img src="vwt-work-i-know-1.png" />)
+            time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+            <span class="kw">if</span> exists(<img src="vwt-market-i-know-2.png" />): <span class="skw">click</span>(<img src="vwt-market-i-know-2.png" />)
+
+        <span class="skw">click</span>(<img src="vwt-work-qiyeyingyong.png" />)
+        <span class="skw">click</span>(<img src="vwt-qiye-yuqingfenxi.png" />)
+
+        <span class="kw">if</span> <span class="kw">not</span> exists(<img src="vwt-news-yuqing.png" />): time.<span class="skw">sleep</span>(<span class="dig">1</span>)
+        <span class="kw">if</span> <span class="kw">not</span> exists(<img src="vwt-news-yuqing.png" />): time.<span class="skw">sleep</span>(<span class="dig">1</span>)
+        <span class="skw">wait</span>(<img src="vwt-news-yuqing.png" />)
+        r = <span class="skw">find</span>(<img src="vwt-yuqing-all.png" />).below(<span class="dig">80</span>)
+        <span class="skw">click</span>(r)
+        <span class="skw">wait</span>(<img src="vwt-yuqing-details.png" />)
+
+        <span class="skw">click</span>(<img src="android-back.png" />)
+        time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+        <span class="skw">click</span>(<img src="android-back.png" />)
+        time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+        <span class="skw">click</span>(<img src="android-back.png" />)
+        time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+        <span class="skw">click</span>(<img src="vwt-meUnfocused.png" />)
+        logoutVWT(True)
+    <span class="kw">return</span> ok
+
 <span class="kw">def</span> main():
     <span class="kw">import</span> xlrd
     <span class="kw">from</span> xlutils.copy <span class="kw">import</span> copy
@@ -175,6 +210,7 @@
     wb = copy(rb)
     ws = wb.get_sheet(<span class="dig">0</span>)
 
+    exceptionCount = <span class="dig">0</span>;
     <span class="kw">for</span> rownum <span class="kw">in</span> range(<span class="dig">1</span>, rs.nrows):
         phoneNum = str(rs.row_values(rownum)[<span class="dig">0</span>])
         <span class="kw">if</span> phoneNum.<span class="skw">find</span>(<span class="str">'.'</span>) &gt; <span class="dig">0</span>:
@@ -185,44 +221,31 @@
         <span class="kw">print</span> <span class="str">'['</span>,rownum,<span class="str">']:'</span>, <span class="str">'phoneNum ='</span>, phoneNum, <span class="str">', done='</span>, done
 
         <span class="kw">if</span> done != <span class="str">'1'</span> <span class="kw">and</span> done != <span class="str">'2'</span>:
-            setNoxMEID(phoneNum, <span class="str">""</span>)
-            ok = startVWT(phoneNum)
-            <span class="kw">if</span> <span class="kw">not</span> ok:
-                ok = startVWT(phoneNum)
-            <span class="kw">if</span> ok:
-                <span class="skw">click</span>(<img src="vwt-lower-work.png" />)
-                time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
-                <span class="kw">if</span> exists(<img src="vwt-work-i-know-1.png" />):
-                    <span class="skw">click</span>(<img src="vwt-work-i-know-1.png" />)
-                    time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
-                    <span class="kw">if</span> exists(<img src="vwt-market-i-know-2.png" />): <span class="skw">click</span>(<img src="vwt-market-i-know-2.png" />)
-
-                <span class="skw">click</span>(<img src="vwt-work-qiyeyingyong.png" />)
-                <span class="skw">click</span>(<img src="vwt-qiye-yuqingfenxi.png" />)
-
-                <span class="kw">if</span> <span class="kw">not</span> exists(<img src="vwt-news-yuqing.png" />): time.<span class="skw">sleep</span>(<span class="dig">1</span>)
-                <span class="kw">if</span> <span class="kw">not</span> exists(<img src="vwt-news-yuqing.png" />): time.<span class="skw">sleep</span>(<span class="dig">1</span>)
-                <span class="skw">wait</span>(<img src="vwt-news-yuqing.png" />)
-                r = <span class="skw">find</span>(<img src="vwt-yuqing-all.png" />).below(<span class="dig">80</span>)
-                <span class="skw">click</span>(r)
-                <span class="skw">wait</span>(<img src="vwt-yuqing-details.png" />)
-
-                <span class="skw">click</span>(<img src="android-back.png" />)
-                time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
-                <span class="skw">click</span>(<img src="android-back.png" />)
-                time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
-                <span class="skw">click</span>(<img src="android-back.png" />)
-                time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
-                <span class="skw">click</span>(<img src="vwt-meUnfocused.png" />)
-                logoutVWT(True)
-
-            <span class="kw">if</span> ok:
-                ws.write(rownum, <span class="dig">1</span>, <span class="str">'1'</span>)
+            <span class="kw">if</span> DEBUG == <span class="dig">1</span>:
+                ok = YuQing(phoneNum)
+                exceptionCount = <span class="dig">0</span>
+                <span class="kw">if</span> ok:
+                    ws.write(rownum, <span class="dig">1</span>, <span class="str">'1'</span>)
+                <span class="kw">else</span>:
+                    <span class="cmt"># wrong password</span>
+                    ws.write(rownum, <span class="dig">1</span>, <span class="str">'2'</span>)
+                wb.save(os.path.join(getBundlePath(), <span class="str">'data\\tasks.xls'</span>))
             <span class="kw">else</span>:
-                <span class="cmt"># wrong password</span>
-                ws.write(rownum, <span class="dig">1</span>, <span class="str">'2'</span>)
+                <span class="kw">try</span>:
+                    ok = YuQing(phoneNum)
+                    exceptionCount = <span class="dig">0</span>
+                    <span class="kw">if</span> ok:
+                        ws.write(rownum, <span class="dig">1</span>, <span class="str">'1'</span>)
+                    <span class="kw">else</span>:
+                        <span class="cmt"># wrong password</span>
+                        ws.write(rownum, <span class="dig">1</span>, <span class="str">'2'</span>)
+                    wb.save(os.path.join(getBundlePath(), <span class="str">'data\\tasks.xls'</span>))
 
-        wb.save(os.path.join(getBundlePath(), <span class="str">'data\\tasks.xls'</span>))
+                <span class="kw">except</span> FindFailed:
+                    exceptionCount = exceptionCount + <span class="dig">1</span>
+                    <span class="kw">print</span> <span class="str">"exception FindFailed found, continuous count = "</span>, exceptionCount
+
+        <span class="kw">if</span> exceptionCount &gt; <span class="dig">3</span>: <span class="kw">break</span>
 
 main()
 </pre>

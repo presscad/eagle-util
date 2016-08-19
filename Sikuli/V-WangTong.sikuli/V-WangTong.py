@@ -1,3 +1,4 @@
+DEBUG = 0
 
 def clearToMain():
     click("android-back.png")
@@ -95,6 +96,39 @@ def startVWT(phoneNum):
     return ok;
 
 
+def YuQing(phoneNum):
+    setNoxMEID(phoneNum, "")
+    ok = startVWT(phoneNum)
+    if not ok:
+        ok = startVWT(phoneNum)
+    if ok:
+        click("vwt-lower-work.png")
+        time.sleep(0.5)
+        if exists("vwt-work-i-know-1.png"): 
+            click("vwt-work-i-know-1.png")
+            time.sleep(0.5)                
+            if exists("vwt-market-i-know-2.png"): click("vwt-market-i-know-2.png")
+
+        click("vwt-work-qiyeyingyong.png")
+        click("vwt-qiye-yuqingfenxi.png")
+    
+        if not exists("vwt-news-yuqing.png"): time.sleep(1)
+        if not exists("vwt-news-yuqing.png"): time.sleep(1)
+        wait("vwt-news-yuqing.png")
+        r = find("vwt-yuqing-all.png").below(80)
+        click(r)
+        wait("vwt-yuqing-details.png")
+
+        click("android-back.png")
+        time.sleep(0.5)
+        click("android-back.png")
+        time.sleep(0.5)
+        click("android-back.png")
+        time.sleep(0.5)
+        click("vwt-meUnfocused.png")
+        logoutVWT(True)
+    return ok
+
 def main():
     import xlrd
     from xlutils.copy import copy
@@ -104,6 +138,7 @@ def main():
     wb = copy(rb)
     ws = wb.get_sheet(0)
 
+    exceptionCount = 0;
     for rownum in range(1, rs.nrows):
         phoneNum = str(rs.row_values(rownum)[0])
         if phoneNum.find('.') > 0:
@@ -114,43 +149,30 @@ def main():
         print '[',rownum,']:', 'phoneNum =', phoneNum, ', done=', done
 
         if done != '1' and done != '2':
-            setNoxMEID(phoneNum, "")
-            ok = startVWT(phoneNum)
-            if not ok:
-                ok = startVWT(phoneNum)
-            if ok:
-                click("vwt-lower-work.png")
-                time.sleep(0.5)
-                if exists("vwt-work-i-know-1.png"): 
-                    click("vwt-work-i-know-1.png")
-                    time.sleep(0.5)                
-                    if exists("vwt-market-i-know-2.png"): click("vwt-market-i-know-2.png")
-
-                click("vwt-work-qiyeyingyong.png")
-                click("vwt-qiye-yuqingfenxi.png")
-                
-                if not exists("vwt-news-yuqing.png"): time.sleep(1)
-                if not exists("vwt-news-yuqing.png"): time.sleep(1)
-                wait("vwt-news-yuqing.png")
-                r = find("vwt-yuqing-all.png").below(80)
-                click(r)
-                wait("vwt-yuqing-details.png")
-
-                click("android-back.png")
-                time.sleep(0.5)
-                click("android-back.png")
-                time.sleep(0.5)
-                click("android-back.png")
-                time.sleep(0.5)
-                click("vwt-meUnfocused.png")
-                logoutVWT(True)
-
-            if ok:
-                ws.write(rownum, 1, '1')
+            if DEBUG == 1:
+                ok = YuQing(phoneNum)
+                exceptionCount = 0
+                if ok:
+                    ws.write(rownum, 1, '1')
+                else:
+                    # wrong password
+                    ws.write(rownum, 1, '2')
+                wb.save(os.path.join(getBundlePath(), 'data\\tasks.xls'))
             else:
-                # wrong password
-                ws.write(rownum, 1, '2')
+                try:
+                    ok = YuQing(phoneNum)
+                    exceptionCount = 0
+                    if ok:
+                        ws.write(rownum, 1, '1')
+                    else:
+                        # wrong password
+                        ws.write(rownum, 1, '2')
+                    wb.save(os.path.join(getBundlePath(), 'data\\tasks.xls'))
 
-        wb.save(os.path.join(getBundlePath(), 'data\\tasks.xls'))
+                except FindFailed:
+                    exceptionCount = exceptionCount + 1
+                    print "exception FindFailed found, continuous count = ", exceptionCount
+                
+        if exceptionCount > 3: break
 
 main()
