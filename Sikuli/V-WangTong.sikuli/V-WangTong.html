@@ -72,10 +72,16 @@
 <pre class="sikuli-code">
 <span class="kw">def</span> clearToMain():
     <span class="skw">click</span>(<img src="android-back.png" />)
+    time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+    <span class="skw">click</span>(<img src="android-back.png" />)
+    time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+    <span class="skw">click</span>(<img src="android-back.png" />)
     <span class="kw">while</span> (<span class="kw">not</span> exists(<img src="noxAppCenterIcon.png" />)):
         <span class="skw">click</span>(<img src="android-back.png" />)
+        time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+        <span class="skw">click</span>(<img src="android-back.png" />)
 
-
+<span class="cmt"># if IMEI is empty string, create one</span>
 <span class="kw">def</span> setNoxMEID(phoneNum, IMEI):
     clearToMain()
     <span class="skw">find</span>(<img src="nox-simulator.png" />)
@@ -88,10 +94,13 @@
     <span class="skw">type</span>(Key.BACKSPACE)
     <span class="skw">type</span>(r, phoneNum)
 
-    r = <span class="skw">find</span>(<img src="ImeiConfig.png" />).right(<span class="dig">100</span>)
-    <span class="skw">doubleClick</span>(r)
-    <span class="skw">type</span>(Key.BACKSPACE)
-    <span class="skw">type</span>(r, IMEI)
+    <span class="kw">if</span> <span class="str">""</span> != IMEI:
+        r = <span class="skw">find</span>(<img src="ImeiConfig.png" />).right(<span class="dig">100</span>)
+        <span class="skw">doubleClick</span>(r)
+        <span class="skw">type</span>(Key.BACKSPACE)
+        <span class="skw">type</span>(r, IMEI)
+    <span class="kw">else</span>:
+        <span class="skw">click</span>(<img src="sys-setting-imei-create.png" />)
 
     <span class="skw">click</span>(<img src="save-config.png" />)
     <span class="kw">if</span> exists(<img src="sysUpdateSuccess.png" />):
@@ -145,16 +154,17 @@
             <span class="kw">print</span> <span class="str">"logoutVWT(True)"</span>
             logoutVWT(True)
 
-    ok = logonVWT(<span class="str">""</span>, <span class="str">"518518"</span>)
-    <span class="kw">if</span> <span class="kw">not</span> ok:
-        ok = logonVWT(phoneNum, <span class="str">"123123"</span>)
+    ok = logonVWT(phoneNum, <span class="str">"123123"</span>)
     <span class="kw">if</span> <span class="kw">not</span> ok:
         ok = logonVWT(<span class="str">""</span>, <span class="str">"123321"</span>)
     <span class="kw">if</span> <span class="kw">not</span> ok:
-        ok = logonVWT(<span class="str">""</span>, <span class="str">"112233"</span>)
+        ok = logonVWT(<span class="str">""</span>, <span class="str">"518518"</span>)
     <span class="kw">if</span> <span class="kw">not</span> ok:
         ok = logonVWT(<span class="str">""</span>, <span class="str">"321321"</span>)
+    <span class="kw">if</span> <span class="kw">not</span> ok:
+        ok = logonVWT(<span class="str">""</span>, <span class="str">"112233"</span>)
     <span class="kw">return</span> ok;
+
 
 <span class="kw">def</span> main():
     <span class="kw">import</span> xlrd
@@ -171,18 +181,46 @@
             phoneNum = phoneNum.split(<span class="str">'.'</span>)[<span class="dig">0</span>]
         <span class="kw">if</span> phoneNum == <span class="str">''</span>: <span class="kw">continue</span>
 
-        IMEI = str(rs.row_values(rownum)[<span class="dig">1</span>])
-        done = str(rs.row_values(rownum)[<span class="dig">2</span>])
-        <span class="kw">print</span> <span class="str">'['</span>,rownum,<span class="str">']:'</span>, <span class="str">'phoneNum ='</span>, phoneNum, <span class="str">', IMEI ='</span>, IMEI, <span class="str">', done='</span>, done
+        done = str(rs.row_values(rownum)[<span class="dig">1</span>])
+        <span class="kw">print</span> <span class="str">'['</span>,rownum,<span class="str">']:'</span>, <span class="str">'phoneNum ='</span>, phoneNum, <span class="str">', done='</span>, done
 
-        <span class="kw">if</span> done != <span class="str">'1'</span>:
-            setNoxMEID(phoneNum, IMEI)
+        <span class="kw">if</span> done != <span class="str">'1'</span> <span class="kw">and</span> done != <span class="str">'2'</span>:
+            setNoxMEID(phoneNum, <span class="str">""</span>)
             ok = startVWT(phoneNum)
             <span class="kw">if</span> <span class="kw">not</span> ok:
                 ok = startVWT(phoneNum)
-            logoutVWT(False)
             <span class="kw">if</span> ok:
-                ws.write(rownum, <span class="dig">2</span>, <span class="str">'1'</span>)
+                <span class="skw">click</span>(<img src="vwt-lower-work.png" />)
+                time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+                <span class="kw">if</span> exists(<img src="vwt-work-i-know-1.png" />):
+                    <span class="skw">click</span>(<img src="vwt-work-i-know-1.png" />)
+                    time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+                    <span class="kw">if</span> exists(<img src="vwt-market-i-know-2.png" />): <span class="skw">click</span>(<img src="vwt-market-i-know-2.png" />)
+
+                <span class="skw">click</span>(<img src="vwt-work-qiyeyingyong.png" />)
+                <span class="skw">click</span>(<img src="vwt-qiye-yuqingfenxi.png" />)
+
+                <span class="kw">if</span> <span class="kw">not</span> exists(<img src="vwt-news-yuqing.png" />): time.<span class="skw">sleep</span>(<span class="dig">1</span>)
+                <span class="kw">if</span> <span class="kw">not</span> exists(<img src="vwt-news-yuqing.png" />): time.<span class="skw">sleep</span>(<span class="dig">1</span>)
+                <span class="skw">wait</span>(<img src="vwt-news-yuqing.png" />)
+                r = <span class="skw">find</span>(<img src="vwt-yuqing-all.png" />).below(<span class="dig">80</span>)
+                <span class="skw">click</span>(r)
+                <span class="skw">wait</span>(<img src="vwt-yuqing-details.png" />)
+
+                <span class="skw">click</span>(<img src="android-back.png" />)
+                time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+                <span class="skw">click</span>(<img src="android-back.png" />)
+                time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+                <span class="skw">click</span>(<img src="android-back.png" />)
+                time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+                <span class="skw">click</span>(<img src="vwt-meUnfocused.png" />)
+                logoutVWT(True)
+
+            <span class="kw">if</span> ok:
+                ws.write(rownum, <span class="dig">1</span>, <span class="str">'1'</span>)
+            <span class="kw">else</span>:
+                <span class="cmt"># wrong password</span>
+                ws.write(rownum, <span class="dig">1</span>, <span class="str">'2'</span>)
 
         wb.save(os.path.join(getBundlePath(), <span class="str">'data\\tasks.xls'</span>))
 

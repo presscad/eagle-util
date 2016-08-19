@@ -1,10 +1,16 @@
 
 def clearToMain():
     click("android-back.png")
+    time.sleep(0.5)
+    click("android-back.png")
+    time.sleep(0.5)
+    click("android-back.png")
     while (not exists("noxAppCenterIcon.png")):
         click("android-back.png")
+        time.sleep(0.5)
+        click("android-back.png")
 
-
+# if IMEI is empty string, create one
 def setNoxMEID(phoneNum, IMEI):
     clearToMain()
     find("nox-simulator.png")
@@ -17,10 +23,13 @@ def setNoxMEID(phoneNum, IMEI):
     type(Key.BACKSPACE)
     type(r, phoneNum)
 
-    r = find("ImeiConfig.png").right(100)
-    doubleClick(r)
-    type(Key.BACKSPACE)
-    type(r, IMEI)
+    if "" != IMEI:
+        r = find("ImeiConfig.png").right(100)
+        doubleClick(r)
+        type(Key.BACKSPACE)
+        type(r, IMEI)
+    else:
+        click("sys-setting-imei-create.png")
 
     click("save-config.png")
     if exists("sysUpdateSuccess.png"):
@@ -74,44 +83,73 @@ def startVWT(phoneNum):
             print "logoutVWT(True)"
             logoutVWT(True)
 
-    ok = logonVWT("", "518518")
-    if not ok:
-        ok = logonVWT(phoneNum, "123123")
+    ok = logonVWT(phoneNum, "123123")
     if not ok:
         ok = logonVWT("", "123321")
     if not ok:
-        ok = logonVWT("", "112233")
+        ok = logonVWT("", "518518")
     if not ok:
         ok = logonVWT("", "321321")
+    if not ok:
+        ok = logonVWT("", "112233")
     return ok;
+
 
 def main():
     import xlrd
     from xlutils.copy import copy
-    
+
     rb = xlrd.open_workbook(os.path.join(getBundlePath(), 'data\\tasks.xls'))
     rs = rb.sheet_by_index(0)
     wb = copy(rb)
     ws = wb.get_sheet(0)
-    
+
     for rownum in range(1, rs.nrows):
         phoneNum = str(rs.row_values(rownum)[0])
         if phoneNum.find('.') > 0:
             phoneNum = phoneNum.split('.')[0]
         if phoneNum == '': continue
     
-        IMEI = str(rs.row_values(rownum)[1])
-        done = str(rs.row_values(rownum)[2])
-        print '[',rownum,']:', 'phoneNum =', phoneNum, ', IMEI =', IMEI, ', done=', done
-    
-        if done != '1':
-            setNoxMEID(phoneNum, IMEI)
+        done = str(rs.row_values(rownum)[1])
+        print '[',rownum,']:', 'phoneNum =', phoneNum, ', done=', done
+
+        if done != '1' and done != '2':
+            setNoxMEID(phoneNum, "")
             ok = startVWT(phoneNum)
             if not ok:
                 ok = startVWT(phoneNum)
-            logoutVWT(False)
             if ok:
-                ws.write(rownum, 2, '1')
+                click("vwt-lower-work.png")
+                time.sleep(0.5)
+                if exists("vwt-work-i-know-1.png"): 
+                    click("vwt-work-i-know-1.png")
+                    time.sleep(0.5)                
+                    if exists("vwt-market-i-know-2.png"): click("vwt-market-i-know-2.png")
+
+                click("vwt-work-qiyeyingyong.png")
+                click("vwt-qiye-yuqingfenxi.png")
+                
+                if not exists("vwt-news-yuqing.png"): time.sleep(1)
+                if not exists("vwt-news-yuqing.png"): time.sleep(1)
+                wait("vwt-news-yuqing.png")
+                r = find("vwt-yuqing-all.png").below(80)
+                click(r)
+                wait("vwt-yuqing-details.png")
+
+                click("android-back.png")
+                time.sleep(0.5)
+                click("android-back.png")
+                time.sleep(0.5)
+                click("android-back.png")
+                time.sleep(0.5)
+                click("vwt-meUnfocused.png")
+                logoutVWT(True)
+
+            if ok:
+                ws.write(rownum, 1, '1')
+            else:
+                # wrong password
+                ws.write(rownum, 1, '2')
 
         wb.save(os.path.join(getBundlePath(), 'data\\tasks.xls'))
 
