@@ -2,8 +2,10 @@ DEBUG = 0
 
 def clearToMain():
     while (not exists("android-main-app-center.png")):
+        click("android-back.png")
+        time.sleep(0.1)
         click("android-show-main.png")
-        time.sleep(0.45)
+        time.sleep(0.4)
 
 # if IMEI is empty string, create one
 def setNoxMEID(phoneNum, IMEI):
@@ -72,6 +74,10 @@ def startVWT(phoneNum):
     clearToMain()
     click("android-main-vwt-icon.png")
     if not exists("vwt-log-account-pass.png"):
+        if exists("vwt-qiye-app-back-close.png"):
+            click("vwt-qiye-app-back-close.png")
+        if exists("vwt-qiye-app-back.png"):
+            click("vwt-qiye-app-back.png")
         if exists("vwt-bar-me.png"):
             click("vwt-bar-me.png")
         if exists("vwt-bar-me-focused.png"):
@@ -90,7 +96,7 @@ def startVWT(phoneNum):
     return ok;
 
 
-def VwtYuQing(phoneNum):
+def vwtYuQing(phoneNum):
     setNoxMEID(phoneNum, "")
     ok = startVWT(phoneNum)
     if not ok:
@@ -128,6 +134,16 @@ def VwtYuQing(phoneNum):
         time.sleep(0.4)
     return ok
 
+
+def restartAndroid():
+    clearToMain()
+    click("android-right-restart.png")
+    wait("nox-whether-restart.png")
+    click("nox-restart-confirm.png")
+    time.sleep(20)
+    clearToMain()
+
+
 def main():
     import xlrd
     from xlutils.copy import copy
@@ -149,7 +165,7 @@ def main():
 
         if done != '1' and done != '2':
             if DEBUG == 1:
-                ok = VwtYuQing(phoneNum)
+                ok = vwtYuQing(phoneNum)
                 exceptionCount = 0
                 if ok:
                     ws.write(rownum, 1, '1')
@@ -159,7 +175,7 @@ def main():
                 wb.save(os.path.join(getBundlePath(), 'data\\tasks.xls'))
             else:
                 try:
-                    ok = VwtYuQing(phoneNum)
+                    ok = vwtYuQing(phoneNum)
                     exceptionCount = 0
                     if ok:
                         ws.write(rownum, 1, '1')
@@ -172,6 +188,8 @@ def main():
                     exceptionCount = exceptionCount + 1
                     print "exception FindFailed found, continuous count = ", exceptionCount
 
-        if exceptionCount > 3: break
+        if exceptionCount >= 3:
+            restartAndroid()
+            exceptionCount = 0
 
 main()

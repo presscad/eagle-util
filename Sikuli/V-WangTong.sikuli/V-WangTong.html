@@ -74,8 +74,10 @@ DEBUG = <span class="dig">0</span>
 
 <span class="kw">def</span> clearToMain():
     <span class="kw">while</span> (<span class="kw">not</span> exists(<img src="android-main-app-center.png" />)):
+        <span class="skw">click</span>(<img src="android-back.png" />)
+        time.<span class="skw">sleep</span>(<span class="dig">0.1</span>)
         <span class="skw">click</span>(<img src="android-show-main.png" />)
-        time.<span class="skw">sleep</span>(<span class="dig">0.45</span>)
+        time.<span class="skw">sleep</span>(<span class="dig">0.4</span>)
 
 <span class="cmt"># if IMEI is empty string, create one</span>
 <span class="kw">def</span> setNoxMEID(phoneNum, IMEI):
@@ -144,6 +146,10 @@ DEBUG = <span class="dig">0</span>
     clearToMain()
     <span class="skw">click</span>(<img src="android-main-vwt-icon.png" />)
     <span class="kw">if</span> <span class="kw">not</span> exists(<img src="vwt-log-account-pass.png" />):
+        <span class="kw">if</span> exists(<img src="vwt-qiye-app-back-close.png" />):
+            <span class="skw">click</span>(<img src="vwt-qiye-app-back-close.png" />)
+        <span class="kw">if</span> exists(<img src="vwt-qiye-app-back.png" />):
+            <span class="skw">click</span>(<img src="vwt-qiye-app-back.png" />)
         <span class="kw">if</span> exists(<img src="vwt-bar-me.png" />):
             <span class="skw">click</span>(<img src="vwt-bar-me.png" />)
         <span class="kw">if</span> exists(<img src="vwt-bar-me-focused.png" />):
@@ -162,7 +168,7 @@ DEBUG = <span class="dig">0</span>
     <span class="kw">return</span> ok;
 
 
-<span class="kw">def</span> VwtYuQing(phoneNum):
+<span class="kw">def</span> vwtYuQing(phoneNum):
     setNoxMEID(phoneNum, <span class="str">""</span>)
     ok = startVWT(phoneNum)
     <span class="kw">if</span> <span class="kw">not</span> ok:
@@ -200,6 +206,16 @@ DEBUG = <span class="dig">0</span>
         time.<span class="skw">sleep</span>(<span class="dig">0.4</span>)
     <span class="kw">return</span> ok
 
+
+<span class="kw">def</span> restartAndroid():
+    clearToMain()
+    <span class="skw">click</span>(<img src="android-right-restart.png" />)
+    <span class="skw">wait</span>(<img src="nox-whether-restart.png" />)
+    <span class="skw">click</span>(<img src="nox-restart-confirm.png" />)
+    time.<span class="skw">sleep</span>(<span class="dig">20</span>)
+    clearToMain()
+
+
 <span class="kw">def</span> main():
     <span class="kw">import</span> xlrd
     <span class="kw">from</span> xlutils.copy <span class="kw">import</span> copy
@@ -221,7 +237,7 @@ DEBUG = <span class="dig">0</span>
 
         <span class="kw">if</span> done != <span class="str">'1'</span> <span class="kw">and</span> done != <span class="str">'2'</span>:
             <span class="kw">if</span> DEBUG == <span class="dig">1</span>:
-                ok = VwtYuQing(phoneNum)
+                ok = vwtYuQing(phoneNum)
                 exceptionCount = <span class="dig">0</span>
                 <span class="kw">if</span> ok:
                     ws.write(rownum, <span class="dig">1</span>, <span class="str">'1'</span>)
@@ -231,7 +247,7 @@ DEBUG = <span class="dig">0</span>
                 wb.save(os.path.join(getBundlePath(), <span class="str">'data\\tasks.xls'</span>))
             <span class="kw">else</span>:
                 <span class="kw">try</span>:
-                    ok = VwtYuQing(phoneNum)
+                    ok = vwtYuQing(phoneNum)
                     exceptionCount = <span class="dig">0</span>
                     <span class="kw">if</span> ok:
                         ws.write(rownum, <span class="dig">1</span>, <span class="str">'1'</span>)
@@ -244,7 +260,9 @@ DEBUG = <span class="dig">0</span>
                     exceptionCount = exceptionCount + <span class="dig">1</span>
                     <span class="kw">print</span> <span class="str">"exception FindFailed found, continuous count = "</span>, exceptionCount
 
-        <span class="kw">if</span> exceptionCount &gt; <span class="dig">3</span>: <span class="kw">break</span>
+        <span class="kw">if</span> exceptionCount &gt;= <span class="dig">3</span>:
+            restartAndroid()
+            exceptionCount = <span class="dig">0</span>
 
 main()
 </pre>
