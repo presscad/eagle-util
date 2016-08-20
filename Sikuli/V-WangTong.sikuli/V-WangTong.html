@@ -71,6 +71,7 @@
 </div>
 <pre class="sikuli-code">
 DEBUG = <span class="dig">0</span>
+APP = <span class="str">"Salary"</span>
 
 <span class="kw">def</span> clearToMain():
     <span class="kw">while</span> (<span class="kw">not</span> exists(<img src="android-main-app-center.png" />)):
@@ -174,6 +175,7 @@ DEBUG = <span class="dig">0</span>
     <span class="kw">if</span> <span class="kw">not</span> ok:
         ok = startVWT(phoneNum)
     <span class="kw">if</span> ok:
+        <span class="skw">wait</span>(<img src="vwt-bar-work.png" />)
         <span class="skw">click</span>(<img src="vwt-bar-work.png" />)
         time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
         <span class="kw">if</span> exists(<img src="vwt-work-i-see1.png" />):
@@ -207,22 +209,73 @@ DEBUG = <span class="dig">0</span>
     <span class="kw">return</span> ok
 
 
+
+<span class="kw">def</span> vwtSalary(phoneNum):
+    setNoxMEID(phoneNum, <span class="str">""</span>)
+    ok = startVWT(phoneNum)
+    <span class="kw">if</span> <span class="kw">not</span> ok:
+        ok = startVWT(phoneNum)
+    <span class="kw">if</span> ok:
+        time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+        <span class="skw">wait</span>(<img src="vwt-bar-work.png" />)
+        <span class="skw">click</span>(<img src="vwt-bar-work.png" />)
+        <span class="kw">for</span> x <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">1</span>):
+            <span class="kw">if</span> exists(<img src="vwt-bar-work.png" />):
+                <span class="skw">click</span>(<img src="vwt-bar-work.png" />)
+                time.<span class="skw">sleep</span>(<span class="dig">0.2</span>)
+            <span class="kw">else</span>:
+                <span class="kw">break</span>
+
+        <span class="kw">if</span> exists(<img src="vwt-work-i-see1.png" />):
+            <span class="skw">click</span>(<img src="vwt-work-i-see1.png" />)
+            time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+            <span class="kw">if</span> exists(<img src="vwt-work-i-see2.png" />): <span class="skw">click</span>(<img src="vwt-work-i-see2.png" />)
+
+        <span class="skw">click</span>(<img src="vwt-work-qiye-app.png" />)
+        <span class="skw">click</span>(<img src="vwt-app-bar-salary.png" />)
+
+        time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+        <span class="skw">wait</span>(<img src="vwt-app-slary-title.png" />)
+        <span class="skw">click</span>(<img src="vwt-app-mysalary.png" />)
+        <span class="skw">wait</span>(<img src="vwt-app-slary-auth-title.png" />)
+
+        r = <span class="skw">find</span>(<img src="vwt-salayapp-log-passwd.png" />)
+        <span class="skw">click</span>(r)
+        <span class="skw">type</span>(r, <span class="str">"123123"</span>)
+
+        <span class="skw">click</span>(<img src="vwt-salaryapp-logon-btn.png" />)
+        time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+        <span class="skw">click</span>(<img src="vwt-salaryapp-close.png" />)
+        <span class="skw">click</span>(<img src="android-back.png" />)
+        time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+        <span class="skw">click</span>(<img src="vwt-bar-me.png" />)
+        logoutVWT(True)
+        <span class="skw">click</span>(<img src="android-show-main.png" />)
+        time.<span class="skw">sleep</span>(<span class="dig">0.4</span>)
+    <span class="kw">return</span> ok
+
+<span class="kw">def</span> doTask(phoneNum):
+    <span class="kw">if</span> APP == <span class="str">"Salary"</span>:
+        <span class="kw">return</span> vwtSalary(phoneNum)
+    <span class="kw">else</span>:
+        <span class="kw">return</span> vwtYuQing(phoneNum)
+
 <span class="kw">def</span> restartAndroid():
     clearToMain()
     <span class="skw">click</span>(<img src="android-right-restart.png" />)
     <span class="skw">wait</span>(<img src="nox-whether-restart.png" />)
     <span class="skw">click</span>(<img src="nox-restart-confirm.png" />)
-    time.<span class="skw">sleep</span>(<span class="dig">20</span>)
+    time.<span class="skw">sleep</span>(<span class="dig">25</span>)
     clearToMain()
 
 
 <span class="kw">def</span> main():
     <span class="kw">import</span> xlrd
-    <span class="kw">from</span> xlutils.copy <span class="kw">import</span> copy
+    <span class="kw">import</span> xlutils.copy
 
     rb = xlrd.open_workbook(os.path.join(getBundlePath(), <span class="str">'data\\tasks.xls'</span>))
     rs = rb.sheet_by_index(<span class="dig">0</span>)
-    wb = copy(rb)
+    wb = xlutils.copy.copy(rb)
     ws = wb.get_sheet(<span class="dig">0</span>)
 
     exceptionCount = <span class="dig">0</span>;
@@ -237,7 +290,7 @@ DEBUG = <span class="dig">0</span>
 
         <span class="kw">if</span> done != <span class="str">'1'</span> <span class="kw">and</span> done != <span class="str">'2'</span>:
             <span class="kw">if</span> DEBUG == <span class="dig">1</span>:
-                ok = vwtYuQing(phoneNum)
+                ok = doTask(phoneNum)
                 exceptionCount = <span class="dig">0</span>
                 <span class="kw">if</span> ok:
                     ws.write(rownum, <span class="dig">1</span>, <span class="str">'1'</span>)
@@ -247,7 +300,7 @@ DEBUG = <span class="dig">0</span>
                 wb.save(os.path.join(getBundlePath(), <span class="str">'data\\tasks.xls'</span>))
             <span class="kw">else</span>:
                 <span class="kw">try</span>:
-                    ok = vwtYuQing(phoneNum)
+                    ok = doTask(phoneNum)
                     exceptionCount = <span class="dig">0</span>
                     <span class="kw">if</span> ok:
                         ws.write(rownum, <span class="dig">1</span>, <span class="str">'1'</span>)
@@ -263,7 +316,10 @@ DEBUG = <span class="dig">0</span>
         <span class="kw">if</span> exceptionCount &gt;= <span class="dig">3</span>:
             restartAndroid()
             exceptionCount = <span class="dig">0</span>
+    <span class="kw">return</span>
 
+main()
+main()
 main()
 </pre>
 </body>

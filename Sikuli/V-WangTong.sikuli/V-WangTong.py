@@ -1,4 +1,5 @@
 DEBUG = 0
+APP = "Salary"
 
 def clearToMain():
     while (not exists("android-main-app-center.png")):
@@ -102,6 +103,7 @@ def vwtYuQing(phoneNum):
     if not ok:
         ok = startVWT(phoneNum)
     if ok:
+        wait("vwt-bar-work.png")
         click("vwt-bar-work.png")
         time.sleep(0.5)
         if exists("vwt-work-i-see1.png"): 
@@ -135,22 +137,73 @@ def vwtYuQing(phoneNum):
     return ok
 
 
+
+def vwtSalary(phoneNum):
+    setNoxMEID(phoneNum, "")
+    ok = startVWT(phoneNum)
+    if not ok:
+        ok = startVWT(phoneNum)
+    if ok:
+        time.sleep(0.5)
+        wait("vwt-bar-work.png")
+        click("vwt-bar-work.png")
+        for x in range(0, 1):
+            if exists("vwt-bar-work.png"):
+                click("vwt-bar-work.png")
+                time.sleep(0.2)
+            else:
+                break
+        
+        if exists("vwt-work-i-see1.png"): 
+            click("vwt-work-i-see1.png")
+            time.sleep(0.5)                
+            if exists("vwt-work-i-see2.png"): click("vwt-work-i-see2.png")
+
+        click("vwt-work-qiye-app.png")
+        click("vwt-app-bar-salary.png")
+
+        time.sleep(0.5)
+        wait("vwt-app-slary-title.png")
+        click("vwt-app-mysalary.png")
+        wait("vwt-app-slary-auth-title.png")
+
+        r = find("vwt-salayapp-log-passwd.png")
+        click(r)
+        type(r, "123123")
+
+        click("vwt-salaryapp-logon-btn.png")
+        time.sleep(0.5)
+        click("vwt-salaryapp-close.png")
+        click("android-back.png")
+        time.sleep(0.5)
+        click("vwt-bar-me.png")
+        logoutVWT(True)
+        click("android-show-main.png")
+        time.sleep(0.4)
+    return ok
+
+def doTask(phoneNum):
+    if APP == "Salary":
+        return vwtSalary(phoneNum)
+    else:
+        return vwtYuQing(phoneNum)
+
 def restartAndroid():
     clearToMain()
     click("android-right-restart.png")
     wait("nox-whether-restart.png")
     click("nox-restart-confirm.png")
-    time.sleep(20)
+    time.sleep(25)
     clearToMain()
 
 
 def main():
     import xlrd
-    from xlutils.copy import copy
+    import xlutils.copy
 
     rb = xlrd.open_workbook(os.path.join(getBundlePath(), 'data\\tasks.xls'))
     rs = rb.sheet_by_index(0)
-    wb = copy(rb)
+    wb = xlutils.copy.copy(rb)
     ws = wb.get_sheet(0)
 
     exceptionCount = 0;
@@ -165,7 +218,7 @@ def main():
 
         if done != '1' and done != '2':
             if DEBUG == 1:
-                ok = vwtYuQing(phoneNum)
+                ok = doTask(phoneNum)
                 exceptionCount = 0
                 if ok:
                     ws.write(rownum, 1, '1')
@@ -175,7 +228,7 @@ def main():
                 wb.save(os.path.join(getBundlePath(), 'data\\tasks.xls'))
             else:
                 try:
-                    ok = vwtYuQing(phoneNum)
+                    ok = doTask(phoneNum)
                     exceptionCount = 0
                     if ok:
                         ws.write(rownum, 1, '1')
@@ -191,5 +244,8 @@ def main():
         if exceptionCount >= 3:
             restartAndroid()
             exceptionCount = 0
+    return
 
+main()
+main()
 main()
