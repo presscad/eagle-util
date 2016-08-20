@@ -1,9 +1,9 @@
 DEBUG = 0
 
 def clearToMain():
-    while (not exists("noxAppCenterIcon.png")):
+    while (not exists("android-main-app-center.png")):
         click("android-show-main.png")
-        time.sleep(0.5)
+        time.sleep(0.45)
 
 # if IMEI is empty string, create one
 def setNoxMEID(phoneNum, IMEI):
@@ -34,21 +34,21 @@ def setNoxMEID(phoneNum, IMEI):
 
 def logonVWT(phoneNum, password):
     if phoneNum != "":
-        r = find("vwt-accountLabel.png").right(100)
+        r = find("vwt-logon-account.png").right(100)
         doubleClick(r)
         type(Key.BACKSPACE)
         type(r, phoneNum)
-    r = find("vwt-passwordLabel.png").right(80)
+    r = find("vwt-logon-password.png").right(80)
     doubleClick(r)
     type(Key.BACKSPACE)
     type(r, password)
-    click("logonButton.png")
+    click("vwt-log-logon.png")
     # sometimes, the below message may appear too slowly, or stay for too long, need to wait vanish twice
-    waitVanish("v_is_working.png")
-    waitVanish("v_is_working.png")
+    waitVanish("vwt-v-is-working.png")
+    waitVanish("vwt-v-is-working.png")
 
-    if exists("vwt-password-error.png"):
-        click("vwt-close.png")
+    if exists("vwt-log-pass-error.png"):
+        click("vwt-pass-err-close.png")
         print "logonVWT(" + phoneNum + ", " + password + "), return False"
         return False
     else:
@@ -58,23 +58,23 @@ def logonVWT(phoneNum, password):
 
 def logoutVWT(ready):
     if not ready:
-        while (exists("vwt-back.png")):
+        while (exists("vwt-int-back.png")):
             click("android-back.png")
-        meButton1 = "vwt-meUnfocused.png"
+        meButton1 = "vwt-bar-me.png"
         if exists(meButton1):
             click(meButton1)
-    click("vwt-setup.png")
-    click("exit-logon.png")
-    click("quit-button.png")
+    click("vwt-me-setup.png")
+    click("vwt-setup-exit.png")
+    click("vwt-exit-exit.png")
 
 
 def startVWT(phoneNum):
     clearToMain()
-    click("v-wang-tong-icon.png")
-    if not exists("account-password.png"):
-        if exists("vwt-meUnfocused.png"):
-            click("vwt-meUnfocused.png")
-        if exists("vwt-meFocused.png"):
+    click("android-main-vwt-icon.png")
+    if not exists("vwt-log-account-pass.png"):
+        if exists("vwt-bar-me.png"):
+            click("vwt-bar-me.png")
+        if exists("vwt-bar-me-focused.png"):
             print "logoutVWT(True)"
             logoutVWT(True)
 
@@ -96,28 +96,33 @@ def VwtYuQing(phoneNum):
     if not ok:
         ok = startVWT(phoneNum)
     if ok:
-        click("vwt-lower-work.png")
+        click("vwt-bar-work.png")
         time.sleep(0.5)
-        if exists("vwt-work-i-know-1.png"): 
-            click("vwt-work-i-know-1.png")
+        if exists("vwt-work-i-see1.png"): 
+            click("vwt-work-i-see1.png")
             time.sleep(0.5)                
-            if exists("vwt-market-i-know-2.png"): click("vwt-market-i-know-2.png")
+            if exists("vwt-work-i-see2.png"): click("vwt-work-i-see2.png")
 
-        click("vwt-work-qiyeyingyong.png")
-        click("vwt-qiye-yuqingfenxi.png")
+        click("vwt-work-qiye-app.png")
+        click("vwt-qiye-yuqing-analysis.png")
     
-        if not exists("vwt-news-yuqing.png"): time.sleep(1)
-        if not exists("vwt-news-yuqing.png"): time.sleep(1)
-        wait("vwt-news-yuqing.png")
-        r = find("vwt-yuqing-all.png").below(80)
+        time.sleep(0.5)
+        if exists("vwt-yuqing-splash-skip.png"):
+            r = find("vwt-yuqing-splash-skip.png");
+            click(r)
+        if not exists("vwt-yuqing-news-yuqing.png"): time.sleep(0.5)
+        if not exists("vwt-yuqing-news-yuqing.png"): time.sleep(0.5)
+        if not exists("vwt-yuqing-news-yuqing.png"): time.sleep(0.5)
+        wait("vwt-yuqing-news-yuqing.png")
+        r = find("vwt-yuqing-news-all.png").below(80)
         click(r)
-        wait("vwt-yuqing-details.png")
+        wait("vwt-yuqing-news-details.png")
 
-        click("vwt-yuqing-close.png")
+        click("vwt-yuqing-news-close.png")
         time.sleep(0.5)
         click("android-back.png")
         time.sleep(0.5)
-        click("vwt-meUnfocused.png")
+        click("vwt-bar-me.png")
         logoutVWT(True)
         click("android-show-main.png")
         time.sleep(0.4)
@@ -144,7 +149,7 @@ def main():
 
         if done != '1' and done != '2':
             if DEBUG == 1:
-                ok = YuQing(phoneNum)
+                ok = VwtYuQing(phoneNum)
                 exceptionCount = 0
                 if ok:
                     ws.write(rownum, 1, '1')

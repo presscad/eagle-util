@@ -73,9 +73,9 @@
 DEBUG = <span class="dig">0</span>
 
 <span class="kw">def</span> clearToMain():
-    <span class="kw">while</span> (<span class="kw">not</span> exists(<img src="noxAppCenterIcon.png" />)):
+    <span class="kw">while</span> (<span class="kw">not</span> exists(<img src="android-main-app-center.png" />)):
         <span class="skw">click</span>(<img src="android-show-main.png" />)
-        time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+        time.<span class="skw">sleep</span>(<span class="dig">0.45</span>)
 
 <span class="cmt"># if IMEI is empty string, create one</span>
 <span class="kw">def</span> setNoxMEID(phoneNum, IMEI):
@@ -106,21 +106,21 @@ DEBUG = <span class="dig">0</span>
 
 <span class="kw">def</span> logonVWT(phoneNum, password):
     <span class="kw">if</span> phoneNum != <span class="str">""</span>:
-        r = <span class="skw">find</span>(<img src="vwt-accountLabel.png" />).right(<span class="dig">100</span>)
+        r = <span class="skw">find</span>(<img src="vwt-logon-account.png" />).right(<span class="dig">100</span>)
         <span class="skw">doubleClick</span>(r)
         <span class="skw">type</span>(Key.BACKSPACE)
         <span class="skw">type</span>(r, phoneNum)
-    r = <span class="skw">find</span>(<img src="vwt-passwordLabel.png" />).right(<span class="dig">80</span>)
+    r = <span class="skw">find</span>(<img src="vwt-logon-password.png" />).right(<span class="dig">80</span>)
     <span class="skw">doubleClick</span>(r)
     <span class="skw">type</span>(Key.BACKSPACE)
     <span class="skw">type</span>(r, password)
-    <span class="skw">click</span>(<img src="logonButton.png" />)
+    <span class="skw">click</span>(<img src="vwt-log-logon.png" />)
     <span class="cmt"># sometimes, the below message may appear too slowly, or stay for too long, need to wait vanish twice</span>
-    waitVanish(<img src="v_is_working.png" />)
-    waitVanish(<img src="v_is_working.png" />)
+    waitVanish(<img src="vwt-v-is-working.png" />)
+    waitVanish(<img src="vwt-v-is-working.png" />)
 
-    <span class="kw">if</span> exists(<img src="vwt-password-error.png" />):
-        <span class="skw">click</span>(<img src="vwt-close.png" />)
+    <span class="kw">if</span> exists(<img src="vwt-log-pass-error.png" />):
+        <span class="skw">click</span>(<img src="vwt-pass-err-close.png" />)
         <span class="kw">print</span> <span class="str">"logonVWT("</span> + phoneNum + <span class="str">", "</span> + password + <span class="str">"), return False"</span>
         <span class="kw">return</span> False
     <span class="kw">else</span>:
@@ -130,23 +130,23 @@ DEBUG = <span class="dig">0</span>
 
 <span class="kw">def</span> logoutVWT(ready):
     <span class="kw">if</span> <span class="kw">not</span> ready:
-        <span class="kw">while</span> (exists(<img src="vwt-back.png" />)):
+        <span class="kw">while</span> (exists(<img src="vwt-int-back.png" />)):
             <span class="skw">click</span>(<img src="android-back.png" />)
-        meButton1 = <img src="vwt-meUnfocused.png" />
+        meButton1 = <img src="vwt-bar-me.png" />
         <span class="kw">if</span> exists(meButton1):
             <span class="skw">click</span>(meButton1)
-    <span class="skw">click</span>(<img src="vwt-setup.png" />)
-    <span class="skw">click</span>(<img src="exit-logon.png" />)
-    <span class="skw">click</span>(<img src="quit-button.png" />)
+    <span class="skw">click</span>(<img src="vwt-me-setup.png" />)
+    <span class="skw">click</span>(<img src="vwt-setup-exit.png" />)
+    <span class="skw">click</span>(<img src="vwt-exit-exit.png" />)
 
 
 <span class="kw">def</span> startVWT(phoneNum):
     clearToMain()
-    <span class="skw">click</span>(<img src="v-wang-tong-icon.png" />)
-    <span class="kw">if</span> <span class="kw">not</span> exists(<img src="account-password.png" />):
-        <span class="kw">if</span> exists(<img src="vwt-meUnfocused.png" />):
-            <span class="skw">click</span>(<img src="vwt-meUnfocused.png" />)
-        <span class="kw">if</span> exists(<img src="vwt-meFocused.png" />):
+    <span class="skw">click</span>(<img src="android-main-vwt-icon.png" />)
+    <span class="kw">if</span> <span class="kw">not</span> exists(<img src="vwt-log-account-pass.png" />):
+        <span class="kw">if</span> exists(<img src="vwt-bar-me.png" />):
+            <span class="skw">click</span>(<img src="vwt-bar-me.png" />)
+        <span class="kw">if</span> exists(<img src="vwt-bar-me-focused.png" />):
             <span class="kw">print</span> <span class="str">"logoutVWT(True)"</span>
             logoutVWT(True)
 
@@ -168,28 +168,33 @@ DEBUG = <span class="dig">0</span>
     <span class="kw">if</span> <span class="kw">not</span> ok:
         ok = startVWT(phoneNum)
     <span class="kw">if</span> ok:
-        <span class="skw">click</span>(<img src="vwt-lower-work.png" />)
+        <span class="skw">click</span>(<img src="vwt-bar-work.png" />)
         time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
-        <span class="kw">if</span> exists(<img src="vwt-work-i-know-1.png" />):
-            <span class="skw">click</span>(<img src="vwt-work-i-know-1.png" />)
+        <span class="kw">if</span> exists(<img src="vwt-work-i-see1.png" />):
+            <span class="skw">click</span>(<img src="vwt-work-i-see1.png" />)
             time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
-            <span class="kw">if</span> exists(<img src="vwt-market-i-know-2.png" />): <span class="skw">click</span>(<img src="vwt-market-i-know-2.png" />)
+            <span class="kw">if</span> exists(<img src="vwt-work-i-see2.png" />): <span class="skw">click</span>(<img src="vwt-work-i-see2.png" />)
 
-        <span class="skw">click</span>(<img src="vwt-work-qiyeyingyong.png" />)
-        <span class="skw">click</span>(<img src="vwt-qiye-yuqingfenxi.png" />)
+        <span class="skw">click</span>(<img src="vwt-work-qiye-app.png" />)
+        <span class="skw">click</span>(<img src="vwt-qiye-yuqing-analysis.png" />)
 
-        <span class="kw">if</span> <span class="kw">not</span> exists(<img src="vwt-news-yuqing.png" />): time.<span class="skw">sleep</span>(<span class="dig">1</span>)
-        <span class="kw">if</span> <span class="kw">not</span> exists(<img src="vwt-news-yuqing.png" />): time.<span class="skw">sleep</span>(<span class="dig">1</span>)
-        <span class="skw">wait</span>(<img src="vwt-news-yuqing.png" />)
-        r = <span class="skw">find</span>(<img src="vwt-yuqing-all.png" />).below(<span class="dig">80</span>)
+        time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+        <span class="kw">if</span> exists(<img src="vwt-yuqing-splash-skip.png" />):
+            r = <span class="skw">find</span>(<img src="vwt-yuqing-splash-skip.png" />);
+            <span class="skw">click</span>(r)
+        <span class="kw">if</span> <span class="kw">not</span> exists(<img src="vwt-yuqing-news-yuqing.png" />): time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+        <span class="kw">if</span> <span class="kw">not</span> exists(<img src="vwt-yuqing-news-yuqing.png" />): time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+        <span class="kw">if</span> <span class="kw">not</span> exists(<img src="vwt-yuqing-news-yuqing.png" />): time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+        <span class="skw">wait</span>(<img src="vwt-yuqing-news-yuqing.png" />)
+        r = <span class="skw">find</span>(<img src="vwt-yuqing-news-all.png" />).below(<span class="dig">80</span>)
         <span class="skw">click</span>(r)
-        <span class="skw">wait</span>(<img src="vwt-yuqing-details.png" />)
+        <span class="skw">wait</span>(<img src="vwt-yuqing-news-details.png" />)
 
-        <span class="skw">click</span>(<img src="vwt-yuqing-close.png" />)
+        <span class="skw">click</span>(<img src="vwt-yuqing-news-close.png" />)
         time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
         <span class="skw">click</span>(<img src="android-back.png" />)
         time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
-        <span class="skw">click</span>(<img src="vwt-meUnfocused.png" />)
+        <span class="skw">click</span>(<img src="vwt-bar-me.png" />)
         logoutVWT(True)
         <span class="skw">click</span>(<img src="android-show-main.png" />)
         time.<span class="skw">sleep</span>(<span class="dig">0.4</span>)
@@ -216,7 +221,7 @@ DEBUG = <span class="dig">0</span>
 
         <span class="kw">if</span> done != <span class="str">'1'</span> <span class="kw">and</span> done != <span class="str">'2'</span>:
             <span class="kw">if</span> DEBUG == <span class="dig">1</span>:
-                ok = YuQing(phoneNum)
+                ok = VwtYuQing(phoneNum)
                 exceptionCount = <span class="dig">0</span>
                 <span class="kw">if</span> ok:
                     ws.write(rownum, <span class="dig">1</span>, <span class="str">'1'</span>)
