@@ -73,15 +73,9 @@
 DEBUG = <span class="dig">0</span>
 
 <span class="kw">def</span> clearToMain():
-    <span class="skw">click</span>(<img src="android-back.png" />)
-    time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
-    <span class="skw">click</span>(<img src="android-back.png" />)
-    time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
-    <span class="skw">click</span>(<img src="android-back.png" />)
     <span class="kw">while</span> (<span class="kw">not</span> exists(<img src="noxAppCenterIcon.png" />)):
-        <span class="skw">click</span>(<img src="android-back.png" />)
+        <span class="skw">click</span>(<img src="android-show-main.png" />)
         time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
-        <span class="skw">click</span>(<img src="android-back.png" />)
 
 <span class="cmt"># if IMEI is empty string, create one</span>
 <span class="kw">def</span> setNoxMEID(phoneNum, IMEI):
@@ -168,7 +162,7 @@ DEBUG = <span class="dig">0</span>
     <span class="kw">return</span> ok;
 
 
-<span class="kw">def</span> YuQing(phoneNum):
+<span class="kw">def</span> VwtYuQing(phoneNum):
     setNoxMEID(phoneNum, <span class="str">""</span>)
     ok = startVWT(phoneNum)
     <span class="kw">if</span> <span class="kw">not</span> ok:
@@ -191,14 +185,14 @@ DEBUG = <span class="dig">0</span>
         <span class="skw">click</span>(r)
         <span class="skw">wait</span>(<img src="vwt-yuqing-details.png" />)
 
-        <span class="skw">click</span>(<img src="android-back.png" />)
-        time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
-        <span class="skw">click</span>(<img src="android-back.png" />)
+        <span class="skw">click</span>(<img src="vwt-yuqing-close.png" />)
         time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
         <span class="skw">click</span>(<img src="android-back.png" />)
         time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
         <span class="skw">click</span>(<img src="vwt-meUnfocused.png" />)
         logoutVWT(True)
+        <span class="skw">click</span>(<img src="android-show-main.png" />)
+        time.<span class="skw">sleep</span>(<span class="dig">0.4</span>)
     <span class="kw">return</span> ok
 
 <span class="kw">def</span> main():
@@ -232,7 +226,7 @@ DEBUG = <span class="dig">0</span>
                 wb.save(os.path.join(getBundlePath(), <span class="str">'data\\tasks.xls'</span>))
             <span class="kw">else</span>:
                 <span class="kw">try</span>:
-                    ok = YuQing(phoneNum)
+                    ok = VwtYuQing(phoneNum)
                     exceptionCount = <span class="dig">0</span>
                     <span class="kw">if</span> ok:
                         ws.write(rownum, <span class="dig">1</span>, <span class="str">'1'</span>)

@@ -1,15 +1,9 @@
 DEBUG = 0
 
 def clearToMain():
-    click("android-back.png")
-    time.sleep(0.5)
-    click("android-back.png")
-    time.sleep(0.5)
-    click("android-back.png")
     while (not exists("noxAppCenterIcon.png")):
-        click("android-back.png")
+        click("android-show-main.png")
         time.sleep(0.5)
-        click("android-back.png")
 
 # if IMEI is empty string, create one
 def setNoxMEID(phoneNum, IMEI):
@@ -96,7 +90,7 @@ def startVWT(phoneNum):
     return ok;
 
 
-def YuQing(phoneNum):
+def VwtYuQing(phoneNum):
     setNoxMEID(phoneNum, "")
     ok = startVWT(phoneNum)
     if not ok:
@@ -119,14 +113,14 @@ def YuQing(phoneNum):
         click(r)
         wait("vwt-yuqing-details.png")
 
-        click("android-back.png")
-        time.sleep(0.5)
-        click("android-back.png")
+        click("vwt-yuqing-close.png")
         time.sleep(0.5)
         click("android-back.png")
         time.sleep(0.5)
         click("vwt-meUnfocused.png")
         logoutVWT(True)
+        click("android-show-main.png")
+        time.sleep(0.4)
     return ok
 
 def main():
@@ -144,7 +138,7 @@ def main():
         if phoneNum.find('.') > 0:
             phoneNum = phoneNum.split('.')[0]
         if phoneNum == '': continue
-    
+
         done = str(rs.row_values(rownum)[1])
         print '[',rownum,']:', 'phoneNum =', phoneNum, ', done=', done
 
@@ -160,7 +154,7 @@ def main():
                 wb.save(os.path.join(getBundlePath(), 'data\\tasks.xls'))
             else:
                 try:
-                    ok = YuQing(phoneNum)
+                    ok = VwtYuQing(phoneNum)
                     exceptionCount = 0
                     if ok:
                         ws.write(rownum, 1, '1')
@@ -172,7 +166,7 @@ def main():
                 except FindFailed:
                     exceptionCount = exceptionCount + 1
                     print "exception FindFailed found, continuous count = ", exceptionCount
-                
+
         if exceptionCount > 3: break
 
 main()
