@@ -1,5 +1,5 @@
 DEBUG = 0
-APP = "Salary"
+APP = "YuQing" # "Salary"
 
 def clearToMain():
     while (not exists("android-main-app-center.png")):
@@ -85,102 +85,109 @@ def startVWT(phoneNum):
             print "logoutVWT(True)"
             logoutVWT(True)
 
-    ok = logonVWT(phoneNum, "123123")
-    if not ok:
-        ok = logonVWT("", "123321")
-    if not ok:
-        ok = logonVWT("", "518518")
-    if not ok:
-        ok = logonVWT("", "321321")
-    if not ok:
-        ok = logonVWT("", "112233")
+    ok = logonVWT(phoneNum, "518518")
+    #if not ok: ok = logonVWT("", "112233")
+
     return ok;
 
-
+# return '1': success
+# return '2': wrong VWT password
 def vwtYuQing(phoneNum):
     setNoxMEID(phoneNum, "")
     ok = startVWT(phoneNum)
-    if not ok:
-        ok = startVWT(phoneNum)
-    if ok:
-        wait("vwt-bar-work.png")
-        click("vwt-bar-work.png")
-        time.sleep(0.5)
-        if exists("vwt-work-i-see1.png"): 
-            click("vwt-work-i-see1.png")
-            time.sleep(0.5)                
-            if exists("vwt-work-i-see2.png"): click("vwt-work-i-see2.png")
+    if not ok: return '2'
 
-        click("vwt-work-qiye-app.png")
-        click("vwt-qiye-yuqing-analysis.png")
-    
-        time.sleep(0.5)
-        if exists("vwt-yuqing-splash-skip.png"):
-            r = find("vwt-yuqing-splash-skip.png");
-            click(r)
-        if not exists("vwt-yuqing-news-yuqing.png"): time.sleep(0.5)
-        if not exists("vwt-yuqing-news-yuqing.png"): time.sleep(0.5)
-        if not exists("vwt-yuqing-news-yuqing.png"): time.sleep(0.5)
-        wait("vwt-yuqing-news-yuqing.png")
-        r = find("vwt-yuqing-news-all.png").below(80)
+    wait("vwt-bar-work.png")
+    click("vwt-bar-work.png")
+    time.sleep(0.5)
+    if exists("vwt-work-i-see1.png"): 
+        click("vwt-work-i-see1.png")
+        time.sleep(0.5)                
+        if exists("vwt-work-i-see2.png"): click("vwt-work-i-see2.png")
+
+    click("vwt-work-qiye-app.png")
+    click("vwt-qiye-yuqing-analysis.png")
+
+    time.sleep(0.5)
+    if exists("vwt-yuqing-splash-skip.png"):
+        r = find("vwt-yuqing-splash-skip.png");
         click(r)
-        wait("vwt-yuqing-news-details.png")
+    if not exists("vwt-yuqing-news-yuqing.png"): time.sleep(0.5)
+    if not exists("vwt-yuqing-news-yuqing.png"): time.sleep(0.5)
+    if not exists("vwt-yuqing-news-yuqing.png"): time.sleep(0.5)
+    wait("vwt-yuqing-news-yuqing.png")
+    r = find("vwt-yuqing-news-all.png").below(80)
+    click(r)
+    wait("vwt-yuqing-news-details.png")
 
-        click("vwt-yuqing-news-close.png")
-        time.sleep(0.5)
-        click("android-back.png")
-        time.sleep(0.5)
-        click("vwt-bar-me.png")
-        logoutVWT(True)
-        click("android-show-main.png")
-        time.sleep(0.4)
-    return ok
+    click("vwt-yuqing-news-close.png")
+    time.sleep(0.5)
+    click("android-back.png")
+    time.sleep(0.5)
+    click("vwt-bar-me.png")
+    logoutVWT(True)
+    click("android-show-main.png")
+    time.sleep(0.3)
+
+    return '1'
 
 
-
+# return '1': success
+# return '2': wrong VWT password
+# return '3': not Salary App user
 def vwtSalary(phoneNum):
     setNoxMEID(phoneNum, "")
     ok = startVWT(phoneNum)
     if not ok:
-        ok = startVWT(phoneNum)
-    if ok:
-        time.sleep(0.5)
-        wait("vwt-bar-work.png")
-        click("vwt-bar-work.png")
-        for x in range(0, 1):
-            if exists("vwt-bar-work.png"):
-                click("vwt-bar-work.png")
-                time.sleep(0.2)
-            else:
-                break
-        
-        if exists("vwt-work-i-see1.png"): 
-            click("vwt-work-i-see1.png")
-            time.sleep(0.5)                
-            if exists("vwt-work-i-see2.png"): click("vwt-work-i-see2.png")
+        return '2'
 
-        click("vwt-work-qiye-app.png")
-        click("vwt-app-bar-salary.png")
+    time.sleep(1)
+    wait("vwt-bar-work.png")
+    click("vwt-bar-work.png")
+    for x in range(0, 1):
+        if exists("vwt-bar-work.png"):
+            click("vwt-bar-work.png")
+            time.sleep(0.4)
+        else:
+            break
 
-        time.sleep(0.5)
-        wait("vwt-app-slary-title.png")
-        click("vwt-app-mysalary.png")
+    if exists("vwt-work-i-see1.png"): 
+        click("vwt-work-i-see1.png")
+        time.sleep(0.5)                
+        if exists("vwt-work-i-see2.png"): click("vwt-work-i-see2.png")
+
+    click("vwt-work-qiye-app.png")
+    click("vwt-app-bar-salary.png")
+
+    time.sleep(0.5)
+    wait("vwt-app-slary-title.png")
+    click("vwt-app-mysalary.png")
+    time.sleep(0.8)
+
+    ret = '1'
+    if exists("vwt-salaryapp-not-user.png"):
+        ret = '3'
+        click("vwt-salaryapp-not-user-close.png")
+    else:
         wait("vwt-app-slary-auth-title.png")
-
+    
         r = find("vwt-salayapp-log-passwd.png")
         click(r)
         type(r, "123123")
-
+    
         click("vwt-salaryapp-logon-btn.png")
         time.sleep(0.5)
-        click("vwt-salaryapp-close.png")
-        click("android-back.png")
-        time.sleep(0.5)
-        click("vwt-bar-me.png")
-        logoutVWT(True)
-        click("android-show-main.png")
-        time.sleep(0.4)
-    return ok
+        wait("vwt-salaryapp-my-salary-title.png")
+
+
+    click("vwt-salaryapp-close.png")
+    click("android-back.png")
+    time.sleep(0.5)
+    click("vwt-bar-me.png")
+    logoutVWT(True)
+    click("android-show-main.png")
+    time.sleep(0.4)
+    return ret;
 
 def doTask(phoneNum):
     if APP == "Salary":
@@ -216,25 +223,17 @@ def main():
         done = str(rs.row_values(rownum)[1])
         print '[',rownum,']:', 'phoneNum =', phoneNum, ', done=', done
 
-        if done != '1' and done != '2':
+        if done == '':
             if DEBUG == 1:
-                ok = doTask(phoneNum)
+                ret = doTask(phoneNum)
                 exceptionCount = 0
-                if ok:
-                    ws.write(rownum, 1, '1')
-                else:
-                    # wrong password
-                    ws.write(rownum, 1, '2')
+                ws.write(rownum, 1, ret)
                 wb.save(os.path.join(getBundlePath(), 'data\\tasks.xls'))
             else:
                 try:
-                    ok = doTask(phoneNum)
+                    ret = doTask(phoneNum)
                     exceptionCount = 0
-                    if ok:
-                        ws.write(rownum, 1, '1')
-                    else:
-                        # wrong password
-                        ws.write(rownum, 1, '2')
+                    ws.write(rownum, 1, ret)
                     wb.save(os.path.join(getBundlePath(), 'data\\tasks.xls'))
 
                 except FindFailed:
