@@ -71,7 +71,8 @@
 </div>
 <pre class="sikuli-code">
 DEBUG = <span class="dig">0</span>
-APP = <span class="str">"YuQing"</span> <span class="cmt"># "Salary"</span>
+<span class="cmt">#APP = "Salary"</span>
+APP = <span class="str">"YuQing"</span>
 
 <span class="kw">def</span> clearToMain():
     <span class="kw">while</span> (<span class="kw">not</span> exists(<img src="android-main-app-center.png" />)):
@@ -79,6 +80,7 @@ APP = <span class="str">"YuQing"</span> <span class="cmt"># "Salary"</span>
         time.<span class="skw">sleep</span>(<span class="dig">0.1</span>)
         <span class="skw">click</span>(<img src="android-show-main.png" />)
         time.<span class="skw">sleep</span>(<span class="dig">0.4</span>)
+
 
 <span class="cmt"># if IMEI is empty string, create one</span>
 <span class="kw">def</span> setNoxMEID(phoneNum, IMEI):
@@ -122,7 +124,7 @@ APP = <span class="str">"YuQing"</span> <span class="cmt"># "Salary"</span>
     waitVanish(<img src="vwt-v-is-working.png" />)
     waitVanish(<img src="vwt-v-is-working.png" />)
 
-    <span class="kw">if</span> exists(<img src="vwt-log-pass-error.png" />):
+    <span class="kw">if</span> exists(<img src="vwt-log-prompt.png" />):
         <span class="skw">click</span>(<img src="vwt-pass-err-close.png" />)
         <span class="kw">print</span> <span class="str">"logonVWT("</span> + phoneNum + <span class="str">", "</span> + password + <span class="str">"), return False"</span>
         <span class="kw">return</span> False
@@ -148,7 +150,7 @@ APP = <span class="str">"YuQing"</span> <span class="cmt"># "Salary"</span>
     <span class="skw">click</span>(<img src="android-main-vwt-icon.png" />)
     <span class="kw">if</span> <span class="kw">not</span> exists(<img src="vwt-log-account-pass.png" />):
         <span class="kw">if</span> exists(<img src="vwt-qiye-app-back-close.png" />):
-            <span class="skw">click</span>(<img src="vwt-qiye-app-back-close.png" />)
+            <span class="skw">click</span>(<span class="skw">find</span>(<img src="vwt-qiye-app-back-close.png" />).right(<span class="dig">8</span>))
         <span class="kw">if</span> exists(<img src="vwt-qiye-app-back.png" />):
             <span class="skw">click</span>(<img src="vwt-qiye-app-back.png" />)
         <span class="kw">if</span> exists(<img src="vwt-bar-me.png" />):
@@ -157,17 +159,20 @@ APP = <span class="str">"YuQing"</span> <span class="cmt"># "Salary"</span>
             <span class="kw">print</span> <span class="str">"logoutVWT(True)"</span>
             logoutVWT(True)
 
-    ok = logonVWT(phoneNum, <span class="str">"518518"</span>)
-    <span class="cmt">#if not ok: ok = logonVWT("", "112233")</span>
+    ok = logonVWT(phoneNum, <span class="str">"123321"</span>)
+    <span class="kw">if</span> <span class="kw">not</span> ok: ok = logonVWT(<span class="str">""</span>, <span class="str">"123456"</span>)
+    <span class="kw">if</span> <span class="kw">not</span> ok: ok = logonVWT(<span class="str">""</span>, <span class="str">"123123"</span>)
 
     <span class="kw">return</span> ok;
 
-<span class="cmt"># return '1': success</span>
-<span class="cmt"># return '2': wrong VWT password</span>
-<span class="kw">def</span> vwtYuQing(phoneNum):
-    setNoxMEID(phoneNum, <span class="str">""</span>)
+
+<span class="cmt"># return value see vwtSalary</span>
+<span class="kw">def</span> vwtYuQing(phoneNum, changeMeid):
+    <span class="kw">if</span> changeMeid:
+        setNoxMEID(phoneNum, <span class="str">""</span>)
+
     ok = startVWT(phoneNum)
-    <span class="kw">if</span> <span class="kw">not</span> ok: <span class="kw">return</span> <span class="str">'2'</span>
+    <span class="kw">if</span> <span class="kw">not</span> ok: <span class="kw">return</span> <span class="str">'2-VWT Logon Error'</span>
 
     <span class="skw">wait</span>(<img src="vwt-bar-work.png" />)
     <span class="skw">click</span>(<img src="vwt-bar-work.png" />)
@@ -205,15 +210,17 @@ APP = <span class="str">"YuQing"</span> <span class="cmt"># "Salary"</span>
 
 
 <span class="cmt"># return '1': success</span>
-<span class="cmt"># return '2': wrong VWT password</span>
-<span class="cmt"># return '3': not Salary App user</span>
-<span class="kw">def</span> vwtSalary(phoneNum):
-    setNoxMEID(phoneNum, <span class="str">""</span>)
-    ok = startVWT(phoneNum)
-    <span class="kw">if</span> <span class="kw">not</span> ok:
-        <span class="kw">return</span> <span class="str">'2'</span>
+<span class="cmt"># return '2-V网通登录错误'</span>
+<span class="cmt"># return '3-不是薪酬通用户'</span>
+<span class="cmt"># return '4-未知错误'</span>
+<span class="kw">def</span> vwtSalary(phoneNum, changeMeid):
+    <span class="kw">if</span> changeMeid:
+        setNoxMEID(phoneNum, <span class="str">""</span>)
 
-    time.<span class="skw">sleep</span>(<span class="dig">1</span>)
+    ok = startVWT(phoneNum)
+    <span class="kw">if</span> <span class="kw">not</span> ok: <span class="kw">return</span> <span class="str">'2-VWT Logon Error'</span>
+
+    time.<span class="skw">sleep</span>(<span class="dig">0.7</span>)
     <span class="skw">wait</span>(<img src="vwt-bar-work.png" />)
     <span class="skw">click</span>(<img src="vwt-bar-work.png" />)
     <span class="kw">for</span> x <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">1</span>):
@@ -225,32 +232,32 @@ APP = <span class="str">"YuQing"</span> <span class="cmt"># "Salary"</span>
 
     <span class="kw">if</span> exists(<img src="vwt-work-i-see1.png" />):
         <span class="skw">click</span>(<img src="vwt-work-i-see1.png" />)
-        time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+        time.<span class="skw">sleep</span>(<span class="dig">0.2</span>)
         <span class="kw">if</span> exists(<img src="vwt-work-i-see2.png" />): <span class="skw">click</span>(<img src="vwt-work-i-see2.png" />)
 
     <span class="skw">click</span>(<img src="vwt-work-qiye-app.png" />)
     <span class="skw">click</span>(<img src="vwt-app-bar-salary.png" />)
 
-    time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+    time.<span class="skw">sleep</span>(<span class="dig">0.3</span>)
     <span class="skw">wait</span>(<img src="vwt-app-slary-title.png" />)
     <span class="skw">click</span>(<img src="vwt-app-mysalary.png" />)
-    time.<span class="skw">sleep</span>(<span class="dig">0.8</span>)
+    time.<span class="skw">sleep</span>(<span class="dig">0.7</span>)
 
-    ret = <span class="str">'1'</span>
-    <span class="kw">if</span> exists(<img src="vwt-salaryapp-not-user.png" />):
-        ret = <span class="str">'3'</span>
-        <span class="skw">click</span>(<img src="vwt-salaryapp-not-user-close.png" />)
-    <span class="kw">else</span>:
-        <span class="skw">wait</span>(<img src="vwt-app-slary-auth-title.png" />)
-
+    ret = <span class="str">''</span> <span class="cmt"># unknown result by defaut</span>
+    <span class="kw">if</span> exists(<img src="vwt-app-slary-auth-title.png" />):
         r = <span class="skw">find</span>(<img src="vwt-salayapp-log-passwd.png" />)
         <span class="skw">click</span>(r)
         <span class="skw">type</span>(r, <span class="str">"123123"</span>)
 
         <span class="skw">click</span>(<img src="vwt-salaryapp-logon-btn.png" />)
-        time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+        time.<span class="skw">sleep</span>(<span class="dig">0.6</span>)
         <span class="skw">wait</span>(<img src="vwt-salaryapp-my-salary-title.png" />)
+        ret = <span class="str">'1'</span>
 
+    <span class="kw">else</span>:
+        <span class="kw">if</span> exists(<img src="vwt-salaryapp-not-user.png" />):
+            ret = <span class="str">'3-Not Salary User'</span>
+            <span class="skw">click</span>(<img src="vwt-salaryapp-not-user-close.png" />)
 
     <span class="skw">click</span>(<img src="vwt-salaryapp-close.png" />)
     <span class="skw">click</span>(<img src="android-back.png" />)
@@ -261,11 +268,13 @@ APP = <span class="str">"YuQing"</span> <span class="cmt"># "Salary"</span>
     time.<span class="skw">sleep</span>(<span class="dig">0.4</span>)
     <span class="kw">return</span> ret;
 
-<span class="kw">def</span> doTask(phoneNum):
-    <span class="kw">if</span> APP == <span class="str">"Salary"</span>:
-        <span class="kw">return</span> vwtSalary(phoneNum)
+
+<span class="kw">def</span> doTask(phoneNum, changeMeid):
+    <span class="kw">if</span> <span class="str">"Salary"</span> == APP:
+        <span class="kw">return</span> vwtSalary(phoneNum, changeMeid)
     <span class="kw">else</span>:
-        <span class="kw">return</span> vwtYuQing(phoneNum)
+        <span class="kw">return</span> vwtYuQing(phoneNum, changeMeid)
+
 
 <span class="kw">def</span> restartAndroid():
     clearToMain()
@@ -279,12 +288,15 @@ APP = <span class="str">"YuQing"</span> <span class="cmt"># "Salary"</span>
 <span class="kw">def</span> main():
     <span class="kw">import</span> xlrd
     <span class="kw">import</span> xlutils.copy
+    <span class="kw">global</span> exceptionCount
 
     rb = xlrd.open_workbook(os.path.join(getBundlePath(), <span class="str">'data\\tasks.xls'</span>))
     rs = rb.sheet_by_index(<span class="dig">0</span>)
     wb = xlutils.copy.copy(rb)
     ws = wb.get_sheet(<span class="dig">0</span>)
 
+    <span class="cmt"># assume it was successful</span>
+    lastRet = <span class="str">'1'</span>
     exceptionCount = <span class="dig">0</span>;
     <span class="kw">for</span> rownum <span class="kw">in</span> range(<span class="dig">1</span>, rs.nrows):
         phoneNum = str(rs.row_values(rownum)[<span class="dig">0</span>])
@@ -293,23 +305,27 @@ APP = <span class="str">"YuQing"</span> <span class="cmt"># "Salary"</span>
         <span class="kw">if</span> phoneNum == <span class="str">''</span>: <span class="kw">continue</span>
 
         done = str(rs.row_values(rownum)[<span class="dig">1</span>])
-        <span class="kw">print</span> <span class="str">'['</span>,rownum,<span class="str">']:'</span>, <span class="str">'phoneNum ='</span>, phoneNum, <span class="str">', done='</span>, done
+        <span class="kw">if</span> <span class="str">''</span> == done:
+            <span class="kw">print</span> <span class="str">'Task: ['</span>,rownum,<span class="str">']:'</span>, <span class="str">'phoneNum ='</span>, phoneNum
+            ret = <span class="str">''</span>
 
-        <span class="kw">if</span> done == <span class="str">''</span>:
             <span class="kw">if</span> DEBUG == <span class="dig">1</span>:
-                ret = doTask(phoneNum)
+                ret = doTask(phoneNum, lastRet == <span class="str">'1'</span>)
+                lastRet = ret
                 exceptionCount = <span class="dig">0</span>
                 ws.write(rownum, <span class="dig">1</span>, ret)
                 wb.save(os.path.join(getBundlePath(), <span class="str">'data\\tasks.xls'</span>))
             <span class="kw">else</span>:
                 <span class="kw">try</span>:
-                    ret = doTask(phoneNum)
+                    ret = doTask(phoneNum, lastRet == <span class="str">'1'</span>)
+                    lastRet = ret
                     exceptionCount = <span class="dig">0</span>
                     ws.write(rownum, <span class="dig">1</span>, ret)
                     wb.save(os.path.join(getBundlePath(), <span class="str">'data\\tasks.xls'</span>))
 
                 <span class="kw">except</span> FindFailed:
                     exceptionCount = exceptionCount + <span class="dig">1</span>
+                    lastRet = <span class="str">'exception'</span>
                     <span class="kw">print</span> <span class="str">"exception FindFailed found, continuous count = "</span>, exceptionCount
 
         <span class="kw">if</span> exceptionCount &gt;= <span class="dig">3</span>:
