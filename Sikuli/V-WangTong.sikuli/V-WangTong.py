@@ -1,11 +1,16 @@
+
+TASK_DATA_PATH = "data\\tasks.xls"
+NOX_PATH = "C:\\Users\\Eagle\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
-#APP = "Salary"
-APP = "YuQing"
+APP = "Salary"
+#APP = "YuQing"
+
 
 def clearToMain():
     while (not exists("android-main-app-center.png")):
         click("android-back.png")
         time.sleep(0.1)
+        click("android-back.png")
         click("android-show-main.png")
         time.sleep(0.4)
 
@@ -21,13 +26,13 @@ def setNoxMEID(phoneNum, IMEI):
     r = find("phone-num.png").right(100)
     doubleClick(r)
     type(Key.BACKSPACE)
-    type(r, phoneNum)
+    paste(phoneNum)
 
     if "" != IMEI:
         r = find("ImeiConfig.png").right(100)
         doubleClick(r)
         type(Key.BACKSPACE)
-        type(r, IMEI)
+        paste(IMEI)
     else:
         click("sys-setting-imei-create.png")
 
@@ -39,14 +44,20 @@ def setNoxMEID(phoneNum, IMEI):
 
 def logonVWT(phoneNum, password):
     if phoneNum != "":
+        wait("vwt-logon-account.png")
         r = find("vwt-logon-account.png").right(100)
         doubleClick(r)
         type(Key.BACKSPACE)
-        type(r, phoneNum)
+        paste(phoneNum)
+        time.sleep(0.2)
+
+    wait("vwt-logon-password.png")
     r = find("vwt-logon-password.png").right(80)
     doubleClick(r)
     type(Key.BACKSPACE)
-    type(r, password)
+    paste(password)
+    time.sleep(0.15)
+
     click("vwt-log-logon.png")
     # sometimes, the below message may appear too slowly, or stay for too long, need to wait vanish twice
     waitVanish("vwt-v-is-working.png")
@@ -88,8 +99,9 @@ def startVWT(phoneNum):
             logoutVWT(True)
 
     ok = logonVWT(phoneNum, "123321")
+    if not ok: ok = logonVWT("", "112233")
     if not ok: ok = logonVWT("", "123456")
-    if not ok: ok = logonVWT("", "123123")
+    if not ok: ok = logonVWT("", "qwerty")
 
     return ok;
 
@@ -173,12 +185,9 @@ def vwtSalary(phoneNum, changeMeid):
 
     ret = '' # unknown result by defaut
     if exists("vwt-app-slary-auth-title.png"):
-        r = find("vwt-salayapp-log-passwd.png")
-        click(r)
-        type(r, "123123")
-    
+        paste("vwt-salayapp-log-passwd.png", "123123")
         click("vwt-salaryapp-logon-btn.png")
-        time.sleep(0.6)
+        time.sleep(0.5)
         wait("vwt-salaryapp-my-salary-title.png")
         ret = '1'
 
@@ -211,7 +220,7 @@ def restartAndroid():
     wait("nox-sure-to-close-emu.png")
     click("nox-restart-confirm.png")
     time.sleep(5)
-    subprocess.Popen(['C:\\Users\\I078212\\AppData\\Roaming\\Nox\\bin\\Nox.exe', ''])
+    subprocess.Popen([NOX_PATH, ''])
     time.sleep(20)
     clearToMain()
 
@@ -221,7 +230,7 @@ def main():
     import xlutils.copy
     global exceptionCount
 
-    rb = xlrd.open_workbook(os.path.join(getBundlePath(), 'data\\tasks.xls'))
+    rb = xlrd.open_workbook(os.path.join(getBundlePath(), TASK_DATA_PATH))
     rs = rb.sheet_by_index(0)
     wb = xlutils.copy.copy(rb)
     ws = wb.get_sheet(0)
@@ -245,14 +254,14 @@ def main():
                 lastRet = ret
                 exceptionCount = 0
                 ws.write(rownum, 1, ret)
-                wb.save(os.path.join(getBundlePath(), 'data\\tasks.xls'))
+                wb.save(os.path.join(getBundlePath(), TASK_DATA_PATH))
             else:
                 try:
                     ret = doTask(phoneNum, lastRet == '1')
                     lastRet = ret
                     exceptionCount = 0
                     ws.write(rownum, 1, ret)
-                    wb.save(os.path.join(getBundlePath(), 'data\\tasks.xls'))
+                    wb.save(os.path.join(getBundlePath(), TASK_DATA_PATH))
 
                 except FindFailed:
                     exceptionCount = exceptionCount + 1
