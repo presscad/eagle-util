@@ -205,11 +205,14 @@ def doTask(phoneNum, changeMeid):
 
 
 def restartAndroid():
+    import subprocess 
     clearToMain()
-    click("android-right-restart.png")
-    wait("nox-whether-restart.png")
+    click("nox-close.png")
+    wait("nox-sure-to-close-emu.png")
     click("nox-restart-confirm.png")
-    time.sleep(25)
+    time.sleep(5)
+    subprocess.Popen(['C:\\Users\\I078212\\AppData\\Roaming\\Nox\\bin\\Nox.exe', ''])
+    time.sleep(20)
     clearToMain()
 
 
