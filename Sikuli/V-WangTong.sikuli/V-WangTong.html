@@ -70,8 +70,8 @@
 <h2>V-WangTong.sikuli</h2> <a href="V-WangTong.zip">(Download this script)</a>
 </div>
 <pre class="sikuli-code">
-TASK_DATA_PATH = <span class="str">"data\\tasks.xls"</span>
-NOX_PATH = <span class="str">"C:\\Users\\Eagle\\AppData\\Roaming\\Nox\\bin\\Nox.exe"</span>
+TASK_DATA_PATH = <span class="str">"data\\wangbing123321,123123,112233.xls"</span>
+NOX_PATH = <span class="str">"C:\\Users\\I078212\\\AppData\\Roaming\\Nox\\bin\\Nox.exe"</span>
 DEBUG = <span class="dig">0</span>
 APP = <span class="str">"Salary"</span>
 <span class="cmt">#APP = "YuQing"</span>
@@ -170,9 +170,8 @@ APP = <span class="str">"Salary"</span>
             logoutVWT(True)
 
     ok = logonVWT(phoneNum, <span class="str">"123321"</span>)
+    <span class="kw">if</span> <span class="kw">not</span> ok: ok = logonVWT(<span class="str">""</span>, <span class="str">"123123"</span>)
     <span class="kw">if</span> <span class="kw">not</span> ok: ok = logonVWT(<span class="str">""</span>, <span class="str">"112233"</span>)
-    <span class="kw">if</span> <span class="kw">not</span> ok: ok = logonVWT(<span class="str">""</span>, <span class="str">"123456"</span>)
-    <span class="kw">if</span> <span class="kw">not</span> ok: ok = logonVWT(<span class="str">""</span>, <span class="str">"qwerty"</span>)
 
     <span class="kw">return</span> ok;
 
@@ -258,9 +257,12 @@ APP = <span class="str">"Salary"</span>
     <span class="kw">if</span> exists(<img src="vwt-app-slary-auth-title.png" />):
         paste(<img src="vwt-salayapp-log-passwd.png" />, <span class="str">"123123"</span>)
         <span class="skw">click</span>(<img src="vwt-salaryapp-logon-btn.png" />)
-        time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
-        <span class="skw">wait</span>(<img src="vwt-salaryapp-my-salary-title.png" />)
-        ret = <span class="str">'1'</span>
+        time.<span class="skw">sleep</span>(<span class="dig">0.3</span>)
+
+        <span class="kw">if</span> exists(<img src="vwt-salaryapp-passwd-error.png" />):
+            ret = <span class="str">'4-Salary App Logon Error'</span>
+        <span class="kw">elif</span> exists(<img src="vwt-salaryapp-my-salary-title.png" />):
+            ret = <span class="str">'1'</span>
 
     <span class="kw">else</span>:
         <span class="kw">if</span> exists(<img src="vwt-salaryapp-not-user.png" />):
@@ -325,6 +327,7 @@ APP = <span class="str">"Salary"</span>
                 lastRet = ret
                 exceptionCount = <span class="dig">0</span>
                 ws.write(rownum, <span class="dig">1</span>, ret)
+                ws.write(rownum, <span class="dig">2</span>, APP)
                 wb.save(os.path.join(getBundlePath(), TASK_DATA_PATH))
             <span class="kw">else</span>:
                 <span class="kw">try</span>:
@@ -332,6 +335,7 @@ APP = <span class="str">"Salary"</span>
                     lastRet = ret
                     exceptionCount = <span class="dig">0</span>
                     ws.write(rownum, <span class="dig">1</span>, ret)
+                    ws.write(rownum, <span class="dig">2</span>, APP)
                     wb.save(os.path.join(getBundlePath(), TASK_DATA_PATH))
 
                 <span class="kw">except</span> FindFailed:

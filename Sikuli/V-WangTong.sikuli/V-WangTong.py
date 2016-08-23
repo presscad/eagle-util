@@ -1,6 +1,6 @@
 
-TASK_DATA_PATH = "data\\tasks.xls"
-NOX_PATH = "C:\\Users\\Eagle\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
+TASK_DATA_PATH = "data\\wangbing123321,123123,112233.xls"
+NOX_PATH = "C:\\Users\\I078212\\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
 APP = "Salary"
 #APP = "YuQing"
@@ -99,9 +99,8 @@ def startVWT(phoneNum):
             logoutVWT(True)
 
     ok = logonVWT(phoneNum, "123321")
+    if not ok: ok = logonVWT("", "123123")
     if not ok: ok = logonVWT("", "112233")
-    if not ok: ok = logonVWT("", "123456")
-    if not ok: ok = logonVWT("", "qwerty")
 
     return ok;
 
@@ -187,9 +186,12 @@ def vwtSalary(phoneNum, changeMeid):
     if exists("vwt-app-slary-auth-title.png"):
         paste("vwt-salayapp-log-passwd.png", "123123")
         click("vwt-salaryapp-logon-btn.png")
-        time.sleep(0.5)
-        wait("vwt-salaryapp-my-salary-title.png")
-        ret = '1'
+        time.sleep(0.3)
+
+        if exists("vwt-salaryapp-passwd-error.png"):
+            ret = '4-Salary App Logon Error'
+        elif exists("vwt-salaryapp-my-salary-title.png"):
+            ret = '1'
 
     else:
         if exists("vwt-salaryapp-not-user.png"):
@@ -254,6 +256,7 @@ def main():
                 lastRet = ret
                 exceptionCount = 0
                 ws.write(rownum, 1, ret)
+                ws.write(rownum, 2, APP)
                 wb.save(os.path.join(getBundlePath(), TASK_DATA_PATH))
             else:
                 try:
@@ -261,6 +264,7 @@ def main():
                     lastRet = ret
                     exceptionCount = 0
                     ws.write(rownum, 1, ret)
+                    ws.write(rownum, 2, APP)
                     wb.save(os.path.join(getBundlePath(), TASK_DATA_PATH))
 
                 except FindFailed:
