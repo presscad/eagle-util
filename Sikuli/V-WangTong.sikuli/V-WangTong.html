@@ -70,8 +70,10 @@
 <h2>V-WangTong.sikuli</h2> <a href="V-WangTong.zip">(Download this script)</a>
 </div>
 <pre class="sikuli-code">
+<span class="kw">from</span> os.path <span class="kw">import</span> expanduser
+
 TASK_DATA_PATH = <span class="str">"data\\wangbing123321,123123,112233.xls"</span>
-NOX_PATH = <span class="str">"C:\\Users\\I078212\\\AppData\\Roaming\\Nox\\bin\\Nox.exe"</span>
+NOX_PATH = expanduser(<span class="str">"~"</span>) + <span class="str">"\\AppData\\Roaming\\Nox\\bin\\Nox.exe"</span>
 DEBUG = <span class="dig">0</span>
 APP = <span class="str">"Salary"</span>
 <span class="cmt">#APP = "YuQing"</span>

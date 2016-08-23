@@ -1,6 +1,7 @@
+from os.path import expanduser
 
 TASK_DATA_PATH = "data\\wangbing123321,123123,112233.xls"
-NOX_PATH = "C:\\Users\\I078212\\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
+NOX_PATH = expanduser("~") + "\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
 APP = "Salary"
 #APP = "YuQing"
