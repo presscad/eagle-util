@@ -79,6 +79,8 @@ APP = <span class="str">"Salary"</span>
 <span class="cmt">#APP = "YuQing"</span>
 APP = <span class="str">"KaoQin"</span>
 
+Settings.MoveMouseDelay = <span class="dig">0.2</span>
+
 <span class="kw">def</span> clearToMain():
     <span class="kw">while</span> (<span class="kw">not</span> exists(<img src="android-main-app-center.png" />)):
         <span class="skw">click</span>(<img src="android-back.png" />)
@@ -306,6 +308,8 @@ APP = <span class="str">"KaoQin"</span>
         time.<span class="skw">sleep</span>(<span class="dig">0.2</span>)
         <span class="kw">if</span> exists(<img src="vwt-work-i-see2.png" />): <span class="skw">click</span>(<img src="vwt-work-i-see2.png" />)
 
+    r = <span class="skw">find</span>(<img src="vwt-work-jituanyouhui.png" />)
+    r.mouseMove()
     wheel(WHEEL_DOWN, <span class="dig">4</span>)
     <span class="skw">click</span>(<img src="vwt-kaoqin-app-icon.png" />)
     time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)

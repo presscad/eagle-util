@@ -7,6 +7,8 @@ APP = "Salary"
 #APP = "YuQing"
 APP = "KaoQin"
 
+Settings.MoveMouseDelay = 0.2
+
 def clearToMain():
     while (not exists("android-main-app-center.png")):
         click("android-back.png")
@@ -234,6 +236,8 @@ def vwtKaoQin(phoneNum, changeMeid):
         time.sleep(0.2)
         if exists("vwt-work-i-see2.png"): click("vwt-work-i-see2.png")
 
+    r = find("vwt-work-jituanyouhui.png")
+    r.mouseMove()
     wheel(WHEEL_DOWN, 4)
     click("vwt-kaoqin-app-icon.png")
     time.sleep(0.5)
