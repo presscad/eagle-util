@@ -5,7 +5,7 @@ NOX_PATH = expanduser("~") + "\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
 APP = "Salary"
 #APP = "YuQing"
-
+APP = "KaoQin"
 
 def clearToMain():
     while (not exists("android-main-app-center.png")):
@@ -209,12 +209,64 @@ def vwtSalary(phoneNum, changeMeid):
     return ret;
 
 
+
+# return '1': success
+# return '2-V网通登录错误'
+def vwtKaoQin(phoneNum, changeMeid):
+    if changeMeid:
+        setNoxMEID(phoneNum, "")
+
+    ok = startVWT(phoneNum)
+    if not ok: return '2-VWT Logon Error'
+
+    time.sleep(0.7)
+    wait("vwt-bar-work.png")
+    click("vwt-bar-work.png")
+    for x in range(0, 1):
+        if exists("vwt-bar-work.png"):
+            click("vwt-bar-work.png")
+            time.sleep(0.4)
+        else:
+            break
+
+    if exists("vwt-work-i-see1.png"): 
+        click("vwt-work-i-see1.png")
+        time.sleep(0.2)
+        if exists("vwt-work-i-see2.png"): click("vwt-work-i-see2.png")
+
+    wheel(WHEEL_DOWN, 4)
+    click("vwt-kaoqin-app-icon.png")
+    time.sleep(0.5)
+    click("vwt-kaoqin-menu-kaoqin.png")
+
+    time.sleep(0.5)
+    click("vwt-kaoqin-tiyan.png")
+ 
+    time.sleep(0.8)
+    if exists("vwt-kaoqin-qiatui.png"):
+        pass
+    else: 
+        click("vwt-kaoqin-qiandao.png")
+        click("vwt-kaoqin-confirm-card.png")
+        wait("vwt-kaoqin-qiatui.png")
+
+ 
+    click("vwt-salaryapp-close.png")
+    time.sleep(0.5)
+    click("vwt-bar-me.png")
+    logoutVWT(True)
+    click("android-show-main.png")
+    time.sleep(0.4)
+    return '1';
+
+
 def doTask(phoneNum, changeMeid):
     if "Salary" == APP:
         return vwtSalary(phoneNum, changeMeid)
-    else:
+    elif "YuQing" == APP:
         return vwtYuQing(phoneNum, changeMeid)
-
+    elif "KaoQin" == APP:
+        return vwtKaoQin(phoneNum, changeMeid)
 
 def restartAndroid():
     import subprocess 
