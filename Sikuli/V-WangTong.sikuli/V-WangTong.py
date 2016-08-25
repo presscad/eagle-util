@@ -1,26 +1,35 @@
 from os.path import expanduser
 
-TASK_DATA_PATH = "data\\wangbing123321,123123,112233.xls"
+TASK_DATA_PATH = "data\\ChenJian.xls"
 NOX_PATH = expanduser("~") + "\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
 APP = "Salary"
 #APP = "YuQing"
-APP = "KaoQin"
+#APP = "KaoQin"
 
-Settings.MoveMouseDelay = 0.2
+Settings.MoveMouseDelay = 0.12
 
-def clearToMain():
+def clearToMain(toRaise):
+    import time
+    if toRaise == None: toRaise = True    
+    current_milli_time = lambda: int(round(time.time() * 1000))
+    time0 = current_milli_time()
     while (not exists("android-main-app-center.png")):
         click("android-back.png")
         time.sleep(0.1)
         click("android-back.png")
         click("android-show-main.png")
         time.sleep(0.4)
+        if (current_milli_time() - time0 > 10000):
+            if toRaise:
+                raise FindFailed('stuck in clearToMain()')
+            else:
+                break
 
 
 # if IMEI is empty string, create one
 def setNoxMEID(phoneNum, IMEI):
-    clearToMain()
+    clearToMain(True)
     find("nox-simulator.png")
     click("nox-setup.png")
     wait("systemConfig.png")
@@ -62,11 +71,12 @@ def logonVWT(phoneNum, password):
     time.sleep(0.15)
 
     click("vwt-log-logon.png")
+    time.sleep(0.25)
     # sometimes, the below message may appear too slowly, or stay for too long, need to wait vanish twice
     waitVanish("vwt-v-is-working.png")
     waitVanish("vwt-v-is-working.png")
 
-    if exists("vwt-log-prompt.png"):
+    if exists("vwt-logon-password-err.png"):
         click("vwt-pass-err-close.png")
         print "logonVWT(" + phoneNum + ", " + password + "), return False"
         return False
@@ -88,7 +98,7 @@ def logoutVWT(ready):
 
 
 def startVWT(phoneNum):
-    clearToMain()
+    clearToMain(True)
     click("android-main-vwt-icon.png")
     if not exists("vwt-log-account-pass.png"):
         if exists("vwt-qiye-app-back-close.png"):
@@ -101,9 +111,10 @@ def startVWT(phoneNum):
             print "logoutVWT(True)"
             logoutVWT(True)
 
-    ok = logonVWT(phoneNum, "123321")
+    ok = logonVWT(phoneNum, "123456")
     if not ok: ok = logonVWT("", "123123")
-    if not ok: ok = logonVWT("", "112233")
+    if not ok: ok = logonVWT("", "123321")
+    if not ok: ok = logonVWT("", "qwerty")
 
     return ok;
 
@@ -187,7 +198,13 @@ def vwtSalary(phoneNum, changeMeid):
 
     ret = '' # unknown result by defaut
     if exists("vwt-app-slary-auth-title.png"):
-        paste("vwt-salayapp-log-passwd.png", "123123")
+        wait("vwt-salayapp-log-passwd.png")
+        r = find("vwt-salayapp-log-passwd.png").right(80)
+        doubleClick(r)
+        type(Key.BACKSPACE)
+        paste("123123")
+        time.sleep(0.2)
+
         click("vwt-salaryapp-logon-btn.png")
         time.sleep(0.3)
 
@@ -236,7 +253,7 @@ def vwtKaoQin(phoneNum, changeMeid):
         time.sleep(0.2)
         if exists("vwt-work-i-see2.png"): click("vwt-work-i-see2.png")
 
-    r = find("vwt-work-jituanyouhui.png")
+    r = find("vwt-app-chonglang-news.png")
     r.mouseMove()
     wheel(WHEEL_DOWN, 4)
     click("vwt-kaoqin-app-icon.png")
@@ -274,14 +291,16 @@ def doTask(phoneNum, changeMeid):
 
 def restartAndroid():
     import subprocess 
-    clearToMain()
+    clearToMain(False)
     click("nox-close.png")
     wait("nox-sure-to-close-emu.png")
     click("nox-restart-confirm.png")
-    time.sleep(5)
+    time.sleep(12)
+
     subprocess.Popen([NOX_PATH, ''])
     time.sleep(20)
-    clearToMain()
+    
+    clearToMain(False)
 
 
 def main():
