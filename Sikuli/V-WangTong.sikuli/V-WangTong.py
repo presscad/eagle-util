@@ -1,11 +1,11 @@
 from os.path import expanduser
 
-TASK_DATA_PATH = "data\\ChenJian.xls"
+TASK_DATA_PATH = "data\\yeyaya-1.xls"
 NOX_PATH = expanduser("~") + "\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
 APP = "Salary"
 #APP = "YuQing"
-#APP = "KaoQin"
+APP = "KaoQin"
 
 Settings.MoveMouseDelay = 0.12
 
@@ -111,10 +111,10 @@ def startVWT(phoneNum):
             print "logoutVWT(True)"
             logoutVWT(True)
 
-    ok = logonVWT(phoneNum, "123456")
+    ok = logonVWT(phoneNum, "123321")
+    if not ok: ok = logonVWT("", "123456")
     if not ok: ok = logonVWT("", "123123")
-    if not ok: ok = logonVWT("", "123321")
-    if not ok: ok = logonVWT("", "qwerty")
+    #if not ok: ok = logonVWT("", "321321")
 
     return ok;
 
@@ -212,12 +212,17 @@ def vwtSalary(phoneNum, changeMeid):
             ret = '4-Salary App Logon Error'
         elif exists("vwt-salaryapp-my-salary-title.png"):
             ret = '1'
-
+        elif exists("vwt-slaryapp-slelct-one-corp.png"):
+            r = find("vwt-slaryapp-slelct-one-corp.png").below(60)
+            click(r)
+            time.sleep(0.2)
+            if exists("vwt-salaryapp-my-salary-title.png"):
+                ret = '1'
     else:
         if exists("vwt-salaryapp-not-user.png"):
             ret = '3-Not Salary User'
             click("vwt-salaryapp-not-user-close.png")
- 
+
     click("vwt-salaryapp-close.png")
     click("android-back.png")
     time.sleep(0.5)
@@ -253,23 +258,23 @@ def vwtKaoQin(phoneNum, changeMeid):
         time.sleep(0.2)
         if exists("vwt-work-i-see2.png"): click("vwt-work-i-see2.png")
 
-    r = find("vwt-app-chonglang-news.png")
-    r.mouseMove()
+    time.sleep(0.5)
+    r = find("vwt-app-work-circle-icon.png")
+    r.hover()
+
     wheel(WHEEL_DOWN, 4)
     click("vwt-kaoqin-app-icon.png")
-    time.sleep(0.5)
-    click("vwt-kaoqin-menu-kaoqin.png")
+    wait("vwt-kaoqin-mobile-kaoqin.png")
+    click("vwt-kaoqin-loc-checkin.png")
 
     time.sleep(0.5)
     click("vwt-kaoqin-tiyan.png")
- 
     time.sleep(0.8)
-    if exists("vwt-kaoqin-qiatui.png"):
-        pass
-    else: 
-        click("vwt-kaoqin-qiandao.png")
-        click("vwt-kaoqin-confirm-card.png")
-        wait("vwt-kaoqin-qiatui.png")
+
+    click("vwt-kaoqin-checkin.png")
+    time.sleep(0.8)
+    click("vwt-kaoqin-checkin-confirm.png")
+    time.sleep(0.8)
 
  
     click("vwt-salaryapp-close.png")
@@ -326,7 +331,7 @@ def main():
         if '' == done:
             print 'Task: [',rownum,']:', 'phoneNum =', phoneNum
             ret = ''
-            
+
             if DEBUG == 1:
                 ret = doTask(phoneNum, lastRet == '1')
                 lastRet = ret
@@ -353,6 +358,7 @@ def main():
             exceptionCount = 0
     return
 
+main()
 main()
 main()
 main()
