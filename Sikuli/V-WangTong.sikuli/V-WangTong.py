@@ -1,12 +1,12 @@
 from os.path import expanduser
 
-TASK_DATA_PATH = "data\\xiamin(2).xls"
+TASK_DATA_PATH = "data\\xiamin-1.xls"
 NOX_PATH = expanduser("~") + "\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
 #APP = "Salary"
 #APP = "YuQing"
 APP = "KaoQin"
-PASSWORDS = ["123123", "518518", "123321"]
+PASSWORDS = ["123123", "518518", "123321", "112233"]
 
 Settings.MoveMouseDelay = 0.12
 
