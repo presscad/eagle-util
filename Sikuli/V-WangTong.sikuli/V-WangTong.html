@@ -72,18 +72,18 @@
 <pre class="sikuli-code">
 <span class="kw">from</span> os.path <span class="kw">import</span> expanduser
 
-TASK_DATA_PATH = <span class="str">"data\\yeyaya-2.xls"</span>
+TASK_DATA_PATH = <span class="str">"data\\xiamin(2).xls"</span>
 NOX_PATH = expanduser(<span class="str">"~"</span>) + <span class="str">"\\AppData\\Roaming\\Nox\\bin\\Nox.exe"</span>
 DEBUG = <span class="dig">0</span>
-APP = <span class="str">"Salary"</span>
+<span class="cmt">#APP = "Salary"</span>
 <span class="cmt">#APP = "YuQing"</span>
 APP = <span class="str">"KaoQin"</span>
+PASSWORDS = [<span class="str">"123123"</span>, <span class="str">"518518"</span>, <span class="str">"123321"</span>]
 
 Settings.MoveMouseDelay = <span class="dig">0.12</span>
 
 <span class="kw">def</span> clearToMain(toRaise):
     <span class="kw">import</span> time
-    <span class="kw">if</span> toRaise == None: toRaise = True
     current_milli_time = <span class="kw">lambda</span>: int(round(time.time() * <span class="dig">1000</span>))
     time0 = current_milli_time()
     <span class="kw">while</span> (<span class="kw">not</span> exists(<img src="android-main-app-center.png" />)):
@@ -99,7 +99,7 @@ Settings.MoveMouseDelay = <span class="dig">0.12</span>
                 <span class="kw">break</span>
 
 
-<span class="cmt"># if IMEI is empty string, create one</span>
+<span class="cmt"># if IMEI is an empty string, create one</span>
 <span class="kw">def</span> setNoxMEID(phoneNum, IMEI):
     clearToMain(True)
     <span class="skw">find</span>(<img src="nox-simulator.png" />)
@@ -185,9 +185,13 @@ Settings.MoveMouseDelay = <span class="dig">0.12</span>
             <span class="kw">print</span> <span class="str">"logoutVWT(True)"</span>
             logoutVWT(True)
 
-    ok = logonVWT(phoneNum, <span class="str">"111111"</span>)
-    <span class="kw">if</span> <span class="kw">not</span> ok: ok = logonVWT(<span class="str">""</span>, <span class="str">"123321"</span>)
-    <span class="kw">if</span> <span class="kw">not</span> ok: ok = logonVWT(<span class="str">""</span>, <span class="str">"123123"</span>)
+    <span class="kw">for</span> i <span class="kw">in</span> range(len(PASSWORDS)):
+        <span class="kw">if</span> <span class="dig">0</span> == i:
+            ok = logonVWT(phoneNum, PASSWORDS[i])
+        <span class="kw">else</span>:
+            ok = logonVWT(<span class="str">""</span>, PASSWORDS[i])
+        <span class="kw">if</span> ok:
+            <span class="kw">break</span>
 
     <span class="kw">return</span> ok;
 

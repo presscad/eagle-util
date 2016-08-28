@@ -1,17 +1,17 @@
 from os.path import expanduser
 
-TASK_DATA_PATH = "data\\yeyaya-2.xls"
+TASK_DATA_PATH = "data\\xiamin(2).xls"
 NOX_PATH = expanduser("~") + "\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
-APP = "Salary"
+#APP = "Salary"
 #APP = "YuQing"
 APP = "KaoQin"
+PASSWORDS = ["123123", "518518", "123321"]
 
 Settings.MoveMouseDelay = 0.12
 
 def clearToMain(toRaise):
     import time
-    if toRaise == None: toRaise = True    
     current_milli_time = lambda: int(round(time.time() * 1000))
     time0 = current_milli_time()
     while (not exists("android-main-app-center.png")):
@@ -27,7 +27,7 @@ def clearToMain(toRaise):
                 break
 
 
-# if IMEI is empty string, create one
+# if IMEI is an empty string, create one
 def setNoxMEID(phoneNum, IMEI):
     clearToMain(True)
     find("nox-simulator.png")
@@ -113,9 +113,13 @@ def startVWT(phoneNum):
             print "logoutVWT(True)"
             logoutVWT(True)
 
-    ok = logonVWT(phoneNum, "111111")
-    if not ok: ok = logonVWT("", "123321")
-    if not ok: ok = logonVWT("", "123123")
+    for i in range(len(PASSWORDS)):
+        if 0 == i:
+            ok = logonVWT(phoneNum, PASSWORDS[i])
+        else:
+            ok = logonVWT("", PASSWORDS[i])
+        if ok:
+            break
 
     return ok;
 
