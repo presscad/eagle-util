@@ -266,15 +266,12 @@ def vwtKaoQin(phoneNum, changeMeid):
     click("vwt-kaoqin-app-icon.png")
     wait("vwt-kaoqin-mobile-kaoqin.png")
     click("vwt-kaoqin-loc-checkin.png")
-
-    time.sleep(0.5)
-    click("vwt-kaoqin-tiyan.png")
     time.sleep(0.8)
 
     click("vwt-kaoqin-checkin.png")
-    time.sleep(0.8)
+    time.sleep(0.5)
     click("vwt-kaoqin-checkin-confirm.png")
-    time.sleep(0.8)
+    time.sleep(0.5)
 
  
     click("vwt-salaryapp-close.png")
