@@ -259,8 +259,8 @@ def vwtKaoQin(phoneNum, changeMeid):
         time.sleep(0.2)
         if exists("vwt-work-i-see2.png"): click("vwt-work-i-see2.png")
 
-    time.sleep(0.5)
-    r = find("vwt-app-work-circle-icon.png")
+    wait("vwt-work-workplatform.png")
+    r = find("vwt-work-workplatform.png").below(300)
     r.hover()
 
     wheel(WHEEL_DOWN, 4)
