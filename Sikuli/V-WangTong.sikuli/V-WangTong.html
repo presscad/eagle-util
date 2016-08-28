@@ -72,7 +72,7 @@
 <pre class="sikuli-code">
 <span class="kw">from</span> os.path <span class="kw">import</span> expanduser
 
-TASK_DATA_PATH = <span class="str">"data\\yeyaya-1.xls"</span>
+TASK_DATA_PATH = <span class="str">"data\\yeyaya-2.xls"</span>
 NOX_PATH = expanduser(<span class="str">"~"</span>) + <span class="str">"\\AppData\\Roaming\\Nox\\bin\\Nox.exe"</span>
 DEBUG = <span class="dig">0</span>
 APP = <span class="str">"Salary"</span>
@@ -153,6 +153,8 @@ Settings.MoveMouseDelay = <span class="dig">0.12</span>
         <span class="kw">print</span> <span class="str">"logonVWT("</span> + phoneNum + <span class="str">", "</span> + password + <span class="str">"), return False"</span>
         <span class="kw">return</span> False
     <span class="kw">else</span>:
+        waitVanish(<img src="vwt-log-updating-phonebook.png" />)
+        waitVanish(<img src="vwt-log-updating-phonebook.png" />)
         <span class="kw">print</span> <span class="str">"logonVWT("</span> + phoneNum + <span class="str">", "</span> + password + <span class="str">"), return True"</span>
         <span class="kw">return</span> True
 
@@ -183,10 +185,9 @@ Settings.MoveMouseDelay = <span class="dig">0.12</span>
             <span class="kw">print</span> <span class="str">"logoutVWT(True)"</span>
             logoutVWT(True)
 
-    ok = logonVWT(phoneNum, <span class="str">"123321"</span>)
-    <span class="kw">if</span> <span class="kw">not</span> ok: ok = logonVWT(<span class="str">""</span>, <span class="str">"123456"</span>)
+    ok = logonVWT(phoneNum, <span class="str">"111111"</span>)
+    <span class="kw">if</span> <span class="kw">not</span> ok: ok = logonVWT(<span class="str">""</span>, <span class="str">"123321"</span>)
     <span class="kw">if</span> <span class="kw">not</span> ok: ok = logonVWT(<span class="str">""</span>, <span class="str">"123123"</span>)
-    <span class="cmt">#if not ok: ok = logonVWT("", "321321")</span>
 
     <span class="kw">return</span> ok;
 

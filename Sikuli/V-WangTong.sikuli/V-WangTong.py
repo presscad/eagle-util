@@ -1,6 +1,6 @@
 from os.path import expanduser
 
-TASK_DATA_PATH = "data\\yeyaya-1.xls"
+TASK_DATA_PATH = "data\\yeyaya-2.xls"
 NOX_PATH = expanduser("~") + "\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
 APP = "Salary"
@@ -81,6 +81,8 @@ def logonVWT(phoneNum, password):
         print "logonVWT(" + phoneNum + ", " + password + "), return False"
         return False
     else:
+        waitVanish("vwt-log-updating-phonebook.png")
+        waitVanish("vwt-log-updating-phonebook.png")
         print "logonVWT(" + phoneNum + ", " + password + "), return True"
         return True
 
@@ -111,10 +113,9 @@ def startVWT(phoneNum):
             print "logoutVWT(True)"
             logoutVWT(True)
 
-    ok = logonVWT(phoneNum, "123321")
-    if not ok: ok = logonVWT("", "123456")
+    ok = logonVWT(phoneNum, "111111")
+    if not ok: ok = logonVWT("", "123321")
     if not ok: ok = logonVWT("", "123123")
-    #if not ok: ok = logonVWT("", "321321")
 
     return ok;
 
@@ -132,7 +133,7 @@ def vwtYuQing(phoneNum, changeMeid):
     time.sleep(0.5)
     if exists("vwt-work-i-see1.png"): 
         click("vwt-work-i-see1.png")
-        time.sleep(0.5)                
+        time.sleep(0.5)
         if exists("vwt-work-i-see2.png"): click("vwt-work-i-see2.png")
 
     click("vwt-work-qiye-app.png")
