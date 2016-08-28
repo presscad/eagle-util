@@ -268,6 +268,9 @@ def vwtKaoQin(phoneNum, changeMeid):
     click("vwt-kaoqin-loc-checkin.png")
     time.sleep(0.8)
 
+    if exists("vwt-checkin-liketiyan.png"):
+        click("vwt-checkin-liketiyan.png")
+
     click("vwt-kaoqin-checkin.png")
     time.sleep(0.5)
     click("vwt-kaoqin-checkin-confirm.png")
