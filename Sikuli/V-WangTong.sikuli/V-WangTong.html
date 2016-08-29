@@ -72,17 +72,17 @@
 <pre class="sikuli-code">
 <span class="kw">from</span> os.path <span class="kw">import</span> expanduser
 
-TASK_DATA_PATH = <span class="str">"data\\xiamin-1.xls"</span>
+TASK_DATA_PATH = <span class="str">"data\\chenxiu.xls"</span>
 NOX_PATH = expanduser(<span class="str">"~"</span>) + <span class="str">"\\AppData\\Roaming\\Nox\\bin\\Nox.exe"</span>
 DEBUG = <span class="dig">0</span>
-<span class="cmt">#APP = "Salary"</span>
+APP = <span class="str">"Salary"</span>
 <span class="cmt">#APP = "YuQing"</span>
-APP = <span class="str">"KaoQin"</span>
-PASSWORDS = [<span class="str">"123123"</span>, <span class="str">"518518"</span>, <span class="str">"123321"</span>, <span class="str">"112233"</span>]
+<span class="cmt">#APP = "KaoQin"</span>
+PASSWORDS = [<span class="str">"168168"</span>, <span class="str">"123456"</span>, <span class="str">"123321"</span>, <span class="str">"123123"</span>]
 
 Settings.MoveMouseDelay = <span class="dig">0.12</span>
 
-<span class="kw">def</span> clearToMain(toRaise):
+<span class="kw">def</span> clearToMain():
     <span class="kw">import</span> time
     current_milli_time = <span class="kw">lambda</span>: int(round(time.time() * <span class="dig">1000</span>))
     time0 = current_milli_time()
@@ -93,15 +93,12 @@ Settings.MoveMouseDelay = <span class="dig">0.12</span>
         <span class="skw">click</span>(<img src="android-show-main.png" />)
         time.<span class="skw">sleep</span>(<span class="dig">0.4</span>)
         <span class="kw">if</span> (current_milli_time() - time0 &gt; <span class="dig">10000</span>):
-            <span class="kw">if</span> toRaise:
-                <span class="kw">raise</span> FindFailed(<span class="str">'stuck in clearToMain()'</span>)
-            <span class="kw">else</span>:
-                <span class="kw">break</span>
+            <span class="kw">raise</span> FindFailed(<span class="str">'stuck in clearToMain()'</span>)
 
 
 <span class="cmt"># if IMEI is an empty string, create one</span>
 <span class="kw">def</span> setNoxMEID(phoneNum, IMEI):
-    clearToMain(True)
+    clearToMain()
     <span class="skw">find</span>(<img src="nox-simulator.png" />)
     <span class="skw">click</span>(<img src="nox-setup.png" />)
     <span class="skw">wait</span>(<img src="systemConfig.png" />)
@@ -172,7 +169,7 @@ Settings.MoveMouseDelay = <span class="dig">0.12</span>
 
 
 <span class="kw">def</span> startVWT(phoneNum):
-    clearToMain(True)
+    clearToMain()
     <span class="skw">click</span>(<img src="android-main-vwt-icon.png" />)
     <span class="kw">if</span> <span class="kw">not</span> exists(<img src="vwt-log-account-pass.png" />):
         <span class="kw">if</span> exists(<img src="vwt-qiye-app-back-close.png" />):
@@ -202,7 +199,7 @@ Settings.MoveMouseDelay = <span class="dig">0.12</span>
         setNoxMEID(phoneNum, <span class="str">""</span>)
 
     ok = startVWT(phoneNum)
-    <span class="kw">if</span> <span class="kw">not</span> ok: <span class="kw">return</span> <span class="str">'2-VWT Logon Error'</span>
+    <span class="kw">if</span> <span class="kw">not</span> ok: <span class="kw">return</span> (APP, <span class="str">'2-VWT Logon Error'</span>)
 
     <span class="skw">wait</span>(<img src="vwt-bar-work.png" />)
     <span class="skw">click</span>(<img src="vwt-bar-work.png" />)
@@ -236,19 +233,19 @@ Settings.MoveMouseDelay = <span class="dig">0.12</span>
     <span class="skw">click</span>(<img src="android-show-main.png" />)
     time.<span class="skw">sleep</span>(<span class="dig">0.3</span>)
 
-    <span class="kw">return</span> <span class="str">'1'</span>
+    <span class="kw">return</span> (APP, <span class="str">'1'</span>)
 
 
 <span class="cmt"># return '1': success</span>
 <span class="cmt"># return '2-V网通登录错误'</span>
 <span class="cmt"># return '3-不是薪酬通用户'</span>
 <span class="cmt"># return '4-未知错误'</span>
-<span class="kw">def</span> vwtSalary(phoneNum, changeMeid):
+<span class="kw">def</span> vwtSalary(phoneNum, changeMeid, failToKaoQin):
     <span class="kw">if</span> changeMeid:
         setNoxMEID(phoneNum, <span class="str">""</span>)
 
     ok = startVWT(phoneNum)
-    <span class="kw">if</span> <span class="kw">not</span> ok: <span class="kw">return</span> <span class="str">'2-VWT Logon Error'</span>
+    <span class="kw">if</span> <span class="kw">not</span> ok: <span class="kw">return</span> (APP,<span class="str">'2-VWT Logon Error'</span>)
 
     time.<span class="skw">sleep</span>(<span class="dig">0.7</span>)
     <span class="skw">wait</span>(<img src="vwt-bar-work.png" />)
@@ -300,14 +297,48 @@ Settings.MoveMouseDelay = <span class="dig">0.12</span>
             ret = <span class="str">'3-Not Salary User'</span>
             <span class="skw">click</span>(<img src="vwt-salaryapp-not-user-close.png" />)
 
+    app = APP
+    <span class="kw">if</span> <span class="str">'1'</span> != ret <span class="kw">and</span> failToKaoQin:
+        <span class="skw">click</span>(<img src="vwt-salaryapp-close.png" />)
+        time.<span class="skw">sleep</span>(<span class="dig">0.3</span>)
+        <span class="skw">click</span>(<img src="android-back.png" />)
+        <span class="skw">wait</span>(<img src="vwt-work-workplatform.png" />)
+        r = <span class="skw">find</span>(<img src="vwt-work-workplatform.png" />).below(<span class="dig">400</span>)
+        r.hover()
+
+        wheel(WHEEL_DOWN, <span class="dig">4</span>)
+        <span class="skw">click</span>(<img src="vwt-kaoqin-app-icon.png" />)
+        <span class="skw">wait</span>(<img src="vwt-kaoqin-mobile-kaoqin.png" />)
+        <span class="skw">click</span>(<img src="vwt-kaoqin-loc-checkin.png" />)
+        time.<span class="skw">sleep</span>(<span class="dig">0.8</span>)
+
+        <span class="kw">if</span> exists(<img src="vwt-checkin-liketiyan.png" />):
+            <span class="skw">click</span>(<img src="vwt-checkin-liketiyan.png" />)
+
+        <span class="skw">click</span>(<img src="vwt-kaoqin-checkin.png" />)
+        time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+        <span class="skw">click</span>(<img src="vwt-kaoqin-checkin-confirm.png" />)
+        time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+        app = <span class="str">"KaoQin"</span>
+        ret = <span class="str">'1'</span>
+
+        <span class="skw">click</span>(<img src="vwt-salaryapp-close.png" />)
+        time.<span class="skw">sleep</span>(<span class="dig">0.3</span>)
+        <span class="skw">click</span>(<img src="vwt-bar-me.png" />)
+        logoutVWT(True)
+        <span class="skw">click</span>(<img src="android-show-main.png" />)
+        time.<span class="skw">sleep</span>(<span class="dig">0.4</span>)
+        <span class="kw">return</span> (app, ret);
+
     <span class="skw">click</span>(<img src="vwt-salaryapp-close.png" />)
+    time.<span class="skw">sleep</span>(<span class="dig">0.3</span>)
     <span class="skw">click</span>(<img src="android-back.png" />)
     time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
     <span class="skw">click</span>(<img src="vwt-bar-me.png" />)
     logoutVWT(True)
     <span class="skw">click</span>(<img src="android-show-main.png" />)
     time.<span class="skw">sleep</span>(<span class="dig">0.4</span>)
-    <span class="kw">return</span> ret;
+    <span class="kw">return</span> (app, ret);
 
 
 
@@ -318,7 +349,7 @@ Settings.MoveMouseDelay = <span class="dig">0.12</span>
         setNoxMEID(phoneNum, <span class="str">""</span>)
 
     ok = startVWT(phoneNum)
-    <span class="kw">if</span> <span class="kw">not</span> ok: <span class="kw">return</span> <span class="str">'2-VWT Logon Error'</span>
+    <span class="kw">if</span> <span class="kw">not</span> ok: <span class="kw">return</span> (APP, <span class="str">'2-VWT Logon Error'</span>)
 
     time.<span class="skw">sleep</span>(<span class="dig">0.7</span>)
     <span class="skw">wait</span>(<img src="vwt-bar-work.png" />)
@@ -360,12 +391,12 @@ Settings.MoveMouseDelay = <span class="dig">0.12</span>
     logoutVWT(True)
     <span class="skw">click</span>(<img src="android-show-main.png" />)
     time.<span class="skw">sleep</span>(<span class="dig">0.4</span>)
-    <span class="kw">return</span> <span class="str">'1'</span>;
+    <span class="kw">return</span> (APP, <span class="str">'1'</span>)
 
 
 <span class="kw">def</span> doTask(phoneNum, changeMeid):
     <span class="kw">if</span> <span class="str">"Salary"</span> == APP:
-        <span class="kw">return</span> vwtSalary(phoneNum, changeMeid)
+        <span class="kw">return</span> vwtSalary(phoneNum, changeMeid, True)
     <span class="kw">elif</span> <span class="str">"YuQing"</span> == APP:
         <span class="kw">return</span> vwtYuQing(phoneNum, changeMeid)
     <span class="kw">elif</span> <span class="str">"KaoQin"</span> == APP:
@@ -373,17 +404,27 @@ Settings.MoveMouseDelay = <span class="dig">0.12</span>
 
 <span class="kw">def</span> restartAndroid():
     <span class="kw">import</span> subprocess
-    clearToMain(False)
-    <span class="skw">click</span>(<img src="nox-close.png" />)
-    <span class="skw">wait</span>(<img src="nox-sure-to-close-emu.png" />)
-    <span class="skw">click</span>(<img src="nox-restart-confirm.png" />)
-    time.<span class="skw">sleep</span>(<span class="dig">12</span>)
 
-    subprocess.Popen([NOX_PATH, <span class="str">''</span>])
-    time.<span class="skw">sleep</span>(<span class="dig">20</span>)
+    <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">5</span>):
+        child = None
+        <span class="kw">try</span>:
+            clearToMain()
+            <span class="skw">click</span>(<img src="nox-close.png" />)
+            <span class="skw">wait</span>(<img src="nox-sure-to-close-emu.png" />)
+            <span class="skw">click</span>(<img src="nox-restart-confirm.png" />)
+            time.<span class="skw">sleep</span>(<span class="dig">12</span>)
 
-    clearToMain(False)
+            child = subprocess.Popen([NOX_PATH, <span class="str">''</span>])
+            time.<span class="skw">sleep</span>(<span class="dig">20</span>)
 
+            clearToMain()
+            <span class="kw">break</span>
+        <span class="kw">except</span> FindFailed:
+            <span class="kw">if</span> None != child:
+                child.kill()
+                time.<span class="skw">sleep</span>(<span class="dig">1</span>)
+                child.terminate()
+                time.<span class="skw">sleep</span>(<span class="dig">1</span>)
 
 <span class="kw">def</span> main():
     <span class="kw">import</span> xlrd
@@ -410,19 +451,19 @@ Settings.MoveMouseDelay = <span class="dig">0.12</span>
             ret = <span class="str">''</span>
 
             <span class="kw">if</span> DEBUG == <span class="dig">1</span>:
-                ret = doTask(phoneNum, lastRet == <span class="str">'1'</span>)
+                (app, ret) = doTask(phoneNum, lastRet == <span class="str">'1'</span>)
                 lastRet = ret
                 exceptionCount = <span class="dig">0</span>
                 ws.write(rownum, <span class="dig">1</span>, ret)
-                ws.write(rownum, <span class="dig">2</span>, APP)
+                ws.write(rownum, <span class="dig">2</span>, app)
                 wb.save(os.path.join(getBundlePath(), TASK_DATA_PATH))
             <span class="kw">else</span>:
                 <span class="kw">try</span>:
-                    ret = doTask(phoneNum, lastRet == <span class="str">'1'</span>)
+                    (app, ret) = doTask(phoneNum, lastRet == <span class="str">'1'</span>)
                     lastRet = ret
                     exceptionCount = <span class="dig">0</span>
                     ws.write(rownum, <span class="dig">1</span>, ret)
-                    ws.write(rownum, <span class="dig">2</span>, APP)
+                    ws.write(rownum, <span class="dig">2</span>, app)
                     wb.save(os.path.join(getBundlePath(), TASK_DATA_PATH))
 
                 <span class="kw">except</span> FindFailed:

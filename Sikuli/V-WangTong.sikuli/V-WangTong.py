@@ -1,16 +1,16 @@
 from os.path import expanduser
 
-TASK_DATA_PATH = "data\\xiamin-1.xls"
+TASK_DATA_PATH = "data\\chenxiu.xls"
 NOX_PATH = expanduser("~") + "\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
-#APP = "Salary"
+APP = "Salary"
 #APP = "YuQing"
-APP = "KaoQin"
-PASSWORDS = ["123123", "518518", "123321", "112233"]
+#APP = "KaoQin"
+PASSWORDS = ["168168", "123456", "123321", "123123"]
 
 Settings.MoveMouseDelay = 0.12
 
-def clearToMain(toRaise):
+def clearToMain():
     import time
     current_milli_time = lambda: int(round(time.time() * 1000))
     time0 = current_milli_time()
@@ -21,15 +21,12 @@ def clearToMain(toRaise):
         click("android-show-main.png")
         time.sleep(0.4)
         if (current_milli_time() - time0 > 10000):
-            if toRaise:
-                raise FindFailed('stuck in clearToMain()')
-            else:
-                break
+            raise FindFailed('stuck in clearToMain()')
 
 
 # if IMEI is an empty string, create one
 def setNoxMEID(phoneNum, IMEI):
-    clearToMain(True)
+    clearToMain()
     find("nox-simulator.png")
     click("nox-setup.png")
     wait("systemConfig.png")
@@ -100,7 +97,7 @@ def logoutVWT(ready):
 
 
 def startVWT(phoneNum):
-    clearToMain(True)
+    clearToMain()
     click("android-main-vwt-icon.png")
     if not exists("vwt-log-account-pass.png"):
         if exists("vwt-qiye-app-back-close.png"):
@@ -130,7 +127,7 @@ def vwtYuQing(phoneNum, changeMeid):
         setNoxMEID(phoneNum, "")
 
     ok = startVWT(phoneNum)
-    if not ok: return '2-VWT Logon Error'
+    if not ok: return (APP, '2-VWT Logon Error')
 
     wait("vwt-bar-work.png")
     click("vwt-bar-work.png")
@@ -164,19 +161,19 @@ def vwtYuQing(phoneNum, changeMeid):
     click("android-show-main.png")
     time.sleep(0.3)
 
-    return '1'
+    return (APP, '1')
 
 
 # return '1': success
 # return '2-V网通登录错误'
 # return '3-不是薪酬通用户'
 # return '4-未知错误'
-def vwtSalary(phoneNum, changeMeid):
+def vwtSalary(phoneNum, changeMeid, failToKaoQin):
     if changeMeid:
         setNoxMEID(phoneNum, "")
 
     ok = startVWT(phoneNum)
-    if not ok: return '2-VWT Logon Error'
+    if not ok: return (APP,'2-VWT Logon Error')
 
     time.sleep(0.7)
     wait("vwt-bar-work.png")
@@ -228,14 +225,48 @@ def vwtSalary(phoneNum, changeMeid):
             ret = '3-Not Salary User'
             click("vwt-salaryapp-not-user-close.png")
 
+    app = APP
+    if '1' != ret and failToKaoQin:
+        click("vwt-salaryapp-close.png")
+        time.sleep(0.3)
+        click("android-back.png")
+        wait("vwt-work-workplatform.png")
+        r = find("vwt-work-workplatform.png").below(400)
+        r.hover()
+
+        wheel(WHEEL_DOWN, 4)
+        click("vwt-kaoqin-app-icon.png")
+        wait("vwt-kaoqin-mobile-kaoqin.png")
+        click("vwt-kaoqin-loc-checkin.png")
+        time.sleep(0.8)
+
+        if exists("vwt-checkin-liketiyan.png"):
+            click("vwt-checkin-liketiyan.png")
+    
+        click("vwt-kaoqin-checkin.png")
+        time.sleep(0.5)
+        click("vwt-kaoqin-checkin-confirm.png")
+        time.sleep(0.5)
+        app = "KaoQin"
+        ret = '1'
+
+        click("vwt-salaryapp-close.png")
+        time.sleep(0.3)
+        click("vwt-bar-me.png")
+        logoutVWT(True)
+        click("android-show-main.png")
+        time.sleep(0.4)
+        return (app, ret);
+
     click("vwt-salaryapp-close.png")
+    time.sleep(0.3)
     click("android-back.png")
     time.sleep(0.5)
     click("vwt-bar-me.png")
     logoutVWT(True)
     click("android-show-main.png")
     time.sleep(0.4)
-    return ret;
+    return (app, ret);
 
 
 
@@ -246,7 +277,7 @@ def vwtKaoQin(phoneNum, changeMeid):
         setNoxMEID(phoneNum, "")
 
     ok = startVWT(phoneNum)
-    if not ok: return '2-VWT Logon Error'
+    if not ok: return (APP, '2-VWT Logon Error')
 
     time.sleep(0.7)
     wait("vwt-bar-work.png")
@@ -281,37 +312,47 @@ def vwtKaoQin(phoneNum, changeMeid):
     click("vwt-kaoqin-checkin-confirm.png")
     time.sleep(0.5)
 
- 
+
     click("vwt-salaryapp-close.png")
     time.sleep(0.5)
     click("vwt-bar-me.png")
     logoutVWT(True)
     click("android-show-main.png")
     time.sleep(0.4)
-    return '1';
+    return (APP, '1')
 
 
 def doTask(phoneNum, changeMeid):
     if "Salary" == APP:
-        return vwtSalary(phoneNum, changeMeid)
+        return vwtSalary(phoneNum, changeMeid, True)
     elif "YuQing" == APP:
         return vwtYuQing(phoneNum, changeMeid)
     elif "KaoQin" == APP:
         return vwtKaoQin(phoneNum, changeMeid)
 
 def restartAndroid():
-    import subprocess 
-    clearToMain(False)
-    click("nox-close.png")
-    wait("nox-sure-to-close-emu.png")
-    click("nox-restart-confirm.png")
-    time.sleep(12)
+    import subprocess
 
-    subprocess.Popen([NOX_PATH, ''])
-    time.sleep(20)
-    
-    clearToMain(False)
-
+    for i in range(5):
+        child = None
+        try:
+            clearToMain()
+            click("nox-close.png")
+            wait("nox-sure-to-close-emu.png")
+            click("nox-restart-confirm.png")
+            time.sleep(12)
+        
+            child = subprocess.Popen([NOX_PATH, ''])
+            time.sleep(20)
+            
+            clearToMain()
+            break
+        except FindFailed:
+            if None != child:
+                child.kill()
+                time.sleep(1)
+                child.terminate()
+                time.sleep(1)
 
 def main():
     import xlrd
@@ -338,19 +379,19 @@ def main():
             ret = ''
 
             if DEBUG == 1:
-                ret = doTask(phoneNum, lastRet == '1')
+                (app, ret) = doTask(phoneNum, lastRet == '1')
                 lastRet = ret
                 exceptionCount = 0
                 ws.write(rownum, 1, ret)
-                ws.write(rownum, 2, APP)
+                ws.write(rownum, 2, app)
                 wb.save(os.path.join(getBundlePath(), TASK_DATA_PATH))
             else:
                 try:
-                    ret = doTask(phoneNum, lastRet == '1')
+                    (app, ret) = doTask(phoneNum, lastRet == '1')
                     lastRet = ret
                     exceptionCount = 0
                     ws.write(rownum, 1, ret)
-                    ws.write(rownum, 2, APP)
+                    ws.write(rownum, 2, app)
                     wb.save(os.path.join(getBundlePath(), TASK_DATA_PATH))
 
                 except FindFailed:
