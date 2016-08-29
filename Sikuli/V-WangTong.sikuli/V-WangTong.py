@@ -236,6 +236,7 @@ def vwtSalary(phoneNum, changeMeid, failToKaoQin):
 
         wheel(WHEEL_DOWN, 4)
         click("vwt-kaoqin-app-icon.png")
+        time.sleep(0.7)
         wait("vwt-kaoqin-mobile-kaoqin.png")
         click("vwt-kaoqin-loc-checkin.png")
         time.sleep(0.8)
@@ -323,6 +324,7 @@ def vwtKaoQin(phoneNum, changeMeid):
 
 
 def doTask(phoneNum, changeMeid):
+    changeMeid = True # always changes
     if "Salary" == APP:
         return vwtSalary(phoneNum, changeMeid, True)
     elif "YuQing" == APP:
