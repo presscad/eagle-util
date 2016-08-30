@@ -1,12 +1,12 @@
 from os.path import expanduser
 
-TASK_DATA_PATH = "data\\chenxiu.xls"
+TASK_DATA_PATH = "data\\zuojialing.xls"
 NOX_PATH = expanduser("~") + "\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
-APP = "Salary"
+#APP = "Salary"
 #APP = "YuQing"
-#APP = "KaoQin"
-PASSWORDS = ["168168", "123456", "123321", "123123"]
+APP = "KaoQin"
+PASSWORDS = ["556123", "636110", "123321"]
 
 Settings.MoveMouseDelay = 0.12
 
@@ -346,9 +346,11 @@ def restartAndroid():
         
             child = subprocess.Popen([NOX_PATH, ''])
             time.sleep(20)
-            
+
+            if exists("nox-restart-confirm.png"):
+                click("nox-restart-confirm.png")
             clearToMain()
-            break
+            return
         except FindFailed:
             if None != child:
                 child.kill()
