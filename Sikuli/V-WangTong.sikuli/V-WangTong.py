@@ -293,15 +293,15 @@ def vwtKaoQin(phoneNum):
     wheel(WHEEL_DOWN, 4)
     click("vwt-kaoqin-app-icon.png")
     wait("vwt-kaoqin-mobile-kaoqin.png")
-    click("vwt-kaoqin-loc-checkin.png")
-    time.sleep(0.8)
-
-    if exists("vwt-checkin-liketiyan.png"):
-        click("vwt-checkin-liketiyan.png")
-
-    click("vwt-kaoqin-checkin.png")
+    click("vwt-kaoqin-kaoqin-icon.png")
     time.sleep(0.5)
-    click("vwt-kaoqin-checkin-confirm.png")
+    if exists("vwt-checkin-liketiyan.png"):
+        click("vwt-checkin-liketiyan.png")    
+        time.sleep(0.3)
+    wait("vwt-kaoqin-title-kaoqin.png")
+    click("vwt-kaoqin-checkin-finger.png")
+    time.sleep(0.5)
+    click("vwt-kqoqin-confirm-btn.png")
     time.sleep(0.5)
 
 
