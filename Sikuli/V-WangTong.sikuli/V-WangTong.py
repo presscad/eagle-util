@@ -1,12 +1,12 @@
 from os.path import expanduser
 
-TASK_DATA_PATH = "data\\zuojialing.xls"
+TASK_DATA_PATH = "data\\wuhaiyan.xls"
 NOX_PATH = expanduser("~") + "\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
 #APP = "Salary"
 #APP = "YuQing"
 APP = "KaoQin"
-PASSWORDS = ["556123", "636110", "123321"]
+PASSWORDS = ["123321", "321321"]
 
 Settings.MoveMouseDelay = 0.12
 
@@ -122,10 +122,7 @@ def startVWT(phoneNum):
 
 
 # return value see vwtSalary
-def vwtYuQing(phoneNum, changeMeid):
-    if changeMeid:
-        setNoxMEID(phoneNum, "")
-
+def vwtYuQing(phoneNum):
     ok = startVWT(phoneNum)
     if not ok: return (APP, '2-VWT Logon Error')
 
@@ -168,10 +165,7 @@ def vwtYuQing(phoneNum, changeMeid):
 # return '2-V网通登录错误'
 # return '3-不是薪酬通用户'
 # return '4-未知错误'
-def vwtSalary(phoneNum, changeMeid, failToKaoQin):
-    if changeMeid:
-        setNoxMEID(phoneNum, "")
-
+def vwtSalary(phoneNum, failToKaoQin):
     ok = startVWT(phoneNum)
     if not ok: return (APP,'2-VWT Logon Error')
 
@@ -273,10 +267,7 @@ def vwtSalary(phoneNum, changeMeid, failToKaoQin):
 
 # return '1': success
 # return '2-V网通登录错误'
-def vwtKaoQin(phoneNum, changeMeid):
-    if changeMeid:
-        setNoxMEID(phoneNum, "")
-
+def vwtKaoQin(phoneNum):
     ok = startVWT(phoneNum)
     if not ok: return (APP, '2-VWT Logon Error')
 
@@ -323,14 +314,21 @@ def vwtKaoQin(phoneNum, changeMeid):
     return (APP, '1')
 
 
-def doTask(phoneNum, changeMeid):
+def doTask(phoneNum, MEID):
     changeMeid = True # always changes
+
+    if changeMeid:
+        if len(MEID) < 10:
+            setNoxMEID(phoneNum, "")
+        else:
+            setNoxMEID(phoneNum, MEID)
+
     if "Salary" == APP:
-        return vwtSalary(phoneNum, changeMeid, True)
+        return vwtSalary(phoneNum, True)
     elif "YuQing" == APP:
-        return vwtYuQing(phoneNum, changeMeid)
+        return vwtYuQing(phoneNum)
     elif "KaoQin" == APP:
-        return vwtKaoQin(phoneNum, changeMeid)
+        return vwtKaoQin(phoneNum)
 
 def restartAndroid():
     import subprocess
@@ -369,7 +367,6 @@ def main():
     ws = wb.get_sheet(0)
 
     # assume it was successful
-    lastRet = '1'
     exceptionCount = 0;
     for rownum in range(1, rs.nrows):
         phoneNum = str(rs.row_values(rownum)[0])
@@ -377,30 +374,28 @@ def main():
             phoneNum = phoneNum.split('.')[0]
         if phoneNum == '': continue
 
-        done = str(rs.row_values(rownum)[1])
+        MEID = str(rs.row_values(rownum)[1])
+        done = str(rs.row_values(rownum)[2])
         if '' == done:
             print 'Task: [',rownum,']:', 'phoneNum =', phoneNum
             ret = ''
 
             if DEBUG == 1:
-                (app, ret) = doTask(phoneNum, lastRet == '1')
-                lastRet = ret
+                (app, ret) = doTask(phoneNum, MEID)
                 exceptionCount = 0
-                ws.write(rownum, 1, ret)
-                ws.write(rownum, 2, app)
+                ws.write(rownum, 2, ret)
+                ws.write(rownum, 3, app)
                 wb.save(os.path.join(getBundlePath(), TASK_DATA_PATH))
             else:
                 try:
-                    (app, ret) = doTask(phoneNum, lastRet == '1')
-                    lastRet = ret
+                    (app, ret) = doTask(phoneNum, MEID)
                     exceptionCount = 0
-                    ws.write(rownum, 1, ret)
-                    ws.write(rownum, 2, app)
+                    ws.write(rownum, 2, ret)
+                    ws.write(rownum, 3, app)
                     wb.save(os.path.join(getBundlePath(), TASK_DATA_PATH))
 
                 except FindFailed:
                     exceptionCount = exceptionCount + 1
-                    lastRet = 'exception'
                     print "exception FindFailed found, continuous count = ", exceptionCount
 
         if exceptionCount >= 3:

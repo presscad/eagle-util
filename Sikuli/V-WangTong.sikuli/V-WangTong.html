@@ -72,13 +72,13 @@
 <pre class="sikuli-code">
 <span class="kw">from</span> os.path <span class="kw">import</span> expanduser
 
-TASK_DATA_PATH = <span class="str">"data\\zuojialing.xls"</span>
+TASK_DATA_PATH = <span class="str">"data\\wuhaiyan.xls"</span>
 NOX_PATH = expanduser(<span class="str">"~"</span>) + <span class="str">"\\AppData\\Roaming\\Nox\\bin\\Nox.exe"</span>
 DEBUG = <span class="dig">0</span>
 <span class="cmt">#APP = "Salary"</span>
 <span class="cmt">#APP = "YuQing"</span>
 APP = <span class="str">"KaoQin"</span>
-PASSWORDS = [<span class="str">"556123"</span>, <span class="str">"636110"</span>, <span class="str">"123321"</span>]
+PASSWORDS = [<span class="str">"123321"</span>, <span class="str">"321321"</span>]
 
 Settings.MoveMouseDelay = <span class="dig">0.12</span>
 
@@ -194,10 +194,7 @@ Settings.MoveMouseDelay = <span class="dig">0.12</span>
 
 
 <span class="cmt"># return value see vwtSalary</span>
-<span class="kw">def</span> vwtYuQing(phoneNum, changeMeid):
-    <span class="kw">if</span> changeMeid:
-        setNoxMEID(phoneNum, <span class="str">""</span>)
-
+<span class="kw">def</span> vwtYuQing(phoneNum):
     ok = startVWT(phoneNum)
     <span class="kw">if</span> <span class="kw">not</span> ok: <span class="kw">return</span> (APP, <span class="str">'2-VWT Logon Error'</span>)
 
@@ -240,10 +237,7 @@ Settings.MoveMouseDelay = <span class="dig">0.12</span>
 <span class="cmt"># return '2-V网通登录错误'</span>
 <span class="cmt"># return '3-不是薪酬通用户'</span>
 <span class="cmt"># return '4-未知错误'</span>
-<span class="kw">def</span> vwtSalary(phoneNum, changeMeid, failToKaoQin):
-    <span class="kw">if</span> changeMeid:
-        setNoxMEID(phoneNum, <span class="str">""</span>)
-
+<span class="kw">def</span> vwtSalary(phoneNum, failToKaoQin):
     ok = startVWT(phoneNum)
     <span class="kw">if</span> <span class="kw">not</span> ok: <span class="kw">return</span> (APP,<span class="str">'2-VWT Logon Error'</span>)
 
@@ -345,10 +339,7 @@ Settings.MoveMouseDelay = <span class="dig">0.12</span>
 
 <span class="cmt"># return '1': success</span>
 <span class="cmt"># return '2-V网通登录错误'</span>
-<span class="kw">def</span> vwtKaoQin(phoneNum, changeMeid):
-    <span class="kw">if</span> changeMeid:
-        setNoxMEID(phoneNum, <span class="str">""</span>)
-
+<span class="kw">def</span> vwtKaoQin(phoneNum):
     ok = startVWT(phoneNum)
     <span class="kw">if</span> <span class="kw">not</span> ok: <span class="kw">return</span> (APP, <span class="str">'2-VWT Logon Error'</span>)
 
@@ -395,14 +386,21 @@ Settings.MoveMouseDelay = <span class="dig">0.12</span>
     <span class="kw">return</span> (APP, <span class="str">'1'</span>)
 
 
-<span class="kw">def</span> doTask(phoneNum, changeMeid):
+<span class="kw">def</span> doTask(phoneNum, MEID):
     changeMeid = True <span class="cmt"># always changes</span>
+
+    <span class="kw">if</span> changeMeid:
+        <span class="kw">if</span> len(MEID) &lt; <span class="dig">10</span>:
+            setNoxMEID(phoneNum, <span class="str">""</span>)
+        <span class="kw">else</span>:
+            setNoxMEID(phoneNum, MEID)
+
     <span class="kw">if</span> <span class="str">"Salary"</span> == APP:
-        <span class="kw">return</span> vwtSalary(phoneNum, changeMeid, True)
+        <span class="kw">return</span> vwtSalary(phoneNum, True)
     <span class="kw">elif</span> <span class="str">"YuQing"</span> == APP:
-        <span class="kw">return</span> vwtYuQing(phoneNum, changeMeid)
+        <span class="kw">return</span> vwtYuQing(phoneNum)
     <span class="kw">elif</span> <span class="str">"KaoQin"</span> == APP:
-        <span class="kw">return</span> vwtKaoQin(phoneNum, changeMeid)
+        <span class="kw">return</span> vwtKaoQin(phoneNum)
 
 <span class="kw">def</span> restartAndroid():
     <span class="kw">import</span> subprocess
@@ -441,7 +439,6 @@ Settings.MoveMouseDelay = <span class="dig">0.12</span>
     ws = wb.get_sheet(<span class="dig">0</span>)
 
     <span class="cmt"># assume it was successful</span>
-    lastRet = <span class="str">'1'</span>
     exceptionCount = <span class="dig">0</span>;
     <span class="kw">for</span> rownum <span class="kw">in</span> range(<span class="dig">1</span>, rs.nrows):
         phoneNum = str(rs.row_values(rownum)[<span class="dig">0</span>])
@@ -449,30 +446,28 @@ Settings.MoveMouseDelay = <span class="dig">0.12</span>
             phoneNum = phoneNum.split(<span class="str">'.'</span>)[<span class="dig">0</span>]
         <span class="kw">if</span> phoneNum == <span class="str">''</span>: <span class="kw">continue</span>
 
-        done = str(rs.row_values(rownum)[<span class="dig">1</span>])
+        MEID = str(rs.row_values(rownum)[<span class="dig">1</span>])
+        done = str(rs.row_values(rownum)[<span class="dig">2</span>])
         <span class="kw">if</span> <span class="str">''</span> == done:
             <span class="kw">print</span> <span class="str">'Task: ['</span>,rownum,<span class="str">']:'</span>, <span class="str">'phoneNum ='</span>, phoneNum
             ret = <span class="str">''</span>
 
             <span class="kw">if</span> DEBUG == <span class="dig">1</span>:
-                (app, ret) = doTask(phoneNum, lastRet == <span class="str">'1'</span>)
-                lastRet = ret
+                (app, ret) = doTask(phoneNum, MEID)
                 exceptionCount = <span class="dig">0</span>
-                ws.write(rownum, <span class="dig">1</span>, ret)
-                ws.write(rownum, <span class="dig">2</span>, app)
+                ws.write(rownum, <span class="dig">2</span>, ret)
+                ws.write(rownum, <span class="dig">3</span>, app)
                 wb.save(os.path.join(getBundlePath(), TASK_DATA_PATH))
             <span class="kw">else</span>:
                 <span class="kw">try</span>:
-                    (app, ret) = doTask(phoneNum, lastRet == <span class="str">'1'</span>)
-                    lastRet = ret
+                    (app, ret) = doTask(phoneNum, MEID)
                     exceptionCount = <span class="dig">0</span>
-                    ws.write(rownum, <span class="dig">1</span>, ret)
-                    ws.write(rownum, <span class="dig">2</span>, app)
+                    ws.write(rownum, <span class="dig">2</span>, ret)
+                    ws.write(rownum, <span class="dig">3</span>, app)
                     wb.save(os.path.join(getBundlePath(), TASK_DATA_PATH))
 
                 <span class="kw">except</span> FindFailed:
                     exceptionCount = exceptionCount + <span class="dig">1</span>
-                    lastRet = <span class="str">'exception'</span>
                     <span class="kw">print</span> <span class="str">"exception FindFailed found, continuous count = "</span>, exceptionCount
 
         <span class="kw">if</span> exceptionCount &gt;= <span class="dig">3</span>:
