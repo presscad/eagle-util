@@ -1,12 +1,12 @@
 from os.path import expanduser
 
-TASK_DATA_PATH = "data\\wuhaiyan.xls"
+TASK_DATA_PATH = "data\\wuhaiyan-sep-2.xls"
 NOX_PATH = expanduser("~") + "\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
 #APP = "Salary"
 #APP = "YuQing"
 APP = "KaoQin"
-PASSWORDS = ["123321", "321321"]
+PASSWORDS = ["123321", "123456", "123123"]
 
 Settings.MoveMouseDelay = 0.12
 
@@ -237,7 +237,7 @@ def vwtSalary(phoneNum, failToKaoQin):
 
         if exists("vwt-checkin-liketiyan.png"):
             click("vwt-checkin-liketiyan.png")
-    
+
         click("vwt-kaoqin-checkin.png")
         time.sleep(0.5)
         click("vwt-kaoqin-checkin-confirm.png")
@@ -299,7 +299,10 @@ def vwtKaoQin(phoneNum):
         click("vwt-checkin-liketiyan.png")    
         time.sleep(0.3)
     wait("vwt-kaoqin-title-kaoqin.png")
-    click("vwt-kaoqin-checkin-finger.png")
+    if exists("vwt-kaoqin-checkout-finger.png", 0.5):
+        click("vwt-kaoqin-checkout-finger.png")
+    else:
+        click("vwt-kaoqin-checkin-finger.png")
     time.sleep(0.5)
     click("vwt-kqoqin-confirm-btn.png")
     time.sleep(0.5)
@@ -315,13 +318,11 @@ def vwtKaoQin(phoneNum):
 
 
 def doTask(phoneNum, MEID):
-    changeMeid = True # always changes
-
-    if changeMeid:
-        if len(MEID) < 10:
-            setNoxMEID(phoneNum, "")
-        else:
-            setNoxMEID(phoneNum, MEID)
+    # always changes MEID
+    if len(MEID) < 10:
+        setNoxMEID(phoneNum, "")
+    else:
+        setNoxMEID(phoneNum, MEID)
 
     if "Salary" == APP:
         return vwtSalary(phoneNum, True)
@@ -332,6 +333,9 @@ def doTask(phoneNum, MEID):
 
 def restartAndroid():
     import subprocess
+        
+    # workaround to fix the image identifying issue https://github.com/RaiMan/SikuliX-2014/issues/139
+    Image.reset()
 
     for i in range(5):
         child = None
