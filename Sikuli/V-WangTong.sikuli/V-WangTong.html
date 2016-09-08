@@ -72,27 +72,27 @@
 <pre class="sikuli-code">
 <span class="kw">from</span> os.path <span class="kw">import</span> expanduser
 
-TASK_DATA_PATH = <span class="str">"data\\wuhaiyan-sep-2.xls"</span>
+TASK_DATA_PATH = <span class="str">"data\\qiyongwei.xls"</span>
 NOX_PATH = expanduser(<span class="str">"~"</span>) + <span class="str">"\\AppData\\Roaming\\Nox\\bin\\Nox.exe"</span>
 DEBUG = <span class="dig">0</span>
 <span class="cmt">#APP = "Salary"</span>
 <span class="cmt">#APP = "YuQing"</span>
 APP = <span class="str">"KaoQin"</span>
-PASSWORDS = [<span class="str">"123321"</span>, <span class="str">"123456"</span>, <span class="str">"123123"</span>]
+PASSWORDS = [<span class="str">"111111"</span>]
 
 Settings.MoveMouseDelay = <span class="dig">0.12</span>
 
 <span class="kw">def</span> clearToMain():
     <span class="kw">import</span> time
-    current_milli_time = <span class="kw">lambda</span>: int(round(time.time() * <span class="dig">1000</span>))
-    time0 = current_milli_time()
+    current_time = <span class="kw">lambda</span>: int(round(time.time()))
+    time0 = current_time()
     <span class="kw">while</span> (<span class="kw">not</span> exists(<img src="android-main-app-center.png" />)):
         <span class="skw">click</span>(<img src="android-back.png" />)
         time.<span class="skw">sleep</span>(<span class="dig">0.1</span>)
         <span class="skw">click</span>(<img src="android-back.png" />)
         <span class="skw">click</span>(<img src="android-show-main.png" />)
         time.<span class="skw">sleep</span>(<span class="dig">0.4</span>)
-        <span class="kw">if</span> (current_milli_time() - time0 &gt; <span class="dig">10000</span>):
+        <span class="kw">if</span> (current_time() - time0 &gt; <span class="dig">7</span>):
             <span class="kw">raise</span> FindFailed(<span class="str">'stuck in clearToMain()'</span>)
 
 
@@ -371,7 +371,7 @@ Settings.MoveMouseDelay = <span class="dig">0.12</span>
         <span class="skw">click</span>(<img src="vwt-checkin-liketiyan.png" />)
         time.<span class="skw">sleep</span>(<span class="dig">0.3</span>)
     <span class="skw">wait</span>(<img src="vwt-kaoqin-title-kaoqin.png" />)
-    <span class="kw">if</span> exists(<img src="vwt-kaoqin-checkout-finger.png" />, <span class="dig">0.5</span>):
+    <span class="kw">if</span> exists(<img src="vwt-kaoqin-checkout-finger.png" />, <span class="dig">0</span>):
         <span class="skw">click</span>(<img src="vwt-kaoqin-checkout-finger.png" />)
     <span class="kw">else</span>:
         <span class="skw">click</span>(<img src="vwt-kaoqin-checkin-finger.png" />)
@@ -420,6 +420,10 @@ Settings.MoveMouseDelay = <span class="dig">0.12</span>
 
             child = subprocess.Popen([NOX_PATH, <span class="str">''</span>])
             time.<span class="skw">sleep</span>(<span class="dig">20</span>)
+            <span class="kw">if</span> <span class="kw">not</span> exists(<img src="nox-simulator.png" />):
+                time.<span class="skw">sleep</span>(<span class="dig">10</span>)
+                <span class="kw">if</span> <span class="kw">not</span> exists(<img src="nox-simulator.png" />):
+                    time.<span class="skw">sleep</span>(<span class="dig">10</span>)
 
             <span class="kw">if</span> exists(<img src="nox-restart-confirm.png" />):
                 <span class="skw">click</span>(<img src="nox-restart-confirm.png" />)

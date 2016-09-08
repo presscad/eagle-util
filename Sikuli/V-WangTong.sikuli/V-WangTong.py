@@ -1,26 +1,26 @@
 from os.path import expanduser
 
-TASK_DATA_PATH = "data\\wuhaiyan-sep-2.xls"
+TASK_DATA_PATH = "data\\qiyongwei.xls"
 NOX_PATH = expanduser("~") + "\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
 #APP = "Salary"
 #APP = "YuQing"
 APP = "KaoQin"
-PASSWORDS = ["123321", "123456", "123123"]
+PASSWORDS = ["111111"]
 
 Settings.MoveMouseDelay = 0.12
 
 def clearToMain():
     import time
-    current_milli_time = lambda: int(round(time.time() * 1000))
-    time0 = current_milli_time()
+    current_time = lambda: int(round(time.time()))
+    time0 = current_time()
     while (not exists("android-main-app-center.png")):
         click("android-back.png")
         time.sleep(0.1)
         click("android-back.png")
         click("android-show-main.png")
         time.sleep(0.4)
-        if (current_milli_time() - time0 > 10000):
+        if (current_time() - time0 > 7):
             raise FindFailed('stuck in clearToMain()')
 
 
@@ -299,7 +299,7 @@ def vwtKaoQin(phoneNum):
         click("vwt-checkin-liketiyan.png")    
         time.sleep(0.3)
     wait("vwt-kaoqin-title-kaoqin.png")
-    if exists("vwt-kaoqin-checkout-finger.png", 0.5):
+    if exists("vwt-kaoqin-checkout-finger.png", 0):
         click("vwt-kaoqin-checkout-finger.png")
     else:
         click("vwt-kaoqin-checkin-finger.png")
@@ -333,7 +333,7 @@ def doTask(phoneNum, MEID):
 
 def restartAndroid():
     import subprocess
-        
+
     # workaround to fix the image identifying issue https://github.com/RaiMan/SikuliX-2014/issues/139
     Image.reset()
 
@@ -345,9 +345,13 @@ def restartAndroid():
             wait("nox-sure-to-close-emu.png")
             click("nox-restart-confirm.png")
             time.sleep(12)
-        
+
             child = subprocess.Popen([NOX_PATH, ''])
             time.sleep(20)
+            if not exists("nox-simulator.png"):
+                time.sleep(10)
+                if not exists("nox-simulator.png"):
+                    time.sleep(10)
 
             if exists("nox-restart-confirm.png"):
                 click("nox-restart-confirm.png")
