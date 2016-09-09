@@ -1,12 +1,12 @@
 from os.path import expanduser
 
-TASK_DATA_PATH = "data\\qiyongwei.xls"
+TASK_DATA_PATH = "data\\chenwei.xls"
 NOX_PATH = expanduser("~") + "\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
 #APP = "Salary"
 #APP = "YuQing"
 APP = "KaoQin"
-PASSWORDS = ["111111"]
+PASSWORDS = ["123321", "123123"]
 
 Settings.MoveMouseDelay = 0.12
 
@@ -333,14 +333,18 @@ def doTask(phoneNum, MEID):
 
 def restartAndroid():
     import subprocess
-
+    print 'Enters restartAndroid()' 
     # workaround to fix the image identifying issue https://github.com/RaiMan/SikuliX-2014/issues/139
     Image.reset()
 
     for i in range(5):
         child = None
         try:
-            clearToMain()
+            try:
+                clearToMain()
+            except FindFailed:
+                pass
+
             click("nox-close.png")
             wait("nox-sure-to-close-emu.png")
             click("nox-restart-confirm.png")

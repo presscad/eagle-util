@@ -72,13 +72,13 @@
 <pre class="sikuli-code">
 <span class="kw">from</span> os.path <span class="kw">import</span> expanduser
 
-TASK_DATA_PATH = <span class="str">"data\\qiyongwei.xls"</span>
+TASK_DATA_PATH = <span class="str">"data\\chenwei.xls"</span>
 NOX_PATH = expanduser(<span class="str">"~"</span>) + <span class="str">"\\AppData\\Roaming\\Nox\\bin\\Nox.exe"</span>
 DEBUG = <span class="dig">0</span>
 <span class="cmt">#APP = "Salary"</span>
 <span class="cmt">#APP = "YuQing"</span>
 APP = <span class="str">"KaoQin"</span>
-PASSWORDS = [<span class="str">"111111"</span>]
+PASSWORDS = [<span class="str">"123321"</span>, <span class="str">"123123"</span>]
 
 Settings.MoveMouseDelay = <span class="dig">0.12</span>
 
@@ -405,14 +405,18 @@ Settings.MoveMouseDelay = <span class="dig">0.12</span>
 
 <span class="kw">def</span> restartAndroid():
     <span class="kw">import</span> subprocess
-
+    <span class="kw">print</span> <span class="str">'Enters restartAndroid()'</span>
     <span class="cmt"># workaround to fix the image identifying issue https://github.com/RaiMan/SikuliX-2014/issues/139</span>
     Image.reset()
 
     <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">5</span>):
         child = None
         <span class="kw">try</span>:
-            clearToMain()
+            <span class="kw">try</span>:
+                clearToMain()
+            <span class="kw">except</span> FindFailed:
+                <span class="kw">pass</span>
+
             <span class="skw">click</span>(<img src="nox-close.png" />)
             <span class="skw">wait</span>(<img src="nox-sure-to-close-emu.png" />)
             <span class="skw">click</span>(<img src="nox-restart-confirm.png" />)
