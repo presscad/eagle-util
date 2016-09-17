@@ -72,13 +72,13 @@
 <pre class="sikuli-code">
 <span class="kw">from</span> os.path <span class="kw">import</span> expanduser
 
-TASK_DATA_PATH = <span class="str">"data\\chenwei.xls"</span>
+TASK_DATA_PATH = <span class="str">"data\\chenxiu.xls"</span>
 NOX_PATH = expanduser(<span class="str">"~"</span>) + <span class="str">"\\AppData\\Roaming\\Nox\\bin\\Nox.exe"</span>
 DEBUG = <span class="dig">0</span>
 <span class="cmt">#APP = "Salary"</span>
 <span class="cmt">#APP = "YuQing"</span>
 APP = <span class="str">"KaoQin"</span>
-PASSWORDS = [<span class="str">"123321"</span>, <span class="str">"123123"</span>]
+PASSWORDS = [<span class="str">"168168"</span>]
 
 Settings.MoveMouseDelay = <span class="dig">0.12</span>
 
@@ -364,6 +364,7 @@ Settings.MoveMouseDelay = <span class="dig">0.12</span>
 
     wheel(WHEEL_DOWN, <span class="dig">4</span>)
     <span class="skw">click</span>(<img src="vwt-kaoqin-app-icon.png" />)
+    time.<span class="skw">sleep</span>(<span class="dig">1</span>)
     <span class="skw">wait</span>(<img src="vwt-kaoqin-mobile-kaoqin.png" />)
     <span class="skw">click</span>(<img src="vwt-kaoqin-kaoqin-icon.png" />)
     time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)

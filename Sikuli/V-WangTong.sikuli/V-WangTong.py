@@ -1,12 +1,12 @@
 from os.path import expanduser
 
-TASK_DATA_PATH = "data\\chenwei.xls"
+TASK_DATA_PATH = "data\\chenxiu.xls"
 NOX_PATH = expanduser("~") + "\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
 #APP = "Salary"
 #APP = "YuQing"
 APP = "KaoQin"
-PASSWORDS = ["123321", "123123"]
+PASSWORDS = ["168168"]
 
 Settings.MoveMouseDelay = 0.12
 
@@ -292,6 +292,7 @@ def vwtKaoQin(phoneNum):
 
     wheel(WHEEL_DOWN, 4)
     click("vwt-kaoqin-app-icon.png")
+    time.sleep(1)
     wait("vwt-kaoqin-mobile-kaoqin.png")
     click("vwt-kaoqin-kaoqin-icon.png")
     time.sleep(0.5)
