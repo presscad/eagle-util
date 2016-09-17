@@ -372,13 +372,21 @@ Settings.MoveMouseDelay = <span class="dig">0.12</span>
         <span class="skw">click</span>(<img src="vwt-checkin-liketiyan.png" />)
         time.<span class="skw">sleep</span>(<span class="dig">0.3</span>)
     <span class="skw">wait</span>(<img src="vwt-kaoqin-title-kaoqin.png" />)
+
+    punched = <span class="dig">0</span>
     <span class="kw">if</span> exists(<img src="vwt-kaoqin-checkout-finger.png" />, <span class="dig">0</span>):
         <span class="skw">click</span>(<img src="vwt-kaoqin-checkout-finger.png" />)
+        punched = <span class="dig">1</span>
+    <span class="kw">elif</span> exists(<img src="vwt-kaoqin-already-check.png" />, <span class="dig">0</span>):
+        <span class="kw">pass</span>
     <span class="kw">else</span>:
         <span class="skw">click</span>(<img src="vwt-kaoqin-checkin-finger.png" />)
-    time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
-    <span class="skw">click</span>(<img src="vwt-kqoqin-confirm-btn.png" />)
-    time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+        punched = <span class="dig">1</span>
+
+    <span class="kw">if</span> (<span class="dig">1</span> == punched):
+        time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+        <span class="skw">click</span>(<img src="vwt-kqoqin-confirm-btn.png" />)
+        time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
 
 
     <span class="skw">click</span>(<img src="vwt-salaryapp-close.png" />)

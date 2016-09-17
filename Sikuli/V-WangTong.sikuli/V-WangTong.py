@@ -300,13 +300,21 @@ def vwtKaoQin(phoneNum):
         click("vwt-checkin-liketiyan.png")    
         time.sleep(0.3)
     wait("vwt-kaoqin-title-kaoqin.png")
+
+    punched = 0
     if exists("vwt-kaoqin-checkout-finger.png", 0):
         click("vwt-kaoqin-checkout-finger.png")
+        punched = 1
+    elif exists("vwt-kaoqin-already-check.png", 0): 
+        pass
     else:
         click("vwt-kaoqin-checkin-finger.png")
-    time.sleep(0.5)
-    click("vwt-kqoqin-confirm-btn.png")
-    time.sleep(0.5)
+        punched = 1
+
+    if (1 == punched):
+        time.sleep(0.5)
+        click("vwt-kqoqin-confirm-btn.png")
+        time.sleep(0.5)
 
 
     click("vwt-salaryapp-close.png")
