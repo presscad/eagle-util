@@ -1,12 +1,12 @@
 from os.path import expanduser
 
-TASK_DATA_PATH = "data\\chenxiu.xls"
+TASK_DATA_PATH = "data\\xiamin-8yue.xls"
 NOX_PATH = expanduser("~") + "\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
 #APP = "Salary"
 #APP = "YuQing"
 APP = "KaoQin"
-PASSWORDS = ["168168"]
+PASSWORDS = ["123123", "123321", "518518", "321321", "112233"]
 
 Settings.MoveMouseDelay = 0.12
 
@@ -68,10 +68,11 @@ def logonVWT(phoneNum, password):
     time.sleep(0.15)
 
     click("vwt-log-logon.png")
-    time.sleep(0.25)
+    time.sleep(1)
     # sometimes, the below message may appear too slowly, or stay for too long, need to wait vanish twice
     waitVanish("vwt-v-is-working.png")
     waitVanish("vwt-v-is-working.png")
+    time.sleep(0.5)
 
     if exists("vwt-logon-password-err.png"):
         click("vwt-pass-err-close.png")
