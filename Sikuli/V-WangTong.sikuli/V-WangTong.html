@@ -72,13 +72,13 @@
 <pre class="sikuli-code">
 <span class="kw">from</span> os.path <span class="kw">import</span> expanduser
 
-TASK_DATA_PATH = <span class="str">"data\\xiamin-8yue.xls"</span>
+TASK_DATA_PATH = <span class="str">"data\\yeyaya.xls"</span>
 NOX_PATH = expanduser(<span class="str">"~"</span>) + <span class="str">"\\AppData\\Roaming\\Nox\\bin\\Nox.exe"</span>
 DEBUG = <span class="dig">0</span>
 <span class="cmt">#APP = "Salary"</span>
 <span class="cmt">#APP = "YuQing"</span>
 APP = <span class="str">"KaoQin"</span>
-PASSWORDS = [<span class="str">"123123"</span>, <span class="str">"123321"</span>, <span class="str">"518518"</span>, <span class="str">"321321"</span>, <span class="str">"112233"</span>]
+PASSWORDS = [<span class="str">"123321"</span>, <span class="str">"123456"</span>, <span class="str">"123123"</span>, <span class="str">"321321"</span>, <span class="str">"112233"</span>]
 
 Settings.MoveMouseDelay = <span class="dig">0.12</span>
 
@@ -375,7 +375,10 @@ Settings.MoveMouseDelay = <span class="dig">0.12</span>
     <span class="skw">wait</span>(<img src="vwt-kaoqin-title-kaoqin.png" />)
 
     punched = <span class="dig">0</span>
-    <span class="kw">if</span> exists(<img src="vwt-kaoqin-checkout-finger.png" />, <span class="dig">0</span>):
+    <span class="kw">if</span> exists(<img src="vwt-kaoqin-checkin-finger.png" />, <span class="dig">0</span>):
+        <span class="skw">click</span>(<img src="vwt-kaoqin-checkin-finger.png" />)
+        punched = <span class="dig">1</span>
+    <span class="kw">elif</span> exists(<img src="vwt-kaoqin-checkout-finger.png" />, <span class="dig">0</span>):
         <span class="skw">click</span>(<img src="vwt-kaoqin-checkout-finger.png" />)
         punched = <span class="dig">1</span>
     <span class="kw">elif</span> exists(<img src="vwt-kaoqin-already-check.png" />, <span class="dig">0</span>):
