@@ -1,14 +1,14 @@
 from os.path import expanduser
 
-TASK_DATA_PATH = "data\\yeyaya.xls"
+TASK_DATA_PATH = "data\\yangzhongcheng.xls"
 NOX_PATH = expanduser("~") + "\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
 #APP = "Salary"
 #APP = "YuQing"
 APP = "KaoQin"
-PASSWORDS = ["123321", "123456", "123123", "321321", "112233"]
+PASSWORDS = ["123456", "123321", "qqq111"]
 
-Settings.MoveMouseDelay = 0.12
+Settings.MoveMouseDelay = 0.11
 
 def clearToMain():
     import time
