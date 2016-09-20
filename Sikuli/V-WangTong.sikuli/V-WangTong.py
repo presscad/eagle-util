@@ -7,6 +7,7 @@ DEBUG = 0
 #APP = "YuQing"
 APP = "KaoQin"
 PASSWORDS = ["123456", "123321", "qqq111"]
+NOX_PROCESS = None
 
 Settings.MoveMouseDelay = 0.11
 
@@ -345,6 +346,7 @@ def doTask(phoneNum, MEID):
         return vwtKaoQin(phoneNum)
 
 def restartAndroid():
+    global NOX_PROCESS
     import subprocess
     print 'Enters restartAndroid()' 
     # workaround to fix the image identifying issue https://github.com/RaiMan/SikuliX-2014/issues/139
@@ -354,16 +356,20 @@ def restartAndroid():
         child = None
         try:
             try:
+                if exists("nox-restart-confirm.png", 0):
+                    click("nox-restart-confirm.png")
+                if exists("close.png", 0):
+                    click("close.png")
+
                 clearToMain()
+                click("nox-close.png")
+                wait("nox-sure-to-close-emu.png")
+                click("nox-restart-confirm.png")
+                time.sleep(12)
             except FindFailed:
                 pass
 
-            click("nox-close.png")
-            wait("nox-sure-to-close-emu.png")
-            click("nox-restart-confirm.png")
-            time.sleep(12)
-
-            child = subprocess.Popen([NOX_PATH, ''])
+            NOX_PROCESS = child = subprocess.Popen([NOX_PATH, ''])
             time.sleep(20)
             if not exists("nox-simulator.png"):
                 time.sleep(10)
@@ -380,6 +386,13 @@ def restartAndroid():
                 time.sleep(1)
                 child.terminate()
                 time.sleep(1)
+                child = None
+            elif None != NOX_PROCESS:
+                NOX_PROCESS.kill()
+                time.sleep(1)
+                NOX_PROCESS.terminate()
+                time.sleep(1)
+                NOX_PROCESS = None
 
 def main():
     import xlrd

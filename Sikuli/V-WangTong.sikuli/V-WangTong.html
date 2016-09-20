@@ -79,6 +79,7 @@ DEBUG = <span class="dig">0</span>
 <span class="cmt">#APP = "YuQing"</span>
 APP = <span class="str">"KaoQin"</span>
 PASSWORDS = [<span class="str">"123456"</span>, <span class="str">"123321"</span>, <span class="str">"qqq111"</span>]
+NOX_PROCESS = None
 
 Settings.MoveMouseDelay = <span class="dig">0.11</span>
 
@@ -417,6 +418,7 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
         <span class="kw">return</span> vwtKaoQin(phoneNum)
 
 <span class="kw">def</span> restartAndroid():
+    <span class="kw">global</span> NOX_PROCESS
     <span class="kw">import</span> subprocess
     <span class="kw">print</span> <span class="str">'Enters restartAndroid()'</span>
     <span class="cmt"># workaround to fix the image identifying issue https://github.com/RaiMan/SikuliX-2014/issues/139</span>
@@ -426,16 +428,20 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
         child = None
         <span class="kw">try</span>:
             <span class="kw">try</span>:
+                <span class="kw">if</span> exists(<img src="nox-restart-confirm.png" />, <span class="dig">0</span>):
+                    <span class="skw">click</span>(<img src="nox-restart-confirm.png" />)
+                <span class="kw">if</span> exists(<img src="close.png" />, <span class="dig">0</span>):
+                    <span class="skw">click</span>(<img src="close.png" />)
+
                 clearToMain()
+                <span class="skw">click</span>(<img src="nox-close.png" />)
+                <span class="skw">wait</span>(<img src="nox-sure-to-close-emu.png" />)
+                <span class="skw">click</span>(<img src="nox-restart-confirm.png" />)
+                time.<span class="skw">sleep</span>(<span class="dig">12</span>)
             <span class="kw">except</span> FindFailed:
                 <span class="kw">pass</span>
 
-            <span class="skw">click</span>(<img src="nox-close.png" />)
-            <span class="skw">wait</span>(<img src="nox-sure-to-close-emu.png" />)
-            <span class="skw">click</span>(<img src="nox-restart-confirm.png" />)
-            time.<span class="skw">sleep</span>(<span class="dig">12</span>)
-
-            child = subprocess.Popen([NOX_PATH, <span class="str">''</span>])
+            NOX_PROCESS = child = subprocess.Popen([NOX_PATH, <span class="str">''</span>])
             time.<span class="skw">sleep</span>(<span class="dig">20</span>)
             <span class="kw">if</span> <span class="kw">not</span> exists(<img src="nox-simulator.png" />):
                 time.<span class="skw">sleep</span>(<span class="dig">10</span>)
@@ -452,6 +458,13 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
                 time.<span class="skw">sleep</span>(<span class="dig">1</span>)
                 child.terminate()
                 time.<span class="skw">sleep</span>(<span class="dig">1</span>)
+                child = None
+            <span class="kw">elif</span> None != NOX_PROCESS:
+                NOX_PROCESS.kill()
+                time.<span class="skw">sleep</span>(<span class="dig">1</span>)
+                NOX_PROCESS.terminate()
+                time.<span class="skw">sleep</span>(<span class="dig">1</span>)
+                NOX_PROCESS = None
 
 <span class="kw">def</span> main():
     <span class="kw">import</span> xlrd
