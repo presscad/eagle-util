@@ -80,10 +80,10 @@ def logonVWT(phoneNum, password):
         print "logonVWT(" + phoneNum + ", " + password + "), return False"
         return False
     else:
-        waitVanish("vwt-log-updating-phonebook.png")
         if exists("vwt-after-logon-popup.png", 0):
             click("vwt-after-logon-popup-close.png")
-        waitVanish("vwt-log-updating-phonebook.png")
+        else:
+            waitVanish("vwt-log-updating-phonebook.png")
         print "logonVWT(" + phoneNum + ", " + password + "), return True"
         return True
 
