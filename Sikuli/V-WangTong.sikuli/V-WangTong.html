@@ -153,6 +153,8 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
         <span class="kw">return</span> False
     <span class="kw">else</span>:
         waitVanish(<img src="vwt-log-updating-phonebook.png" />)
+        <span class="kw">if</span> exists(<img src="vwt-after-logon-popup.png" />, <span class="dig">0</span>):
+            <span class="skw">click</span>(<img src="vwt-after-logon-popup-close.png" />)
         waitVanish(<img src="vwt-log-updating-phonebook.png" />)
         <span class="kw">print</span> <span class="str">"logonVWT("</span> + phoneNum + <span class="str">", "</span> + password + <span class="str">"), return True"</span>
         <span class="kw">return</span> True
