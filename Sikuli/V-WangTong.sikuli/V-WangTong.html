@@ -162,6 +162,8 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
 
 <span class="kw">def</span> logoutVWT(ready):
     <span class="kw">if</span> <span class="kw">not</span> ready:
+        <span class="kw">if</span> exists(<img src="vwt-after-logon-popup.png" />):
+            <span class="skw">click</span>(<img src="vwt-after-logon-popup-close.png" />)
         <span class="kw">while</span> (exists(<img src="vwt-int-back.png" />)):
             <span class="skw">click</span>(<img src="android-back.png" />)
         meButton1 = <img src="vwt-bar-me.png" />
@@ -176,6 +178,8 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
     clearToMain()
     <span class="skw">click</span>(<img src="android-main-vwt-icon.png" />)
     <span class="kw">if</span> <span class="kw">not</span> exists(<img src="vwt-log-account-pass.png" />):
+        <span class="kw">if</span> exists(<img src="vwt-after-logon-popup.png" />, <span class="dig">0</span>):
+            <span class="skw">click</span>(<img src="vwt-after-logon-popup-close.png" />)
         <span class="kw">if</span> exists(<img src="vwt-qiye-app-back-close.png" />):
             <span class="skw">click</span>(<span class="skw">find</span>(<img src="vwt-qiye-app-back-close.png" />).right(<span class="dig">8</span>))
         <span class="kw">if</span> exists(<img src="vwt-qiye-app-back.png" />):

@@ -90,6 +90,8 @@ def logonVWT(phoneNum, password):
 
 def logoutVWT(ready):
     if not ready:
+        if exists("vwt-after-logon-popup.png"):
+            click("vwt-after-logon-popup-close.png")
         while (exists("vwt-int-back.png")):
             click("android-back.png")
         meButton1 = "vwt-bar-me.png"
@@ -104,6 +106,8 @@ def startVWT(phoneNum):
     clearToMain()
     click("android-main-vwt-icon.png")
     if not exists("vwt-log-account-pass.png"):
+        if exists("vwt-after-logon-popup.png", 0):
+            click("vwt-after-logon-popup-close.png")
         if exists("vwt-qiye-app-back-close.png"):
             click(find("vwt-qiye-app-back-close.png").right(8))
         if exists("vwt-qiye-app-back.png"):
