@@ -226,8 +226,8 @@ def vwtSalary(phoneNum, failToKaoQin):
         click("vwt-salaryapp-close.png")
         time.sleep(0.3)
         click("android-back.png")
-        wait("vwt-work-workplatform.png")
-        r = find("vwt-work-workplatform.png").below(400)
+        wait("vwt-work-platform-title.png")
+        r = find("vwt-work-platform-title.png").below(400)
         r.hover()
 
         wheel(WHEEL_DOWN, 4)
@@ -288,8 +288,8 @@ def vwtKaoQin(phoneNum):
         time.sleep(0.2)
         if exists("vwt-work-i-see2.png"): click("vwt-work-i-see2.png")
 
-    wait("vwt-work-workplatform.png")
-    r = find("vwt-work-workplatform.png").below(300)
+    wait("vwt-work-platform-title.png")
+    r = find("vwt-work-platform-title.png").below(300)
     r.hover()
 
     wheel(WHEEL_DOWN, 4)
