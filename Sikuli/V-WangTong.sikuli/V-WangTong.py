@@ -6,7 +6,7 @@ DEBUG = 0
 #APP = "Salary"
 #APP = "YuQing"
 APP = "KaoQin"
-PASSWORDS = ["123456", "123321", "qqq111"]
+PASSWORDS = ["123321", "123456", "qqq111"]
 NOX_PROCESS = None
 
 Settings.MoveMouseDelay = 0.11
@@ -237,7 +237,7 @@ def vwtSalary(phoneNum, failToKaoQin):
         r.hover()
 
         wheel(WHEEL_DOWN, 4)
-        click("vwt-kaoqin-app-icon.png")
+        click("vwt-kaoqin-app-icon.0.png")
         time.sleep(0.7)
         wait("vwt-kaoqin-mobile-kaoqin.png")
         click("vwt-kaoqin-loc-checkin.png")
@@ -299,7 +299,7 @@ def vwtKaoQin(phoneNum):
     r.hover()
 
     wheel(WHEEL_DOWN, 4)
-    click("vwt-kaoqin-app-icon.png")
+    click("vwt-kaoqin-app-icon-0.png")
     time.sleep(1)
     wait("vwt-kaoqin-mobile-kaoqin.png")
     click("vwt-kaoqin-kaoqin-icon.png")
