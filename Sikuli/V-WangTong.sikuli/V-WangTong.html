@@ -138,7 +138,7 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
     <span class="skw">doubleClick</span>(r)
     <span class="skw">type</span>(Key.BACKSPACE)
     paste(password)
-    time.<span class="skw">sleep</span>(<span class="dig">0.15</span>)
+    time.<span class="skw">sleep</span>(<span class="dig">0.2</span>)
 
     <span class="skw">click</span>(<img src="vwt-log-logon.png" />)
     time.<span class="skw">sleep</span>(<span class="dig">1</span>)
@@ -156,6 +156,7 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
             <span class="skw">click</span>(<img src="vwt-after-logon-popup-close.png" />)
         <span class="kw">else</span>:
             waitVanish(<img src="vwt-log-updating-phonebook.png" />)
+        waitVanish(<img src="vwt-log-updating-phonebook.png" />)
         <span class="kw">print</span> <span class="str">"logonVWT("</span> + phoneNum + <span class="str">", "</span> + password + <span class="str">"), return True"</span>
         <span class="kw">return</span> True
 
@@ -210,8 +211,8 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
     ok = startVWT(phoneNum, password)
     <span class="kw">if</span> <span class="kw">not</span> ok: <span class="kw">return</span> (APP, <span class="str">'2-VWT Logon Error'</span>)
 
-    <span class="skw">wait</span>(<img src="vwt-bar-work.png" />)
-    <span class="skw">click</span>(<img src="vwt-bar-work.png" />)
+    <span class="skw">wait</span>(<img src="vwt-bar-work-1.png" />)
+    <span class="skw">click</span>(<img src="vwt-bar-work-1.png" />)
     time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
     <span class="kw">if</span> exists(<img src="vwt-work-i-see1.png" />):
         <span class="skw">click</span>(<img src="vwt-work-i-see1.png" />)
@@ -254,11 +255,11 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
     <span class="kw">if</span> <span class="kw">not</span> ok: <span class="kw">return</span> (APP,<span class="str">'2-VWT Logon Error'</span>)
 
     time.<span class="skw">sleep</span>(<span class="dig">0.7</span>)
-    <span class="skw">wait</span>(<img src="vwt-bar-work.png" />)
-    <span class="skw">click</span>(<img src="vwt-bar-work.png" />)
+    <span class="skw">wait</span>(<img src="vwt-bar-work-1.png" />)
+    <span class="skw">click</span>(<img src="vwt-bar-work-1.png" />)
     <span class="kw">for</span> x <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">1</span>):
-        <span class="kw">if</span> exists(<img src="vwt-bar-work.png" />):
-            <span class="skw">click</span>(<img src="vwt-bar-work.png" />)
+        <span class="kw">if</span> exists(<img src="vwt-bar-work-1.png" />):
+            <span class="skw">click</span>(<img src="vwt-bar-work-1.png" />)
             time.<span class="skw">sleep</span>(<span class="dig">0.4</span>)
         <span class="kw">else</span>:
             <span class="kw">break</span>
@@ -356,11 +357,11 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
     <span class="kw">if</span> <span class="kw">not</span> ok: <span class="kw">return</span> (APP, <span class="str">'2-VWT Logon Error'</span>)
 
     time.<span class="skw">sleep</span>(<span class="dig">0.7</span>)
-    <span class="skw">wait</span>(<img src="vwt-bar-work.png" />)
-    <span class="skw">click</span>(<img src="vwt-bar-work.png" />)
+    <span class="skw">wait</span>(<img src="vwt-bar-work-0.png" />)
+    <span class="skw">click</span>(<img src="vwt-bar-work-0.png" />)
     <span class="kw">for</span> x <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">1</span>):
-        <span class="kw">if</span> exists(<img src="vwt-bar-work.png" />):
-            <span class="skw">click</span>(<img src="vwt-bar-work.png" />)
+        <span class="kw">if</span> exists(<img src="vwt-bar-work-0.png" />):
+            <span class="skw">click</span>(<img src="vwt-bar-work-0.png" />)
             time.<span class="skw">sleep</span>(<span class="dig">0.4</span>)
         <span class="kw">else</span>:
             <span class="kw">break</span>

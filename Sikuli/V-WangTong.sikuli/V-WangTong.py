@@ -66,7 +66,7 @@ def logonVWT(phoneNum, password):
     doubleClick(r)
     type(Key.BACKSPACE)
     paste(password)
-    time.sleep(0.15)
+    time.sleep(0.2)
 
     click("vwt-log-logon.png")
     time.sleep(1)
@@ -84,6 +84,7 @@ def logonVWT(phoneNum, password):
             click("vwt-after-logon-popup-close.png")
         else:
             waitVanish("vwt-log-updating-phonebook.png")
+        waitVanish("vwt-log-updating-phonebook.png")
         print "logonVWT(" + phoneNum + ", " + password + "), return True"
         return True
 
@@ -138,8 +139,8 @@ def vwtYuQing(phoneNum, password):
     ok = startVWT(phoneNum, password)
     if not ok: return (APP, '2-VWT Logon Error')
 
-    wait("vwt-bar-work.png")
-    click("vwt-bar-work.png")
+    wait("vwt-bar-work-1.png")
+    click("vwt-bar-work-1.png")
     time.sleep(0.5)
     if exists("vwt-work-i-see1.png"): 
         click("vwt-work-i-see1.png")
@@ -182,11 +183,11 @@ def vwtSalary(phoneNum, failToKaoQin, password):
     if not ok: return (APP,'2-VWT Logon Error')
 
     time.sleep(0.7)
-    wait("vwt-bar-work.png")
-    click("vwt-bar-work.png")
+    wait("vwt-bar-work-1.png")
+    click("vwt-bar-work-1.png")
     for x in range(0, 1):
-        if exists("vwt-bar-work.png"):
-            click("vwt-bar-work.png")
+        if exists("vwt-bar-work-1.png"):
+            click("vwt-bar-work-1.png")
             time.sleep(0.4)
         else:
             break
@@ -284,11 +285,11 @@ def vwtKaoQin(phoneNum, password):
     if not ok: return (APP, '2-VWT Logon Error')
 
     time.sleep(0.7)
-    wait("vwt-bar-work.png")
-    click("vwt-bar-work.png")
+    wait("vwt-bar-work-0.png")
+    click("vwt-bar-work-0.png")
     for x in range(0, 1):
-        if exists("vwt-bar-work.png"):
-            click("vwt-bar-work.png")
+        if exists("vwt-bar-work-0.png"):
+            click("vwt-bar-work-0.png")
             time.sleep(0.4)
         else:
             break
@@ -309,7 +310,7 @@ def vwtKaoQin(phoneNum, password):
     click("vwt-kaoqin-kaoqin-icon.png")
     time.sleep(0.5)
     if exists("vwt-checkin-liketiyan.png"):
-        click("vwt-checkin-liketiyan.png")    
+        click("vwt-checkin-liketiyan.png")
         time.sleep(0.3)
     wait("vwt-kaoqin-title-kaoqin.png")
 
