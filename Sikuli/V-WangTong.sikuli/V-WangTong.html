@@ -72,13 +72,13 @@
 <pre class="sikuli-code">
 <span class="kw">from</span> os.path <span class="kw">import</span> expanduser
 
-TASK_DATA_PATH = <span class="str">"data\\yangzhongcheng.xls"</span>
+TASK_DATA_PATH = <span class="str">"data\\chencheng.xls"</span>
 NOX_PATH = expanduser(<span class="str">"~"</span>) + <span class="str">"\\AppData\\Roaming\\Nox\\bin\\Nox.exe"</span>
 DEBUG = <span class="dig">0</span>
 <span class="cmt">#APP = "Salary"</span>
 <span class="cmt">#APP = "YuQing"</span>
 APP = <span class="str">"KaoQin"</span>
-PASSWORDS = [<span class="str">"123321"</span>, <span class="str">"123456"</span>, <span class="str">"qqq111"</span>]
+PASSWORDS = []
 NOX_PROCESS = None
 
 Settings.MoveMouseDelay = <span class="dig">0.11</span>
@@ -174,7 +174,7 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
     <span class="skw">click</span>(<img src="vwt-exit-exit.png" />)
 
 
-<span class="kw">def</span> startVWT(phoneNum):
+<span class="kw">def</span> startVWT(phoneNum, password):
     clearToMain()
     <span class="skw">click</span>(<img src="android-main-vwt-icon.png" />)
     <span class="kw">if</span> <span class="kw">not</span> exists(<img src="vwt-log-account-pass.png" />):
@@ -190,7 +190,11 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
             <span class="kw">print</span> <span class="str">"logoutVWT(True)"</span>
             logoutVWT(True)
 
-    <span class="kw">for</span> i <span class="kw">in</span> range(len(PASSWORDS)):
+    <span class="kw">if</span> None == password:
+        password = PASSWORDS;
+    <span class="kw">elif</span> len(password) == <span class="dig">0</span>:
+        password = PASSWORDS;
+    <span class="kw">for</span> i <span class="kw">in</span> range(len(password)):
         <span class="kw">if</span> <span class="dig">0</span> == i:
             ok = logonVWT(phoneNum, PASSWORDS[i])
         <span class="kw">else</span>:
@@ -202,8 +206,8 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
 
 
 <span class="cmt"># return value see vwtSalary</span>
-<span class="kw">def</span> vwtYuQing(phoneNum):
-    ok = startVWT(phoneNum)
+<span class="kw">def</span> vwtYuQing(phoneNum, password):
+    ok = startVWT(phoneNum, password)
     <span class="kw">if</span> <span class="kw">not</span> ok: <span class="kw">return</span> (APP, <span class="str">'2-VWT Logon Error'</span>)
 
     <span class="skw">wait</span>(<img src="vwt-bar-work.png" />)
@@ -245,8 +249,8 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
 <span class="cmt"># return '2-V网通登录错误'</span>
 <span class="cmt"># return '3-不是薪酬通用户'</span>
 <span class="cmt"># return '4-未知错误'</span>
-<span class="kw">def</span> vwtSalary(phoneNum, failToKaoQin):
-    ok = startVWT(phoneNum)
+<span class="kw">def</span> vwtSalary(phoneNum, failToKaoQin, password):
+    ok = startVWT(phoneNum, password)
     <span class="kw">if</span> <span class="kw">not</span> ok: <span class="kw">return</span> (APP,<span class="str">'2-VWT Logon Error'</span>)
 
     time.<span class="skw">sleep</span>(<span class="dig">0.7</span>)
@@ -347,8 +351,8 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
 
 <span class="cmt"># return '1': success</span>
 <span class="cmt"># return '2-V网通登录错误'</span>
-<span class="kw">def</span> vwtKaoQin(phoneNum):
-    ok = startVWT(phoneNum)
+<span class="kw">def</span> vwtKaoQin(phoneNum, password):
+    ok = startVWT(phoneNum, password)
     <span class="kw">if</span> <span class="kw">not</span> ok: <span class="kw">return</span> (APP, <span class="str">'2-VWT Logon Error'</span>)
 
     time.<span class="skw">sleep</span>(<span class="dig">0.7</span>)
@@ -409,7 +413,7 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
     <span class="kw">return</span> (APP, <span class="str">'1'</span>)
 
 
-<span class="kw">def</span> doTask(phoneNum, MEID):
+<span class="kw">def</span> doTask(phoneNum, MEID, password):
     <span class="cmt"># always changes MEID</span>
     <span class="kw">if</span> len(MEID) &lt; <span class="dig">10</span>:
         setNoxMEID(phoneNum, <span class="str">""</span>)
@@ -417,11 +421,11 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
         setNoxMEID(phoneNum, MEID)
 
     <span class="kw">if</span> <span class="str">"Salary"</span> == APP:
-        <span class="kw">return</span> vwtSalary(phoneNum, True)
+        <span class="kw">return</span> vwtSalary(phoneNum, True, password)
     <span class="kw">elif</span> <span class="str">"YuQing"</span> == APP:
-        <span class="kw">return</span> vwtYuQing(phoneNum)
+        <span class="kw">return</span> vwtYuQing(phoneNum, password)
     <span class="kw">elif</span> <span class="str">"KaoQin"</span> == APP:
-        <span class="kw">return</span> vwtKaoQin(phoneNum)
+        <span class="kw">return</span> vwtKaoQin(phoneNum, password)
 
 <span class="kw">def</span> restartAndroid():
     <span class="kw">global</span> NOX_PROCESS
@@ -492,19 +496,33 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
 
         MEID = str(rs.row_values(rownum)[<span class="dig">1</span>])
         done = str(rs.row_values(rownum)[<span class="dig">2</span>])
+
+        password = []
+        <span class="kw">try</span>:
+            <span class="kw">if</span> str(rs.row_values(rownum)[<span class="dig">4</span>]) != <span class="str">''</span>:
+               password.append(str(rs.row_values(rownum)[<span class="dig">4</span>]))
+            <span class="kw">if</span> str(rs.row_values(rownum)[<span class="dig">5</span>]) != <span class="str">''</span>:
+               password.append(str(rs.row_values(rownum)[<span class="dig">5</span>]))
+            <span class="kw">if</span> str(rs.row_values(rownum)[<span class="dig">6</span>]) != <span class="str">''</span>:
+               password.append(str(rs.row_values(rownum)[<span class="dig">6</span>]))
+            <span class="kw">if</span> str(rs.row_values(rownum)[<span class="dig">7</span>]) != <span class="str">''</span>:
+               password.append(str(rs.row_values(rownum)[<span class="dig">7</span>]))
+        <span class="kw">except</span> IndexError:
+            <span class="kw">pass</span>
+
         <span class="kw">if</span> <span class="str">''</span> == done:
             <span class="kw">print</span> <span class="str">'Task: ['</span>,rownum,<span class="str">']:'</span>, <span class="str">'phoneNum ='</span>, phoneNum
             ret = <span class="str">''</span>
 
             <span class="kw">if</span> DEBUG == <span class="dig">1</span>:
-                (app, ret) = doTask(phoneNum, MEID)
+                (app, ret) = doTask(phoneNum, MEID, password)
                 exceptionCount = <span class="dig">0</span>
                 ws.write(rownum, <span class="dig">2</span>, ret)
                 ws.write(rownum, <span class="dig">3</span>, app)
                 wb.save(os.path.join(getBundlePath(), TASK_DATA_PATH))
             <span class="kw">else</span>:
                 <span class="kw">try</span>:
-                    (app, ret) = doTask(phoneNum, MEID)
+                    (app, ret) = doTask(phoneNum, MEID, password)
                     exceptionCount = <span class="dig">0</span>
                     ws.write(rownum, <span class="dig">2</span>, ret)
                     ws.write(rownum, <span class="dig">3</span>, app)

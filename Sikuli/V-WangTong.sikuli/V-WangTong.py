@@ -1,12 +1,12 @@
 from os.path import expanduser
 
-TASK_DATA_PATH = "data\\yangzhongcheng.xls"
+TASK_DATA_PATH = "data\\chencheng.xls"
 NOX_PATH = expanduser("~") + "\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
 #APP = "Salary"
 #APP = "YuQing"
 APP = "KaoQin"
-PASSWORDS = ["123321", "123456", "qqq111"]
+PASSWORDS = []
 NOX_PROCESS = None
 
 Settings.MoveMouseDelay = 0.11
@@ -102,7 +102,7 @@ def logoutVWT(ready):
     click("vwt-exit-exit.png")
 
 
-def startVWT(phoneNum):
+def startVWT(phoneNum, password):
     clearToMain()
     click("android-main-vwt-icon.png")
     if not exists("vwt-log-account-pass.png"):
@@ -118,7 +118,11 @@ def startVWT(phoneNum):
             print "logoutVWT(True)"
             logoutVWT(True)
 
-    for i in range(len(PASSWORDS)):
+    if None == password:
+        password = PASSWORDS;
+    elif len(password) == 0:
+        password = PASSWORDS;
+    for i in range(len(password)):
         if 0 == i:
             ok = logonVWT(phoneNum, PASSWORDS[i])
         else:
@@ -130,8 +134,8 @@ def startVWT(phoneNum):
 
 
 # return value see vwtSalary
-def vwtYuQing(phoneNum):
-    ok = startVWT(phoneNum)
+def vwtYuQing(phoneNum, password):
+    ok = startVWT(phoneNum, password)
     if not ok: return (APP, '2-VWT Logon Error')
 
     wait("vwt-bar-work.png")
@@ -173,8 +177,8 @@ def vwtYuQing(phoneNum):
 # return '2-V网通登录错误'
 # return '3-不是薪酬通用户'
 # return '4-未知错误'
-def vwtSalary(phoneNum, failToKaoQin):
-    ok = startVWT(phoneNum)
+def vwtSalary(phoneNum, failToKaoQin, password):
+    ok = startVWT(phoneNum, password)
     if not ok: return (APP,'2-VWT Logon Error')
 
     time.sleep(0.7)
@@ -275,8 +279,8 @@ def vwtSalary(phoneNum, failToKaoQin):
 
 # return '1': success
 # return '2-V网通登录错误'
-def vwtKaoQin(phoneNum):
-    ok = startVWT(phoneNum)
+def vwtKaoQin(phoneNum, password):
+    ok = startVWT(phoneNum, password)
     if not ok: return (APP, '2-VWT Logon Error')
 
     time.sleep(0.7)
@@ -337,7 +341,7 @@ def vwtKaoQin(phoneNum):
     return (APP, '1')
 
 
-def doTask(phoneNum, MEID):
+def doTask(phoneNum, MEID, password):
     # always changes MEID
     if len(MEID) < 10:
         setNoxMEID(phoneNum, "")
@@ -345,11 +349,11 @@ def doTask(phoneNum, MEID):
         setNoxMEID(phoneNum, MEID)
 
     if "Salary" == APP:
-        return vwtSalary(phoneNum, True)
+        return vwtSalary(phoneNum, True, password)
     elif "YuQing" == APP:
-        return vwtYuQing(phoneNum)
+        return vwtYuQing(phoneNum, password)
     elif "KaoQin" == APP:
-        return vwtKaoQin(phoneNum)
+        return vwtKaoQin(phoneNum, password)
 
 def restartAndroid():
     global NOX_PROCESS
@@ -420,19 +424,33 @@ def main():
 
         MEID = str(rs.row_values(rownum)[1])
         done = str(rs.row_values(rownum)[2])
+        
+        password = []
+        try:
+            if str(rs.row_values(rownum)[4]) != '':
+               password.append(str(rs.row_values(rownum)[4]))
+            if str(rs.row_values(rownum)[5]) != '':
+               password.append(str(rs.row_values(rownum)[5]))
+            if str(rs.row_values(rownum)[6]) != '':
+               password.append(str(rs.row_values(rownum)[6]))
+            if str(rs.row_values(rownum)[7]) != '':
+               password.append(str(rs.row_values(rownum)[7]))
+        except IndexError:
+            pass
+
         if '' == done:
             print 'Task: [',rownum,']:', 'phoneNum =', phoneNum
             ret = ''
 
             if DEBUG == 1:
-                (app, ret) = doTask(phoneNum, MEID)
+                (app, ret) = doTask(phoneNum, MEID, password)
                 exceptionCount = 0
                 ws.write(rownum, 2, ret)
                 ws.write(rownum, 3, app)
                 wb.save(os.path.join(getBundlePath(), TASK_DATA_PATH))
             else:
                 try:
-                    (app, ret) = doTask(phoneNum, MEID)
+                    (app, ret) = doTask(phoneNum, MEID, password)
                     exceptionCount = 0
                     ws.write(rownum, 2, ret)
                     ws.write(rownum, 3, app)
