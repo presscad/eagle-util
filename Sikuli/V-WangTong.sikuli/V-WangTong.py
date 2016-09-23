@@ -2,7 +2,7 @@ from os.path import expanduser
 
 TASK_DATA_PATH = "data\\chencheng.xls"
 NOX_PATH = expanduser("~") + "\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
-DEBUG = 0
+DEBUG = 1
 #APP = "Salary"
 #APP = "YuQing"
 APP = "KaoQin"
@@ -124,9 +124,9 @@ def startVWT(phoneNum, password):
         password = PASSWORDS;
     for i in range(len(password)):
         if 0 == i:
-            ok = logonVWT(phoneNum, PASSWORDS[i])
+            ok = logonVWT(phoneNum, password[i])
         else:
-            ok = logonVWT("", PASSWORDS[i])
+            ok = logonVWT("", password[i])
         if ok:
             break
 
@@ -427,14 +427,10 @@ def main():
         
         password = []
         try:
-            if str(rs.row_values(rownum)[4]) != '':
-               password.append(str(rs.row_values(rownum)[4]))
-            if str(rs.row_values(rownum)[5]) != '':
-               password.append(str(rs.row_values(rownum)[5]))
-            if str(rs.row_values(rownum)[6]) != '':
-               password.append(str(rs.row_values(rownum)[6]))
-            if str(rs.row_values(rownum)[7]) != '':
-               password.append(str(rs.row_values(rownum)[7]))
+            for i in range(4, 10):
+                s = str(rs.row_values(rownum)[i])
+                if s != '':
+                   password.append(s)
         except IndexError:
             pass
 

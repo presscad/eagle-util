@@ -74,7 +74,7 @@
 
 TASK_DATA_PATH = <span class="str">"data\\chencheng.xls"</span>
 NOX_PATH = expanduser(<span class="str">"~"</span>) + <span class="str">"\\AppData\\Roaming\\Nox\\bin\\Nox.exe"</span>
-DEBUG = <span class="dig">0</span>
+DEBUG = <span class="dig">1</span>
 <span class="cmt">#APP = "Salary"</span>
 <span class="cmt">#APP = "YuQing"</span>
 APP = <span class="str">"KaoQin"</span>
@@ -196,9 +196,9 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
         password = PASSWORDS;
     <span class="kw">for</span> i <span class="kw">in</span> range(len(password)):
         <span class="kw">if</span> <span class="dig">0</span> == i:
-            ok = logonVWT(phoneNum, PASSWORDS[i])
+            ok = logonVWT(phoneNum, password[i])
         <span class="kw">else</span>:
-            ok = logonVWT(<span class="str">""</span>, PASSWORDS[i])
+            ok = logonVWT(<span class="str">""</span>, password[i])
         <span class="kw">if</span> ok:
             <span class="kw">break</span>
 
@@ -499,14 +499,10 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
 
         password = []
         <span class="kw">try</span>:
-            <span class="kw">if</span> str(rs.row_values(rownum)[<span class="dig">4</span>]) != <span class="str">''</span>:
-               password.append(str(rs.row_values(rownum)[<span class="dig">4</span>]))
-            <span class="kw">if</span> str(rs.row_values(rownum)[<span class="dig">5</span>]) != <span class="str">''</span>:
-               password.append(str(rs.row_values(rownum)[<span class="dig">5</span>]))
-            <span class="kw">if</span> str(rs.row_values(rownum)[<span class="dig">6</span>]) != <span class="str">''</span>:
-               password.append(str(rs.row_values(rownum)[<span class="dig">6</span>]))
-            <span class="kw">if</span> str(rs.row_values(rownum)[<span class="dig">7</span>]) != <span class="str">''</span>:
-               password.append(str(rs.row_values(rownum)[<span class="dig">7</span>]))
+            <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">4</span>, <span class="dig">10</span>):
+                s = str(rs.row_values(rownum)[i])
+                <span class="kw">if</span> s != <span class="str">''</span>:
+                   password.append(s)
         <span class="kw">except</span> IndexError:
             <span class="kw">pass</span>
 
