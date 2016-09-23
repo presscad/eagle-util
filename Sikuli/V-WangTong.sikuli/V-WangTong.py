@@ -1,6 +1,6 @@
 from os.path import expanduser
 
-TASK_DATA_PATH = "data\\chencheng.xls"
+TASK_DATA_PATH = "data\\xiamin-v3.xls"
 NOX_PATH = expanduser("~") + "\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
 #APP = "Salary"
@@ -67,6 +67,7 @@ def logonVWT(phoneNum, password):
     type(Key.BACKSPACE)
     paste(password)
     time.sleep(0.2)
+    # print("password: " + password)
 
     click("vwt-log-logon.png")
     time.sleep(1)
@@ -305,7 +306,7 @@ def vwtKaoQin(phoneNum, password):
 
     wheel(WHEEL_DOWN, 4)
     click("vwt-kaoqin-app-icon-0.png")
-    time.sleep(1)
+    time.sleep(1.5)
     wait("vwt-kaoqin-mobile-kaoqin.png")
     click("vwt-kaoqin-kaoqin-icon.png")
     time.sleep(0.5)
@@ -430,6 +431,8 @@ def main():
         try:
             for i in range(4, 10):
                 s = str(rs.row_values(rownum)[i])
+                if s.find('.') > 0:
+                    s = s.split('.')[0]
                 if s != '':
                    password.append(s)
         except IndexError:

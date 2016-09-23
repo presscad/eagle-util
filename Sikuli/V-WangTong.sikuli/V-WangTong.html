@@ -72,7 +72,7 @@
 <pre class="sikuli-code">
 <span class="kw">from</span> os.path <span class="kw">import</span> expanduser
 
-TASK_DATA_PATH = <span class="str">"data\\chencheng.xls"</span>
+TASK_DATA_PATH = <span class="str">"data\\xiamin-v3.xls"</span>
 NOX_PATH = expanduser(<span class="str">"~"</span>) + <span class="str">"\\AppData\\Roaming\\Nox\\bin\\Nox.exe"</span>
 DEBUG = <span class="dig">0</span>
 <span class="cmt">#APP = "Salary"</span>
@@ -139,6 +139,7 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
     <span class="skw">type</span>(Key.BACKSPACE)
     paste(password)
     time.<span class="skw">sleep</span>(<span class="dig">0.2</span>)
+    <span class="cmt"># print("password: " + password)</span>
 
     <span class="skw">click</span>(<img src="vwt-log-logon.png" />)
     time.<span class="skw">sleep</span>(<span class="dig">1</span>)
@@ -377,7 +378,7 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
 
     wheel(WHEEL_DOWN, <span class="dig">4</span>)
     <span class="skw">click</span>(<img src="vwt-kaoqin-app-icon-0.png" />)
-    time.<span class="skw">sleep</span>(<span class="dig">1</span>)
+    time.<span class="skw">sleep</span>(<span class="dig">1.5</span>)
     <span class="skw">wait</span>(<img src="vwt-kaoqin-mobile-kaoqin.png" />)
     <span class="skw">click</span>(<img src="vwt-kaoqin-kaoqin-icon.png" />)
     time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
@@ -502,6 +503,8 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
         <span class="kw">try</span>:
             <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">4</span>, <span class="dig">10</span>):
                 s = str(rs.row_values(rownum)[i])
+                <span class="kw">if</span> s.<span class="skw">find</span>(<span class="str">'.'</span>) &gt; <span class="dig">0</span>:
+                    s = s.split(<span class="str">'.'</span>)[<span class="dig">0</span>]
                 <span class="kw">if</span> s != <span class="str">''</span>:
                    password.append(s)
         <span class="kw">except</span> IndexError:
