@@ -1,6 +1,6 @@
 from os.path import expanduser
 
-TASK_DATA_PATH = "data\\xiamin-v3.xls"
+TASK_DATA_PATHS = ["data\\7-zhangqian.xls", "data\\8-yuwen.xls"]
 NOX_PATH = expanduser("~") + "\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
 #APP = "Salary"
@@ -406,12 +406,12 @@ def restartAndroid():
                 time.sleep(1)
                 NOX_PROCESS = None
 
-def main():
+def oneExcel(excelPath):
     import xlrd
     import xlutils.copy
     global exceptionCount
 
-    rb = xlrd.open_workbook(os.path.join(getBundlePath(), TASK_DATA_PATH))
+    rb = xlrd.open_workbook(os.path.join(getBundlePath(), excelPath))
     rs = rb.sheet_by_index(0)
     wb = xlutils.copy.copy(rb)
     ws = wb.get_sheet(0)
@@ -447,14 +447,14 @@ def main():
                 exceptionCount = 0
                 ws.write(rownum, 2, ret)
                 ws.write(rownum, 3, app)
-                wb.save(os.path.join(getBundlePath(), TASK_DATA_PATH))
+                wb.save(os.path.join(getBundlePath(), excelPath))
             else:
                 try:
                     (app, ret) = doTask(phoneNum, MEID, password)
                     exceptionCount = 0
                     ws.write(rownum, 2, ret)
                     ws.write(rownum, 3, app)
-                    wb.save(os.path.join(getBundlePath(), TASK_DATA_PATH))
+                    wb.save(os.path.join(getBundlePath(), excelPath))
 
                 except FindFailed:
                     exceptionCount = exceptionCount + 1
@@ -465,7 +465,9 @@ def main():
             exceptionCount = 0
     return
 
-main()
-main()
-main()
+def main():
+    for excelPath in TASK_DATA_PATHS:
+        for k in range(5):
+            oneExcel(excelPath)
+
 main()
