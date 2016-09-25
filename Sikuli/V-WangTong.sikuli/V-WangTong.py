@@ -1,6 +1,6 @@
 from os.path import expanduser
 
-TASK_DATA_PATHS = ["data\\7-zhangqian.xls", "data\\8-yuwen.xls"]
+TASK_DATA_PATHS = ["data\\7-zhangqian.xls", "data\\8-yuwen.xls", "data\\wangbing-8yue.xls", "data\\wangbing-147258.xls"]
 NOX_PATH = expanduser("~") + "\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
 #APP = "Salary"
@@ -439,7 +439,7 @@ def oneExcel(excelPath):
             pass
 
         if '' == done:
-            print 'Task: [',rownum,']:', 'phoneNum =', phoneNum
+            print '[', excelPath, '] Task: ', rownum, ':', 'phoneNum =', phoneNum
             ret = ''
 
             if DEBUG == 1:
