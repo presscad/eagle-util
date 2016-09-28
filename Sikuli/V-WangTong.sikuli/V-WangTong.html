@@ -72,7 +72,8 @@
 <pre class="sikuli-code">
 <span class="kw">from</span> os.path <span class="kw">import</span> expanduser
 
-TASK_DATA_PATHS = [<span class="str">"data\\7-zhangqian.xls"</span>, <span class="str">"data\\8-yuwen.xls"</span>, <span class="str">"data\\wangbing-8yue.xls"</span>, <span class="str">"data\\wangbing-147258.xls"</span>]
+TASK_DATA_PATHS = [<span class="str">"data\\chenwei.xls"</span>, <span class="str">"data\\chenjian.xls"</span>, <span class="str">"data\\xiamin.xls"</span>, <span class="str">"data\\caipin.xls"</span>, <span class="str">"data\\shixiaoguang386.xls"</span>, <span class="str">"data\\qiyongwei.xls"</span>, <span class="str">"data\\zhengwenbo205.xls"</span>, <span class="str">"data\\yinchunyan250.xls"</span>]
+
 NOX_PATH = expanduser(<span class="str">"~"</span>) + <span class="str">"\\AppData\\Roaming\\Nox\\bin\\Nox.exe"</span>
 DEBUG = <span class="dig">0</span>
 <span class="cmt">#APP = "Salary"</span>
@@ -193,9 +194,14 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
             logoutVWT(True)
 
     <span class="kw">if</span> None == password:
-        password = PASSWORDS;
+        password = PASSWORDS
     <span class="kw">elif</span> len(password) == <span class="dig">0</span>:
-        password = PASSWORDS;
+        password = PASSWORDS
+
+    <span class="kw">if</span> len(password) == <span class="dig">0</span>:
+        <span class="kw">print</span> <span class="str">"No passord!"</span>
+
+    ok = False
     <span class="kw">for</span> i <span class="kw">in</span> range(len(password)):
         <span class="kw">if</span> <span class="dig">0</span> == i:
             ok = logonVWT(phoneNum, password[i])
@@ -510,7 +516,7 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
         <span class="kw">except</span> IndexError:
             <span class="kw">pass</span>
 
-        <span class="kw">if</span> <span class="str">''</span> == done:
+        <span class="kw">if</span> <span class="str">''</span> == done <span class="kw">and</span> len(password) != <span class="dig">0</span>:
             <span class="kw">print</span> <span class="str">'['</span>, excelPath, <span class="str">'] Task: '</span>, rownum, <span class="str">':'</span>, <span class="str">'phoneNum ='</span>, phoneNum
             ret = <span class="str">''</span>
 

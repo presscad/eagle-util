@@ -1,6 +1,7 @@
 from os.path import expanduser
 
-TASK_DATA_PATHS = ["data\\7-zhangqian.xls", "data\\8-yuwen.xls", "data\\wangbing-8yue.xls", "data\\wangbing-147258.xls"]
+TASK_DATA_PATHS = ["data\\chenwei.xls", "data\\chenjian.xls", "data\\xiamin.xls", "data\\caipin.xls", "data\\shixiaoguang386.xls", "data\\qiyongwei.xls", "data\\zhengwenbo205.xls", "data\\yinchunyan250.xls"]
+
 NOX_PATH = expanduser("~") + "\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
 #APP = "Salary"
@@ -121,9 +122,14 @@ def startVWT(phoneNum, password):
             logoutVWT(True)
 
     if None == password:
-        password = PASSWORDS;
+        password = PASSWORDS
     elif len(password) == 0:
-        password = PASSWORDS;
+        password = PASSWORDS
+
+    if len(password) == 0:
+        print "No passord!"
+
+    ok = False
     for i in range(len(password)):
         if 0 == i:
             ok = logonVWT(phoneNum, password[i])
@@ -438,7 +444,7 @@ def oneExcel(excelPath):
         except IndexError:
             pass
 
-        if '' == done:
+        if '' == done and len(password) != 0:
             print '[', excelPath, '] Task: ', rownum, ':', 'phoneNum =', phoneNum
             ret = ''
 
