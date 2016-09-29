@@ -1,6 +1,6 @@
 from os.path import expanduser
 
-TASK_DATA_PATHS = ["data\\7-zhangqian.xls", "data\\8-yuwen.xls", "data\\wangbing-8yue.xls", "data\\wangbing-147258.xls"]
+TASK_DATA_PATH = "data\\"
 NOX_PATH = expanduser("~") + "\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
 #APP = "Salary"
@@ -411,7 +411,7 @@ def oneExcel(excelPath):
     import xlutils.copy
     global exceptionCount
 
-    rb = xlrd.open_workbook(os.path.join(getBundlePath(), excelPath))
+    rb = xlrd.open_workbook(excelPath)
     rs = rb.sheet_by_index(0)
     wb = xlutils.copy.copy(rb)
     ws = wb.get_sheet(0)
@@ -419,7 +419,7 @@ def oneExcel(excelPath):
     # assume it was successful
     exceptionCount = 0;
     for rownum in range(1, rs.nrows):
-        phoneNum = str(rs.row_values(rownum)[0])
+        phoneNum = str(rs.row_values(rownum)[0]).strip()
         if phoneNum.find('.') > 0:
             phoneNum = phoneNum.split('.')[0]
         if phoneNum == '': continue
@@ -466,7 +466,19 @@ def oneExcel(excelPath):
     return
 
 def main():
-    for excelPath in TASK_DATA_PATHS:
+    import os
+    global TASK_DATA_PATH
+
+    pathes = []
+    if not TASK_DATA_PATH.endswith("\\"):
+        TASK_DATA_PATH = TASK_DATA_PATH + "\\"
+    if TASK_DATA_PATH.startswith("data\\"):
+        TASK_DATA_PATH = os.path.join(getBundlePath(), TASK_DATA_PATH)
+    for file in os.listdir(TASK_DATA_PATH):
+        if file.endswith(".xls"):
+            pathes.append(os.path.join(TASK_DATA_PATH, file))
+
+    for excelPath in pathes:
         for k in range(5):
             oneExcel(excelPath)
 

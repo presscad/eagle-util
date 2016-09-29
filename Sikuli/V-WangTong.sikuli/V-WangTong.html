@@ -72,7 +72,7 @@
 <pre class="sikuli-code">
 <span class="kw">from</span> os.path <span class="kw">import</span> expanduser
 
-TASK_DATA_PATHS = [<span class="str">"data\\7-zhangqian.xls"</span>, <span class="str">"data\\8-yuwen.xls"</span>, <span class="str">"data\\wangbing-8yue.xls"</span>, <span class="str">"data\\wangbing-147258.xls"</span>]
+TASK_DATA_PATH = <span class="str">"data\\"</span>
 NOX_PATH = expanduser(<span class="str">"~"</span>) + <span class="str">"\\AppData\\Roaming\\Nox\\bin\\Nox.exe"</span>
 DEBUG = <span class="dig">0</span>
 <span class="cmt">#APP = "Salary"</span>
@@ -483,7 +483,7 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
     <span class="kw">import</span> xlutils.copy
     <span class="kw">global</span> exceptionCount
 
-    rb = xlrd.open_workbook(os.path.join(getBundlePath(), excelPath))
+    rb = xlrd.open_workbook(excelPath)
     rs = rb.sheet_by_index(<span class="dig">0</span>)
     wb = xlutils.copy.copy(rb)
     ws = wb.get_sheet(<span class="dig">0</span>)
@@ -491,7 +491,7 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
     <span class="cmt"># assume it was successful</span>
     exceptionCount = <span class="dig">0</span>;
     <span class="kw">for</span> rownum <span class="kw">in</span> range(<span class="dig">1</span>, rs.nrows):
-        phoneNum = str(rs.row_values(rownum)[<span class="dig">0</span>])
+        phoneNum = str(rs.row_values(rownum)[<span class="dig">0</span>]).strip()
         <span class="kw">if</span> phoneNum.<span class="skw">find</span>(<span class="str">'.'</span>) &gt; <span class="dig">0</span>:
             phoneNum = phoneNum.split(<span class="str">'.'</span>)[<span class="dig">0</span>]
         <span class="kw">if</span> phoneNum == <span class="str">''</span>: <span class="kw">continue</span>
@@ -538,7 +538,19 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
     <span class="kw">return</span>
 
 <span class="kw">def</span> main():
-    <span class="kw">for</span> excelPath <span class="kw">in</span> TASK_DATA_PATHS:
+    <span class="kw">import</span> os
+    <span class="kw">global</span> TASK_DATA_PATH
+
+    pathes = []
+    <span class="kw">if</span> <span class="kw">not</span> TASK_DATA_PATH.endswith(<span class="str">"\\"</span>):
+        TASK_DATA_PATH = TASK_DATA_PATH + <span class="str">"\\"</span>
+    <span class="kw">if</span> TASK_DATA_PATH.startswith(<span class="str">"data\\"</span>):
+        TASK_DATA_PATH = os.path.join(getBundlePath(), TASK_DATA_PATH)
+    <span class="kw">for</span> file <span class="kw">in</span> os.listdir(TASK_DATA_PATH):
+        <span class="kw">if</span> file.endswith(<span class="str">".xls"</span>):
+            pathes.append(os.path.join(TASK_DATA_PATH, file))
+
+    <span class="kw">for</span> excelPath <span class="kw">in</span> pathes:
         <span class="kw">for</span> k <span class="kw">in</span> range(<span class="dig">5</span>):
             oneExcel(excelPath)
 
