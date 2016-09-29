@@ -121,9 +121,14 @@ def startVWT(phoneNum, password):
             logoutVWT(True)
 
     if None == password:
-        password = PASSWORDS;
+        password = PASSWORDS
     elif len(password) == 0:
-        password = PASSWORDS;
+        password = PASSWORDS
+
+    if len(password) == 0:
+        print "No passord!"
+
+    ok = False
     for i in range(len(password)):
         if 0 == i:
             ok = logonVWT(phoneNum, password[i])
@@ -438,7 +443,7 @@ def oneExcel(excelPath):
         except IndexError:
             pass
 
-        if '' == done:
+        if '' == done and len(password) != 0:
             print '[', excelPath, '] Task: ', rownum, ':', 'phoneNum =', phoneNum
             ret = ''
 

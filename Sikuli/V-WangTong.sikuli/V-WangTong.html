@@ -193,9 +193,14 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
             logoutVWT(True)
 
     <span class="kw">if</span> None == password:
-        password = PASSWORDS;
+        password = PASSWORDS
     <span class="kw">elif</span> len(password) == <span class="dig">0</span>:
-        password = PASSWORDS;
+        password = PASSWORDS
+
+    <span class="kw">if</span> len(password) == <span class="dig">0</span>:
+        <span class="kw">print</span> <span class="str">"No passord!"</span>
+
+    ok = False
     <span class="kw">for</span> i <span class="kw">in</span> range(len(password)):
         <span class="kw">if</span> <span class="dig">0</span> == i:
             ok = logonVWT(phoneNum, password[i])
@@ -510,7 +515,7 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
         <span class="kw">except</span> IndexError:
             <span class="kw">pass</span>
 
-        <span class="kw">if</span> <span class="str">''</span> == done:
+        <span class="kw">if</span> <span class="str">''</span> == done <span class="kw">and</span> len(password) != <span class="dig">0</span>:
             <span class="kw">print</span> <span class="str">'['</span>, excelPath, <span class="str">'] Task: '</span>, rownum, <span class="str">':'</span>, <span class="str">'phoneNum ='</span>, phoneNum
             ret = <span class="str">''</span>
 
