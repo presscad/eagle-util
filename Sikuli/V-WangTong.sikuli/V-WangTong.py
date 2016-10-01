@@ -1,6 +1,8 @@
 from os.path import expanduser
 
 TASK_DATA_PATH = "data\\"
+TASK_DATA_PATH = "C:\Users\Eagle\Dropbox\Temp\VWT\data"
+
 NOX_PATH = expanduser("~") + "\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
 #APP = "Salary"
@@ -335,9 +337,15 @@ def vwtKaoQin(phoneNum, password):
 
     if (1 == punched):
         time.sleep(0.5)
-        click("vwt-kqoqin-confirm-btn.png")
-        time.sleep(0.5)
-
+        if exists("vwt-kq-already-checked.png", 0):
+            click("vwt-kaoqin-confirm-btn.png")
+            time.sleep(0.3)
+        else:
+            click("vwt-kqoqin-confirm-btn.png")
+            time.sleep(0.5)
+            if exists("vwt-kaoqin-confirm-text.png"):
+                click("vwt-kaoqin-confirm-btn.png")
+                time.sleep(1)
 
     click("vwt-salaryapp-close.png")
     time.sleep(0.5)
