@@ -72,6 +72,34 @@
 <pre class="sikuli-code">
 USER = <span class="str">'1385***4288'</span>
 PASSWORD = <span class="str">'******'</span>
+IMEI = <span class="str">''</span>
+
+<span class="cmt"># if IMEI is an empty string, create one</span>
+<span class="kw">def</span> setNoxMEID(phoneNum, IMEI):
+    clearToMain()
+    <span class="skw">find</span>(<img src="nox-simulator.png" />)
+    <span class="skw">click</span>(<img src="nox-setup.png" />)
+    <span class="skw">wait</span>(<img src="systemConfig.png" />)
+    <span class="skw">click</span>(<img src="property-setup.png" />)
+
+    r = <span class="skw">find</span>(<img src="phone-num.png" />).right(<span class="dig">100</span>)
+    <span class="skw">doubleClick</span>(r)
+    <span class="skw">type</span>(Key.BACKSPACE)
+    paste(phoneNum)
+
+    <span class="kw">if</span> <span class="str">""</span> != IMEI:
+        r = <span class="skw">find</span>(<img src="ImeiConfig.png" />).right(<span class="dig">100</span>)
+        <span class="skw">doubleClick</span>(r)
+        <span class="skw">type</span>(Key.BACKSPACE)
+        paste(IMEI)
+    <span class="kw">else</span>:
+        <span class="skw">click</span>(<img src="sys-setting-imei-create.png" />)
+
+    <span class="skw">click</span>(<img src="save-config.png" />)
+    <span class="kw">if</span> exists(<img src="sysUpdateSuccess.png" />):
+        <span class="skw">click</span>(<img src="OK.png" />)
+    r = <span class="skw">find</span>(<img src="systemConfig.png" />).right(<span class="dig">600</span>)
+    <span class="skw">click</span>(r.<span class="skw">find</span>(<img src="close.png" />))
 
 <span class="kw">def</span> logOn(user, password):
     <span class="skw">click</span>(<img src="mynanjing-app-icon.png" />)
@@ -89,13 +117,15 @@ PASSWORD = <span class="str">'******'</span>
 <span class="kw">def</span> main():
     <span class="kw">import</span> datetime
 
+    setNoxMEID(USER, IMEI)
     clearToMain()
     logOn(USER, PASSWORD)
+    clearToMain()
+
     <span class="kw">for</span> k <span class="kw">in</span> range(<span class="dig">20000</span>):
-        <span class="cmt">#st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')</span>
-        <span class="cmt">#print(st + ': k=' + str(k))</span>
+        <span class="cmt">#print(str(datetime.datetime.now()) + ': k=' + str(k))</span>
         <span class="skw">click</span>(<img src="nox-right-bar-shake.png" />)
-        time.<span class="skw">sleep</span>(<span class="dig">0.8</span>)
+        time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
 
 main()
 </pre>
