@@ -1,6 +1,6 @@
-USER = '1385***4288'
+USER = '13851814288'
 PASSWORD = '******'
-IMEI = ''
+IMEI = '354782064878619'
 
 # if IMEI is an empty string, create one
 def setNoxMEID(phoneNum, IMEI):

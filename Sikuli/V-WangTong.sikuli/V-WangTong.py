@@ -419,7 +419,7 @@ def restartAndroid():
                 time.sleep(1)
                 NOX_PROCESS = None
 
-def oneExcel(excelPath):
+def oneExcel(excelPath, dryRun):
     import xlrd
     import xlutils.copy
     global exceptionCount
@@ -451,7 +451,7 @@ def oneExcel(excelPath):
         except IndexError:
             pass
 
-        if '' == done and len(password) != 0:
+        if dryRun == False and '' == done and len(password) != 0:
             print '[', excelPath, '] Task: ', rownum, ':', 'phoneNum =', phoneNum
             ret = ''
 
@@ -478,7 +478,7 @@ def oneExcel(excelPath):
             exceptionCount = 0
     return
 
-def main():
+def main(dryRun):
     import os
     global TASK_DATA_PATH
 
@@ -492,7 +492,9 @@ def main():
             pathes.append(os.path.join(TASK_DATA_PATH, file))
 
     for excelPath in pathes:
+        print "excelPath: ", excelPath + ", dryRun: ", dryRun
         for k in range(5):
-            oneExcel(excelPath)
+            oneExcel(excelPath, dryRun)
 
-main()
+main(True)
+main(False)

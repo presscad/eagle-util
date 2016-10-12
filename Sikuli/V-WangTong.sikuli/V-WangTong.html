@@ -491,7 +491,7 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
                 time.<span class="skw">sleep</span>(<span class="dig">1</span>)
                 NOX_PROCESS = None
 
-<span class="kw">def</span> oneExcel(excelPath):
+<span class="kw">def</span> oneExcel(excelPath, dryRun):
     <span class="kw">import</span> xlrd
     <span class="kw">import</span> xlutils.copy
     <span class="kw">global</span> exceptionCount
@@ -523,7 +523,7 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
         <span class="kw">except</span> IndexError:
             <span class="kw">pass</span>
 
-        <span class="kw">if</span> <span class="str">''</span> == done <span class="kw">and</span> len(password) != <span class="dig">0</span>:
+        <span class="kw">if</span> dryRun == False <span class="kw">and</span> <span class="str">''</span> == done <span class="kw">and</span> len(password) != <span class="dig">0</span>:
             <span class="kw">print</span> <span class="str">'['</span>, excelPath, <span class="str">'] Task: '</span>, rownum, <span class="str">':'</span>, <span class="str">'phoneNum ='</span>, phoneNum
             ret = <span class="str">''</span>
 
@@ -550,7 +550,7 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
             exceptionCount = <span class="dig">0</span>
     <span class="kw">return</span>
 
-<span class="kw">def</span> main():
+<span class="kw">def</span> main(dryRun):
     <span class="kw">import</span> os
     <span class="kw">global</span> TASK_DATA_PATH
 
@@ -564,10 +564,12 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
             pathes.append(os.path.join(TASK_DATA_PATH, file))
 
     <span class="kw">for</span> excelPath <span class="kw">in</span> pathes:
+        <span class="kw">print</span> <span class="str">"excelPath: "</span>, excelPath + <span class="str">", dryRun: "</span>, dryRun
         <span class="kw">for</span> k <span class="kw">in</span> range(<span class="dig">5</span>):
-            oneExcel(excelPath)
+            oneExcel(excelPath, dryRun)
 
-main()
+main(True)
+main(False)
 </pre>
 </body>
 </html>
