@@ -55,14 +55,6 @@ def setNoxMEID(phoneNum, IMEI):
     click(r.find("close.png"))
 
 def logonVWT(phoneNum, password):
-    if phoneNum != "":
-        wait("vwt-logon-account.png")
-        r = find("vwt-logon-account.png").right(100)
-        doubleClick(r)
-        type(Key.BACKSPACE)
-        paste(phoneNum)
-        time.sleep(0.2)
-
     wait("vwt-logon-password.png")
     r = find("vwt-logon-password.png").right(80)
     doubleClick(r)
@@ -70,6 +62,15 @@ def logonVWT(phoneNum, password):
     paste(password)
     time.sleep(0.2)
     # print("password: " + password)
+
+    # 如果先登出其它账号,先输入phoneNum的话,可能会失败,原因不明
+    if phoneNum != "":
+        wait("vwt-logon-account.png")
+        r = find("vwt-logon-account.png").right(100)
+        doubleClick(r)
+        type(Key.BACKSPACE)
+        paste(phoneNum)
+        time.sleep(0.2)
 
     click("vwt-log-logon.png")
     time.sleep(1)
