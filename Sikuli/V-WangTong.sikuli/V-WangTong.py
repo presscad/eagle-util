@@ -313,8 +313,9 @@ def vwtKaoQin(phoneNum, password):
     r.hover()
 
     wheel(WHEEL_DOWN, 4)
-    click("vwt-kaoqin-app-icon-0.png")
-    time.sleep(1.5)
+    click("vwt-work-qiye-app.png")
+    click("vwt-qiye-app-kaoqin-btn.png")
+    time.sleep(1)
     wait("vwt-kaoqin-mobile-kaoqin.png")
     click("vwt-kaoqin-kaoqin-icon.png")
     time.sleep(0.5)
@@ -349,6 +350,8 @@ def vwtKaoQin(phoneNum, password):
                 time.sleep(1)
 
     click("vwt-salaryapp-close.png")
+    time.sleep(0.5)
+    click("vwt-int-back.png")
     time.sleep(0.5)
     click("vwt-bar-me.png")
     logoutVWT(True)
