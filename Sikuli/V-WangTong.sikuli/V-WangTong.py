@@ -173,6 +173,7 @@ def vwtYuQing(phoneNum, password):
     if not exists("vwt-yuqing-news-yuqing.png"): time.sleep(0.5)
     if not exists("vwt-yuqing-news-yuqing.png"): time.sleep(0.5)
     wait("vwt-yuqing-news-yuqing.png")
+    time.sleep(0.4)
     r = find("vwt-yuqing-news-all.png").below(80)
     click(r)
     wait("vwt-yuqing-news-details.png")
