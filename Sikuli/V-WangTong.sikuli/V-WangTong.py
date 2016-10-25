@@ -41,8 +41,10 @@ def setNoxMEID(phoneNum, IMEI):
     paste(phoneNum)
 
     if "" != IMEI:
+        click("sys-setting-imei-create.png")
         r = find("ImeiConfig.png").right(100)
         doubleClick(r)
+        time.sleep(0.1)
         type(Key.BACKSPACE)
         paste(IMEI)
     else:
