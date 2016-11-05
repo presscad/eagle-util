@@ -177,6 +177,7 @@ def vwtYuQing(phoneNum, password):
     r = find("vwt-yuqing-news-all.png").below(80)
     click(r)
     wait("vwt-yuqing-news-details.png")
+    time.sleep(0.5)
 
     click("vwt-yuqing-news-close.png")
     time.sleep(0.5)
