@@ -68,9 +68,6 @@ END_MESSAGE_MAP()
 
 
 // CIEProxyDlg message handlers
-namespace utils {
-extern void DoIniTest();
-}
 
 BOOL CIEProxyDlg::OnInitDialog()
 {
@@ -84,8 +81,6 @@ BOOL CIEProxyDlg::OnInitDialog()
     // TODO: Add extra initialization here
     m_stcStatus.SetWindowText(_T("Retrieving IE proxy settings..."));
     this->PostMessage(WM_GET_PROXY_STATUS);
-
-    //DoIniTest();
 
     ReadSettings();
     UpdateUiBySettings();

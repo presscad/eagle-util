@@ -38,9 +38,6 @@
     <ClCompile Include="..\..\Utils\Ini\SimpleIni.cpp">
       <Filter>Utils\Ini</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Utils\Ini\test\SimpleIniTest.cpp">
-      <Filter>Utils\Ini</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\utils\basic\FileUtilWin.cpp">
       <Filter>Utils\basic</Filter>
     </ClCompile>
@@ -101,5 +98,10 @@
     <None Include="res\MyNanjing.rc2">
       <Filter>Resource Files</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="MyNanjing.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
