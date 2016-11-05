@@ -1,10 +1,6 @@
 
-#if defined(_MSC_VER)
-#define _CRT_SECURE_NO_WARNINGS
-#endif
-
 #include "SimpleIni.h"
-#include "FileUtil.h"
+#include "basic/FileUtil.h"
 extern "C" {
 #include "iniparser/src/iniparser.h"
 }

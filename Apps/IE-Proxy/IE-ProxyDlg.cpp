@@ -6,7 +6,7 @@
 #include "IE-ProxyDlg.h"
 #include "Ini/SimpleIni.h"
 #include "Net/InetUtil.h"
-#include "Fs/FileUtil.h"
+#include "basic/FileUtil.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

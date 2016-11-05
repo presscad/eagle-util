@@ -18,14 +18,14 @@
     <Filter Include="Utils\Ini">
       <UniqueIdentifier>{71ae704c-d1f4-4766-8657-4c2cc6593126}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Utils\FS">
-      <UniqueIdentifier>{7ac0fd8e-46bc-4f13-96e0-88898049aa42}</UniqueIdentifier>
-    </Filter>
     <Filter Include="External">
       <UniqueIdentifier>{9fc5107e-2b18-4ffe-ab9e-63f054c3fab7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="External\libini">
-      <UniqueIdentifier>{7da9b144-944a-47c2-b383-6bd0ba1f3698}</UniqueIdentifier>
+    <Filter Include="Utils\basic">
+      <UniqueIdentifier>{7ac0fd8e-46bc-4f13-96e0-88898049aa42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\iniparser">
+      <UniqueIdentifier>{1b66395f-c642-4579-8921-238d17f52aea}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -47,11 +47,17 @@
     <ClCompile Include="..\..\Utils\Ini\test\SimpleIniTest.cpp">
       <Filter>Utils\Ini</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Utils\FS\FileUtilWin.cpp">
-      <Filter>Utils\FS</Filter>
+    <ClCompile Include="..\..\utils\basic\FileUtilWin.cpp">
+      <Filter>Utils\basic</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\External\libini\src\ini.cpp">
-      <Filter>External\libini</Filter>
+    <ClCompile Include="..\..\utils\basic\StrUtilWin.cpp">
+      <Filter>Utils\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\external-libs\iniparser\src\iniparser2.cpp">
+      <Filter>External\iniparser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\external-libs\iniparser\src\dictionary.c">
+      <Filter>External\iniparser</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -73,23 +79,17 @@
     <ClInclude Include="..\..\Utils\Ini\SimpleIni.h">
       <Filter>Utils\Ini</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Utils\FS\FileUtil.h">
-      <Filter>Utils\FS</Filter>
+    <ClInclude Include="..\..\utils\basic\FileUtil.h">
+      <Filter>Utils\basic</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\External\libini\include\config.h">
-      <Filter>External\libini</Filter>
+    <ClInclude Include="..\..\utils\basic\StrUtil.h">
+      <Filter>Utils\basic</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\External\libini\src\headings.h">
-      <Filter>External\libini</Filter>
+    <ClInclude Include="..\..\..\external-libs\iniparser\src\dictionary.h">
+      <Filter>External\iniparser</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\External\libini\src\keys.h">
-      <Filter>External\libini</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\External\libini\include\libini.h">
-      <Filter>External\libini</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\External\libini\src\list.h">
-      <Filter>External\libini</Filter>
+    <ClInclude Include="..\..\..\external-libs\iniparser\src\iniparser.h">
+      <Filter>External\iniparser</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -105,18 +105,6 @@
   <ItemGroup>
     <None Include="res\IE-Proxy.rc2">
       <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\..\External\libini\src\headings.i">
-      <Filter>External\libini</Filter>
-    </None>
-    <None Include="..\..\External\libini\src\keys.i">
-      <Filter>External\libini</Filter>
-    </None>
-    <None Include="..\..\External\libini\src\list.i">
-      <Filter>External\libini</Filter>
-    </None>
-    <None Include="..\..\External\libini\src\types.i">
-      <Filter>External\libini</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
