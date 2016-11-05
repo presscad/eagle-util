@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{e914b59d-e8b5-456e-9338-cc225965f9d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\NetUtil">
+      <UniqueIdentifier>{b8e44bdb-4c5e-4c7b-a7c9-8812809c8ae2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\Ini">
+      <UniqueIdentifier>{71ae704c-d1f4-4766-8657-4c2cc6593126}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External">
+      <UniqueIdentifier>{9fc5107e-2b18-4ffe-ab9e-63f054c3fab7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\basic">
+      <UniqueIdentifier>{7ac0fd8e-46bc-4f13-96e0-88898049aa42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\iniparser">
+      <UniqueIdentifier>{1b66395f-c642-4579-8921-238d17f52aea}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Utils\Net\InetUtilWin.cpp">
+      <Filter>Utils\NetUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Utils\Ini\SimpleIni.cpp">
+      <Filter>Utils\Ini</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Utils\Ini\test\SimpleIniTest.cpp">
+      <Filter>Utils\Ini</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\utils\basic\FileUtilWin.cpp">
+      <Filter>Utils\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\utils\basic\StrUtilWin.cpp">
+      <Filter>Utils\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\external-libs\iniparser\src\iniparser2.cpp">
+      <Filter>External\iniparser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\external-libs\iniparser\src\dictionary.c">
+      <Filter>External\iniparser</Filter>
+    </ClCompile>
+    <ClCompile Include="MyNanjingDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MyNanjing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Resource.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Utils\Net\InetUtil.h">
+      <Filter>Utils\NetUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Utils\Ini\SimpleIni.h">
+      <Filter>Utils\Ini</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\utils\basic\FileUtil.h">
+      <Filter>Utils\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\utils\basic\StrUtil.h">
+      <Filter>Utils\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\external-libs\iniparser\src\dictionary.h">
+      <Filter>External\iniparser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\external-libs\iniparser\src\iniparser.h">
+      <Filter>External\iniparser</Filter>
+    </ClInclude>
+    <ClInclude Include="MyNanjingDlg.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MyNanjing.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\MyNanjing.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\MyNanjing.rc2">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>
