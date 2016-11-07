@@ -5,26 +5,28 @@
 #include "MyNanjing.h"
 #include "MyNanjingDlg.h"
 #include "Ini/SimpleIni.h"
-#include "Net/InetUtil.h"
 #include "basic/FileUtil.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-#define WM_GET_PROXY_STATUS   WM_USER
+#define WM_GET_TRAVEL_INFO  WM_USER
 
 #define DEFAULT_INI_TEXT    \
-    "[proxy-1]\n" \
-    "tag = wwwgate0\n" \
-    "proxy = wwwgate0.mot.com\n" \
-    "port = 1080\n" \
-    "bypass = 127.0.0.1;*.mot.com;*.mot-mobility.com\n" \
-    "\n" \
-    "[proxy-2]\n" \
-    "tag = wwwgate0-ch\n" \
-    "proxy = wwwgate0-ch.mot.com\n" \
-    "port = 1080\n" \
-    "bypass = 127.0.0.1;*.mot.com;*.mot-mobility.com\n"
+    "[Main]\n" \
+    "proxy =\n" \
+    "userId =\n" \
+    "[TravelInfo]\n" \
+    "url = http://58.213.141.220:10001/greentravel-api/getUserTravelInfo \n" \
+    "method = POST" \
+    "httpHeaders = content-type: application/x-www-form-urlencoded" \
+    "postFields = userId=<userId>" \
+    "[MetroCredit]\n" \
+    "url = http://58.213.141.220:10001/greentravel-api/applyPointsByType \n" \
+    "method = POST" \
+    "httpHeaders = content-type: application/x-www-form-urlencoded" \
+    "postFields = userId=<userId>&applyType=2" \
+    "threadsNum = 4"
 
 
 using namespace utils;
@@ -56,13 +58,11 @@ BEGIN_MESSAGE_MAP(CIEProxyDlg, CDialog)
     ON_WM_PAINT()
     ON_WM_QUERYDRAGICON()
     //}}AFX_MSG_MAP
-    ON_BN_CLICKED(IDC_BTN_NO_PROXY, OnBnClickedBtnNoProxy)
-    ON_BN_CLICKED(IDC_BTN_PROXY1, OnBnClickedBtnProxy1)
-    ON_BN_CLICKED(IDC_BTN_PROXY2, OnBnClickedBtnProxy2)
-    ON_BN_CLICKED(IDC_BTN_PROXY3, OnBnClickedBtnProxy3)
-    ON_BN_CLICKED(IDC_BTN_PROXY4, OnBnClickedBtnProxy4)
-    ON_BN_CLICKED(IDC_BTN_SYS_PROXY_SETTING, OnBnClickedBtnSysProxySetting)
-    ON_MESSAGE(WM_GET_PROXY_STATUS, OnGetProxyStatus) 
+    ON_BN_CLICKED(IDC_BTN_TASK1, OnBnClickedBtnTask1)
+    ON_BN_CLICKED(IDC_BTN_TASK2, OnBnClickedBtnTask2)
+    ON_BN_CLICKED(IDC_BTN_TASK3, OnBnClickedBtnTask3)
+    ON_BN_CLICKED(IDC_BTN_TASK4, OnBnClickedBtnTask4)
+    ON_MESSAGE(WM_GET_TRAVEL_INFO, OnGetTravelInfo) 
     ON_WM_TIMER()
 END_MESSAGE_MAP()
 
@@ -80,7 +80,7 @@ BOOL CIEProxyDlg::OnInitDialog()
 
     // TODO: Add extra initialization here
     m_stcStatus.SetWindowText(_T("Retrieving IE proxy settings..."));
-    this->PostMessage(WM_GET_PROXY_STATUS);
+    this->PostMessage(WM_GET_TRAVEL_INFO);
 
     ReadSettings();
     UpdateUiBySettings();
@@ -90,7 +90,7 @@ BOOL CIEProxyDlg::OnInitDialog()
 
 BOOL CIEProxyDlg::ReadSettings()
 {
-    m_proxies.SetSize(MAX_NUM_PROXY);
+    m_tasks.SetSize(MAX_NUM_TASKS);
 
     std::string iniPath = GetIniPathName();
     if (!FileExists(iniPath.c_str()))
@@ -105,9 +105,9 @@ BOOL CIEProxyDlg::ReadSettings()
     }
 
     CSimpleIni ini;
-    for (int i=0; i<MAX_NUM_PROXY; i++)
+    for (int i=0; i<MAX_NUM_TASKS; i++)
     {
-        Proxy &proxy = m_proxies.GetAt(i);
+        Task &proxy = m_tasks.GetAt(i);
         CStringA section;
         section.Format("proxy-%d", i+1);
 
@@ -125,20 +125,20 @@ BOOL CIEProxyDlg::ReadSettings()
 
 BOOL CIEProxyDlg::UpdateUiBySettings()
 {
-    for (int i=0; i<MAX_NUM_PROXY; i++)
+    for (int i=0; i<MAX_NUM_TASKS; i++)
     {
         UINT buttonid = 0;
         switch (i+1)
         {
-        case 1: buttonid = IDC_BTN_PROXY1; break;
-        case 2: buttonid = IDC_BTN_PROXY2; break;
-        case 3: buttonid = IDC_BTN_PROXY3; break;
-        case 4: buttonid = IDC_BTN_PROXY4; break;
+        case 1: buttonid = IDC_BTN_TASK1; break;
+        case 2: buttonid = IDC_BTN_TASK2; break;
+        case 3: buttonid = IDC_BTN_TASK3; break;
+        case 4: buttonid = IDC_BTN_TASK4; break;
         default:
             ASSERT(FALSE);
             return FALSE;
         }
-        this->GetDlgItem(buttonid)->SetWindowText(m_proxies[i].displayName);
+        this->GetDlgItem(buttonid)->SetWindowText(m_tasks[i].displayName);
     }
     return TRUE;
 }
@@ -194,99 +194,38 @@ HCURSOR CIEProxyDlg::OnQueryDragIcon()
 
 
 
-BOOL CIEProxyDlg::OnBnClickedBtnProxy_X(int num)
+BOOL CIEProxyDlg::OnBnClickedBtnTask_X(int num)
 {
-    BOOL res;
+    BOOL res = TRUE;
     CWaitCursor wait;
 
     m_stcStatus.SetWindowText(_T("Changing IE proxy settings..."));
-
-    CStringA strProxy;
-    CStringA strBypass;
-    unsigned int port;
-
-    if (num == 0)
-    {
-        res = EnableIEProxy(FALSE);
-    }
-    else if (num > 0)
-    {
-        ReadSettings();
-
-        const Proxy &proxy = m_proxies.GetAt(num-1);
-        strProxy = proxy.proxy;
-        if (strProxy != "unset")
-        {
-            strBypass = proxy.bypass;
-            port = proxy.port;
-            res = EnableIEProxy(TRUE, strProxy, port, strBypass);
-        }
-        else
-        {
-            CString inipath(GetIniPathName().c_str());
-            ShellExecute(NULL, TEXT("open"), TEXT("notepad.exe"), inipath, NULL, SW_SHOWNORMAL);
-
-            m_stcStatus.SetWindowText(inipath + _T(" is open. This program will be closed in few seconds."));
-            this->SetTimer(1, 5000, NULL);
-            res =  FALSE;
-        }
-    }
-
-    if (res == TRUE)
-    {
-        m_stcStatus.SetWindowText(_T("New IE proxy is set successfully!\nThis program will be closed in few seconds."));
-        this->SetTimer(1, 5000, NULL);
-    }
-
     return res;
 }
 
-void CIEProxyDlg::OnBnClickedBtnNoProxy()
+void CIEProxyDlg::OnBnClickedBtnTask1()
 {
-    OnBnClickedBtnProxy_X(0);
+    OnBnClickedBtnTask_X(1);
 }
 
-void CIEProxyDlg::OnBnClickedBtnProxy1()
+void CIEProxyDlg::OnBnClickedBtnTask2()
 {
-    OnBnClickedBtnProxy_X(1);
+    OnBnClickedBtnTask_X(2);
 }
 
-void CIEProxyDlg::OnBnClickedBtnProxy2()
+void CIEProxyDlg::OnBnClickedBtnTask3()
 {
-    OnBnClickedBtnProxy_X(2);
+    OnBnClickedBtnTask_X(3);
 }
 
-void CIEProxyDlg::OnBnClickedBtnProxy3()
+void CIEProxyDlg::OnBnClickedBtnTask4()
 {
-    OnBnClickedBtnProxy_X(3);
+    OnBnClickedBtnTask_X(4);
 }
 
-void CIEProxyDlg::OnBnClickedBtnProxy4()
+LRESULT CIEProxyDlg::OnGetTravelInfo(WPARAM wParam, LPARAM lParam)
 {
-    OnBnClickedBtnProxy_X(4);
-}
-
-void CIEProxyDlg::OnBnClickedBtnSysProxySetting()
-{
-    ShowNetworkProxySettings();
-}
-
-LRESULT CIEProxyDlg::OnGetProxyStatus(WPARAM wParam, LPARAM lParam)
-{
-    bool bEnable;
-    std::string proxy, byPass;
-    BOOL res = GetIEProxy(bEnable, proxy, byPass);
-
-    if (res)
-    {
-        CString status, proxyT(proxy.c_str()), byPassT(byPass.c_str());
-        if (!bEnable)
-            status = "IE proxy server is disabled.";
-        else
-            status.Format(_T("Current Proxy: %s"), proxyT); 
-        m_stcStatus.SetWindowText(status);
-    }
-
+    BOOL res = TRUE;
     return res;
 }
 

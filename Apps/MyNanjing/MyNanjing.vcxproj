@@ -123,12 +123,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\..\Utils\Net\InetUtilWin.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="MyNanjing.cpp" />
     <ClCompile Include="MyNanjingDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -142,7 +136,6 @@
     <ClInclude Include="..\..\utils\basic\FileUtil.h" />
     <ClInclude Include="..\..\utils\basic\StrUtil.h" />
     <ClInclude Include="..\..\Utils\Ini\SimpleIni.h" />
-    <ClInclude Include="..\..\Utils\Net\InetUtil.h" />
     <ClInclude Include="MyNanjing.h" />
     <ClInclude Include="MyNanjingDlg.h" />
     <ClInclude Include="Resource.h" />
@@ -162,7 +155,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties RESOURCE_FILE="IE-Proxy.rc" />
+      <UserProperties RESOURCE_FILE="" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

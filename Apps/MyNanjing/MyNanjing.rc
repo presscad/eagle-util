@@ -13,13 +13,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -66,27 +64,25 @@ END
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\MyNanjing.ico"
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Dialog
 //
 
-IDD_IEPROXY_DIALOG DIALOGEX 0, 0, 299, 247
+IDD_MYNANJING_DIALOG DIALOGEX 0, 0, 365, 258
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
-CAPTION "IE-Proxy"
+CAPTION "My NJ Status"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
-    PUSHBUTTON      "Cancel",IDCANCEL,219,224,50,16
-    LTEXT           "Status",IDC_STATUS,21,22,257,28
-    GROUPBOX        "Status",IDC_STATIC,7,7,285,47
-    PUSHBUTTON      "",IDC_BTN_PROXY1,33,104,232,20
-    PUSHBUTTON      "",IDC_BTN_PROXY2,33,131,232,20
-    PUSHBUTTON      "Disable Proxy",IDC_BTN_NO_PROXY,33,77,232,20
-    GROUPBOX        "New IE Proxy Setting",IDC_STATIC,7,60,285,156
-    PUSHBUTTON      "",IDC_BTN_PROXY3,33,158,232,20
-    PUSHBUTTON      "System Proxy Setting",IDC_BTN_SYS_PROXY_SETTING,113,224,90,16
-    PUSHBUTTON      "",IDC_BTN_PROXY4,33,184,232,20
+    PUSHBUTTON      "Cancel",IDCANCEL,275,235,50,16
+    LTEXT           "Status",IDC_STATUS,21,22,209,229
+    GROUPBOX        "Status",IDC_STATIC,7,7,224,244
+    PUSHBUTTON      "Metro Credit",IDC_BTN_TASK1,244,57,107,20
+    PUSHBUTTON      "Walk Credit",IDC_BTN_TASK2,244,89,107,20
+    PUSHBUTTON      "Travel Info",IDC_BTN_TASK3,244,25,107,20
+    PUSHBUTTON      "",IDC_BTN_TASK4,244,121,107,20
 END
 
 
@@ -115,9 +111,9 @@ BEGIN
             VALUE "CompanyName", "TODO: <Company name>"
             VALUE "FileDescription", "TODO: <File description>"
             VALUE "FileVersion", "1.0.0.1"
-            VALUE "InternalName", "IE-Proxy.exe"
+            VALUE "InternalName", "MyNanjing.exe"
             VALUE "LegalCopyright", "TODO: (c) <Company name>.  All rights reserved."
-            VALUE "OriginalFilename", "IE-Proxy.exe"
+            VALUE "OriginalFilename", "MyNanjing.exe"
             VALUE "ProductName", "TODO: <Product name>"
             VALUE "ProductVersion", "1.0.0.1"
         END
@@ -135,14 +131,14 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
-    IDD_IEPROXY_DIALOG, DIALOG
+    IDD_MYNANJING_DIALOG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 292
+        RIGHTMARGIN, 358
         TOPMARGIN, 7
-        BOTTOMMARGIN, 240
+        BOTTOMMARGIN, 251
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -150,15 +146,26 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_MYNANJING_DIALOG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // String Table
 //
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
-    IDS_ABOUTBOX            "&About IE-Proxy..."
+    IDS_ABOUTBOX            "&About MyNJ.."
 END
 
-#endif    // English (U.S.) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

@@ -12,9 +12,6 @@
     <Filter Include="Utils">
       <UniqueIdentifier>{e914b59d-e8b5-456e-9338-cc225965f9d0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Utils\NetUtil">
-      <UniqueIdentifier>{b8e44bdb-4c5e-4c7b-a7c9-8812809c8ae2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Utils\Ini">
       <UniqueIdentifier>{71ae704c-d1f4-4766-8657-4c2cc6593126}</UniqueIdentifier>
     </Filter>
@@ -31,9 +28,6 @@
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Utils\Net\InetUtilWin.cpp">
-      <Filter>Utils\NetUtil</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Utils\Ini\SimpleIni.cpp">
       <Filter>Utils\Ini</Filter>
@@ -63,9 +57,6 @@
     </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Utils\Net\InetUtil.h">
-      <Filter>Utils\NetUtil</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Utils\Ini\SimpleIni.h">
       <Filter>Utils\Ini</Filter>
