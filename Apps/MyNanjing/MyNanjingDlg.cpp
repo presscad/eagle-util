@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "MyNanjing.h"
 #include "MyNanjingDlg.h"
+#include "common/simple_thread_pool.hpp"
 #include "Ini/SimpleIni.h"
 #include "basic/FileUtil.h"
 #include "common/common_utils.h"
@@ -134,7 +135,7 @@ BOOL CMyNanjingDlg::ReadSettings()
                 util::ParseCsvLine(task.postFields, str, '\n');
             }
 
-            ini.GetInt(section, "threadNum", 1);
+            task.threadsNum = ini.GetInt(section, "threadsNum", 1);
         }
     }
 
@@ -222,7 +223,25 @@ BOOL CMyNanjingDlg::OnBnClickedBtnTask_X(int num)
         return TRUE;
     }
 
-    if (task.threadsNum <= 1) {
+    struct Data {
+        int index{};
+        string result;
+    };
+    vector<Data> threads_data;
+    util::BlockingDataQueue<int> indices;
+    for (int i = 0; i < task.threadsNum; ++i) {
+        indices.Add(i);
+        threads_data.push_back(Data());
+        threads_data.back().index = i;
+    }
+
+    util::CreateSimpleThreadPool("dummy", task.threadsNum, [&task, &threads_data, &indices, this]() {
+        int index;
+        if (false == indices.Get(index)) {
+            return;
+        }
+        auto& data = threads_data[index];
+
         auto handle = net::GetCurlHandle(m_config.proxy);
         if (!task.method.empty()) {
             net::CurlSetMethod(handle, task.method);
@@ -234,9 +253,8 @@ BOOL CMyNanjingDlg::OnBnClickedBtnTask_X(int num)
             net::CurlAppendPostField(handle, field);
         }
 
-        auto result = net::SendRequestAndReceive(handle, task.url);
-        m_stcStatus.SetWindowText(result.c_str());
-    }
+        data.result = net::SendRequestAndReceive(handle, task.url);
+    }).JoinAll();
 
     return TRUE;
 }

@@ -166,6 +166,7 @@ string SendRequestAndReceive(CURL_HANDLE_PTR easy_handle, const string& url,
         for (auto& field : core.post_fields) {
             curl_easy_setopt(core.easy_handle, CURLOPT_POSTFIELDS, field.c_str());
         }
+        core.post_fields.clear();
     }
 
     if (CURLE_OK == return_code) {
