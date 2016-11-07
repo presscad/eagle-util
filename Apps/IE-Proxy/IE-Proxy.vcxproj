@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{4F2BA42E-E479-489A-9A16-E39A131BB25F}</ProjectGuid>
+    <ProjectGuid>{9C77EB9B-FD8D-46B3-AD1D-3A29783F9A63}</ProjectGuid>
     <RootNamespace>IE-Proxy</RootNamespace>
     <Keyword>MFCProj</Keyword>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>

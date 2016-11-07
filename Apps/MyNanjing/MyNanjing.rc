@@ -46,7 +46,7 @@ BEGIN
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
     "LANGUAGE 9, 1\r\n"
     "#pragma code_page(1252)\r\n"
-    "#include ""res\\IE-Proxy.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""res\\MyNanjing.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
     "#include ""afxres.rc""         // Standard components\r\n"
     "#endif\r\n"
     "\0"
@@ -77,12 +77,12 @@ CAPTION "My NJ Status"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,275,235,50,16
-    LTEXT           "Status",IDC_STATUS,21,22,209,229
+    LTEXT           "Status",IDC_STATUS,21,22,207,229
     GROUPBOX        "Status",IDC_STATIC,7,7,224,244
-    PUSHBUTTON      "Metro Credit",IDC_BTN_TASK1,244,57,107,20
-    PUSHBUTTON      "Walk Credit",IDC_BTN_TASK2,244,89,107,20
-    PUSHBUTTON      "Travel Info",IDC_BTN_TASK3,244,25,107,20
-    PUSHBUTTON      "",IDC_BTN_TASK4,244,121,107,20
+    PUSHBUTTON      "Metro Credit",IDC_BTN_TASK1,243,18,107,20
+    PUSHBUTTON      "Walk Credit",IDC_BTN_TASK2,243,50,107,20
+    PUSHBUTTON      "Travel Info",IDC_BTN_TASK3,243,82,107,20
+    PUSHBUTTON      "",IDC_BTN_TASK4,243,114,107,20
 END
 
 

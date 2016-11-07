@@ -1,8 +1,4 @@
 
-#if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_WARNINGS)
-#define _CRT_SECURE_NO_WARNINGS
-#endif
-
 #include "common_utils.h"
 #include <ctime>
 #include <cctype>
@@ -23,6 +19,10 @@
 #  include <sys/time.h>
 #  include <sys/socket.h>
 #  include <netinet/in.h>
+#endif
+
+#ifdef _WIN32
+extern "C" ULONGLONG WINAPI GetTickCount64(void);
 #endif
 
 

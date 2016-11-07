@@ -33,6 +33,9 @@
     <Filter Include="Utils\All\net">
       <UniqueIdentifier>{7d053eb0-0a88-41d1-97c3-5a7874063d8e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utils\All\common">
+      <UniqueIdentifier>{00e510cd-d9c6-4446-9143-517d0285037c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -61,6 +64,9 @@
     </ClCompile>
     <ClCompile Include="..\..\utils\all\net\curl_utils.cpp">
       <Filter>Utils\All\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\utils\all\common\common_utils.cpp">
+      <Filter>Utils\All\common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -93,6 +99,9 @@
     </ClInclude>
     <ClInclude Include="..\..\utils\all\net\curl_utils.h">
       <Filter>Utils\All\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\utils\all\common\common_utils.h">
+      <Filter>Utils\All\common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

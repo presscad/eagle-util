@@ -3,24 +3,37 @@
 
 #pragma once
 #include "afxwin.h"
+#include <string>
+#include <vector>
 
 
 #define MAX_NUM_TASKS   4
 
-struct Task
+using namespace std;
+
+struct MainConfig
 {
-    CString displayName;
-    CString proxy;
-    UINT    port;
-    CString bypass;
+    string proxy;
+    string userId;
 };
 
-// CIEProxyDlg dialog
-class CIEProxyDlg : public CDialog
+struct Task
+{
+    string tag;
+    string url;
+    string method;
+    vector<string> httpHeaders;
+    vector<string> postFields;
+    int threadsNum{1};
+};
+
+
+// CMyNanjingDlg dialog
+class CMyNanjingDlg : public CDialog
 {
     // Construction
 public:
-    CIEProxyDlg(CWnd* pParent = NULL);	// standard constructor
+    CMyNanjingDlg(CWnd* pParent = NULL);	// standard constructor
 
     // Dialog Data
     enum { IDD = IDD_MYNANJING_DIALOG };
@@ -33,7 +46,8 @@ protected:
 protected:
     HICON m_hIcon;
     CStatic m_stcStatus;
-    CArray<Task> m_tasks;
+    vector<Task> m_tasks;
+    MainConfig m_config;
 
     BOOL OnBnClickedBtnTask_X(int num);
     BOOL ReadSettings();

@@ -43,7 +43,7 @@ BOOL CIEProxyApp::InitInstance()
 
     AfxEnableControlContainer();
 
-    CIEProxyDlg dlg;
+    CMyNanjingDlg dlg;
     m_pMainWnd = &dlg;
     dlg.DoModal();
 

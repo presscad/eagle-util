@@ -21,14 +21,14 @@
 #include <fstream>
 
 
+UTIL_BEGIN_NAMESPACE
+
 #ifdef _WIN32
 typedef unsigned int SOCKET;
 #else
 typedef int SOCKET;
 #endif
 
-
-UTIL_BEGIN_NAMESPACE
 
 typedef void dictionary;
 

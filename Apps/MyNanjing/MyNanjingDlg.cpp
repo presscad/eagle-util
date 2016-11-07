@@ -6,6 +6,9 @@
 #include "MyNanjingDlg.h"
 #include "Ini/SimpleIni.h"
 #include "basic/FileUtil.h"
+#include "common/common_utils.h"
+#include "net/curl_utils.h"
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -16,17 +19,19 @@
     "[Main]\n" \
     "proxy =\n" \
     "userId =\n" \
-    "[TravelInfo]\n" \
+    "[Task-1]\n" \
+    "tag = Travel Info\n" \
     "url = http://58.213.141.220:10001/greentravel-api/getUserTravelInfo \n" \
-    "method = POST" \
-    "httpHeaders = content-type: application/x-www-form-urlencoded" \
-    "postFields = userId=<userId>" \
-    "[MetroCredit]\n" \
+    "method = POST\n" \
+    "httpHeaders = content-type: application/x-www-form-urlencoded\n" \
+    "postFields = userId=<userId>\n" \
+    "[Task-2]\n" \
+    "tag = Walk Credit\n" \
     "url = http://58.213.141.220:10001/greentravel-api/applyPointsByType \n" \
-    "method = POST" \
-    "httpHeaders = content-type: application/x-www-form-urlencoded" \
-    "postFields = userId=<userId>&applyType=2" \
-    "threadsNum = 4"
+    "method = POST\n" \
+    "httpHeaders = content-type: application/x-www-form-urlencoded\n" \
+    "postFields = userId=<userId>&applyType=3\n" \
+    "threadsNum = 4\n"
 
 
 using namespace utils;
@@ -39,21 +44,21 @@ std::string GetIniPathName()
     return pathname;
 }
 
-// CIEProxyDlg dialog
+// CMyNanjingDlg dialog
 
-CIEProxyDlg::CIEProxyDlg(CWnd* pParent /*=NULL*/)
-: CDialog(CIEProxyDlg::IDD, pParent)
+CMyNanjingDlg::CMyNanjingDlg(CWnd* pParent /*=NULL*/)
+: CDialog(CMyNanjingDlg::IDD, pParent)
 {
     m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
 
-void CIEProxyDlg::DoDataExchange(CDataExchange* pDX)
+void CMyNanjingDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialog::DoDataExchange(pDX);
     DDX_Control(pDX, IDC_STATUS, m_stcStatus);
 }
 
-BEGIN_MESSAGE_MAP(CIEProxyDlg, CDialog)
+BEGIN_MESSAGE_MAP(CMyNanjingDlg, CDialog)
     ON_WM_SYSCOMMAND()
     ON_WM_PAINT()
     ON_WM_QUERYDRAGICON()
@@ -67,9 +72,9 @@ BEGIN_MESSAGE_MAP(CIEProxyDlg, CDialog)
 END_MESSAGE_MAP()
 
 
-// CIEProxyDlg message handlers
+// CMyNanjingDlg message handlers
 
-BOOL CIEProxyDlg::OnInitDialog()
+BOOL CMyNanjingDlg::OnInitDialog()
 {
     CDialog::OnInitDialog();
 
@@ -78,8 +83,7 @@ BOOL CIEProxyDlg::OnInitDialog()
     SetIcon(m_hIcon, TRUE);			// Set big icon
     SetIcon(m_hIcon, FALSE);		// Set small icon
 
-    // TODO: Add extra initialization here
-    m_stcStatus.SetWindowText(_T("Retrieving IE proxy settings..."));
+    // Add extra initialization here
     this->PostMessage(WM_GET_TRAVEL_INFO);
 
     ReadSettings();
@@ -88,9 +92,9 @@ BOOL CIEProxyDlg::OnInitDialog()
     return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
-BOOL CIEProxyDlg::ReadSettings()
+BOOL CMyNanjingDlg::ReadSettings()
 {
-    m_tasks.SetSize(MAX_NUM_TASKS);
+    m_tasks.resize(MAX_NUM_TASKS);
 
     std::string iniPath = GetIniPathName();
     if (!FileExists(iniPath.c_str()))
@@ -105,25 +109,39 @@ BOOL CIEProxyDlg::ReadSettings()
     }
 
     CSimpleIni ini;
-    for (int i=0; i<MAX_NUM_TASKS; i++)
+    m_config.proxy = ini.GetString("Main", "proxy", "");
+    m_config.userId = ini.GetString("Main", "userId", "<userId>");
+
+    for (int i = 0; i < MAX_NUM_TASKS; i++)
     {
-        Task &proxy = m_tasks.GetAt(i);
+        Task &task = m_tasks.at(i);
         CStringA section;
-        section.Format("proxy-%d", i+1);
+        section.Format("task-%d", i+1);
 
-        CStringA defaultTag = CStringA("Not set. Check ") + GetFileName(iniPath.c_str()).c_str();
+        task.tag = ini.GetString(section, "tag", "<None>");
+        if (task.tag != "<None>") {
+            task.url = ini.GetString(section, "url", "");
+            task.method = ini.GetString(section, "method", "GET");
 
-        proxy.displayName = ini.GetString(section, "tag", defaultTag).c_str();
-        proxy.proxy = ini.GetString(section, "proxy", "unset").c_str();
-        proxy.port = ini.GetInt(section, "port", 0);
-        proxy.bypass = ini.GetString(section, "bypass", "unset").c_str();
+            string str = ini.GetString(section, "httpHeaders", "");
+            if (!str.empty()) {
+                util::ParseCsvLine(task.httpHeaders, str, '\n');
+            }
+
+            str = ini.GetString(section, "postFields", "");
+            if (!str.empty()) {
+                util::StringReplace(str, "<userId>", m_config.userId);
+                util::ParseCsvLine(task.postFields, str, '\n');
+            }
+
+            ini.GetInt(section, "threadNum", 1);
+        }
     }
-
 
     return TRUE;
 }
 
-BOOL CIEProxyDlg::UpdateUiBySettings()
+BOOL CMyNanjingDlg::UpdateUiBySettings()
 {
     for (int i=0; i<MAX_NUM_TASKS; i++)
     {
@@ -138,12 +156,12 @@ BOOL CIEProxyDlg::UpdateUiBySettings()
             ASSERT(FALSE);
             return FALSE;
         }
-        this->GetDlgItem(buttonid)->SetWindowText(m_tasks[i].displayName);
+        this->GetDlgItem(buttonid)->SetWindowText(m_tasks[i].tag.c_str());
     }
     return TRUE;
 }
 
-void CIEProxyDlg::OnSysCommand(UINT nID, LPARAM lParam)
+void CMyNanjingDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
     if ((nID & 0xFFF0) == IDM_ABOUTBOX)
     {
@@ -160,7 +178,7 @@ void CIEProxyDlg::OnSysCommand(UINT nID, LPARAM lParam)
 //  to draw the icon.  For MFC applications using the document/view model,
 //  this is automatically done for you by the framework.
 
-void CIEProxyDlg::OnPaint() 
+void CMyNanjingDlg::OnPaint() 
 {
     if (IsIconic())
     {
@@ -187,50 +205,70 @@ void CIEProxyDlg::OnPaint()
 
 // The system calls this function to obtain the cursor to display while the user drags
 //  the minimized window.
-HCURSOR CIEProxyDlg::OnQueryDragIcon()
+HCURSOR CMyNanjingDlg::OnQueryDragIcon()
 {
     return static_cast<HCURSOR>(m_hIcon);
 }
 
 
-
-BOOL CIEProxyDlg::OnBnClickedBtnTask_X(int num)
+BOOL CMyNanjingDlg::OnBnClickedBtnTask_X(int num)
 {
-    BOOL res = TRUE;
     CWaitCursor wait;
+    auto& task = m_tasks[num - 1];
+    if (task.tag == "<None>") {
+        return TRUE;
+    }
+    if (task.url.empty()) {
+        return TRUE;
+    }
 
-    m_stcStatus.SetWindowText(_T("Changing IE proxy settings..."));
-    return res;
+    if (task.threadsNum <= 1) {
+        auto handle = net::GetCurlHandle(m_config.proxy);
+        if (!task.method.empty()) {
+            net::CurlSetMethod(handle, task.method);
+        }
+        for (auto& header : task.httpHeaders) {
+            net::CurlAppendHeader(handle, header);
+        }
+        for (auto& field : task.postFields) {
+            net::CurlAppendPostField(handle, field);
+        }
+
+        auto result = net::SendRequestAndReceive(handle, task.url);
+        m_stcStatus.SetWindowText(result.c_str());
+    }
+
+    return TRUE;
 }
 
-void CIEProxyDlg::OnBnClickedBtnTask1()
+void CMyNanjingDlg::OnBnClickedBtnTask1()
 {
     OnBnClickedBtnTask_X(1);
 }
 
-void CIEProxyDlg::OnBnClickedBtnTask2()
+void CMyNanjingDlg::OnBnClickedBtnTask2()
 {
     OnBnClickedBtnTask_X(2);
 }
 
-void CIEProxyDlg::OnBnClickedBtnTask3()
+void CMyNanjingDlg::OnBnClickedBtnTask3()
 {
     OnBnClickedBtnTask_X(3);
 }
 
-void CIEProxyDlg::OnBnClickedBtnTask4()
+void CMyNanjingDlg::OnBnClickedBtnTask4()
 {
     OnBnClickedBtnTask_X(4);
 }
 
-LRESULT CIEProxyDlg::OnGetTravelInfo(WPARAM wParam, LPARAM lParam)
+LRESULT CMyNanjingDlg::OnGetTravelInfo(WPARAM wParam, LPARAM lParam)
 {
-    BOOL res = TRUE;
-    return res;
+    OnBnClickedBtnTask_X(1);
+    return true;
 }
 
-void CIEProxyDlg::OnTimer(UINT_PTR nIDEvent)
+void CMyNanjingDlg::OnTimer(UINT_PTR nIDEvent)
 {
     CDialog::OnTimer(nIDEvent);
-    CIEProxyDlg::OnOK();
+    CMyNanjingDlg::OnOK();
 }

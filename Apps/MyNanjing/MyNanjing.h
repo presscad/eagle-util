@@ -1,4 +1,4 @@
-// IE-Proxy.h : main header file for the PROJECT_NAME application
+// MyNanjing.h : main header file for the PROJECT_NAME application
 //
 
 #pragma once
@@ -11,7 +11,7 @@
 
 
 // CIEProxyApp:
-// See IE-Proxy.cpp for the implementation of this class
+// See MyNanjing.cpp for the implementation of this class
 //
 
 class CIEProxyApp : public CWinApp
