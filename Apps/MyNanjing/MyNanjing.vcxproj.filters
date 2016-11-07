@@ -29,15 +29,6 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Utils\Ini\SimpleIni.cpp">
-      <Filter>Utils\Ini</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\utils\basic\FileUtilWin.cpp">
-      <Filter>Utils\basic</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\utils\basic\StrUtilWin.cpp">
-      <Filter>Utils\basic</Filter>
-    </ClCompile>
     <ClCompile Include="MyNanjingDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -50,6 +41,15 @@
     <ClCompile Include="..\..\..\extern-libs\iniparser\src\iniparser2.cpp">
       <Filter>External\iniparser</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\utils\win\Basic\FileUtilWin.cpp">
+      <Filter>Utils\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\utils\win\Basic\StrUtilWin.cpp">
+      <Filter>Utils\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\utils\win\Ini\SimpleIni.cpp">
+      <Filter>Utils\Ini</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -57,15 +57,6 @@
     </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Utils\Ini\SimpleIni.h">
-      <Filter>Utils\Ini</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\utils\basic\FileUtil.h">
-      <Filter>Utils\basic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\utils\basic\StrUtil.h">
-      <Filter>Utils\basic</Filter>
     </ClInclude>
     <ClInclude Include="MyNanjingDlg.h">
       <Filter>Source Files</Filter>
@@ -78,6 +69,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\extern-libs\iniparser\src\iniparser.h">
       <Filter>External\iniparser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\utils\win\Basic\FileUtil.h">
+      <Filter>Utils\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\utils\win\Basic\StrUtil.h">
+      <Filter>Utils\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\utils\win\Ini\SimpleIni.h">
+      <Filter>Utils\Ini</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

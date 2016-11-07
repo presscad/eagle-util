@@ -53,7 +53,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../../Utils;../../External;../../../extern-libs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../utils/all;../../utils/win;../../../extern-libs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -79,7 +79,7 @@
       <MkTypLibCompatible>false</MkTypLibCompatible>
     </Midl>
     <ClCompile>
-      <AdditionalIncludeDirectories>../../Utils;../../External;../../../extern-libs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../utils/all;../../utils/win;../../../extern-libs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WIN32_WINNT=_WIN32_WINNT_WINXP;_WIN32_IE=0x0700;_AFXDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -109,19 +109,17 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\..\utils\basic\FileUtilWin.cpp">
+    <ClCompile Include="..\..\utils\win\Basic\FileUtilWin.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\..\utils\basic\StrUtilWin.cpp">
+    <ClCompile Include="..\..\utils\win\Basic\StrUtilWin.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\..\Utils\Ini\SimpleIni.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
+    <ClCompile Include="..\..\utils\win\Ini\SimpleIni.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="MyNanjing.cpp" />
     <ClCompile Include="MyNanjingDlg.cpp" />
@@ -133,9 +131,9 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\extern-libs\iniparser\src\dictionary.h" />
     <ClInclude Include="..\..\..\extern-libs\iniparser\src\iniparser.h" />
-    <ClInclude Include="..\..\utils\basic\FileUtil.h" />
-    <ClInclude Include="..\..\utils\basic\StrUtil.h" />
-    <ClInclude Include="..\..\Utils\Ini\SimpleIni.h" />
+    <ClInclude Include="..\..\utils\win\Basic\FileUtil.h" />
+    <ClInclude Include="..\..\utils\win\Basic\StrUtil.h" />
+    <ClInclude Include="..\..\utils\win\Ini\SimpleIni.h" />
     <ClInclude Include="MyNanjing.h" />
     <ClInclude Include="MyNanjingDlg.h" />
     <ClInclude Include="Resource.h" />
