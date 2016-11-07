@@ -53,10 +53,10 @@
     <ClCompile Include="..\..\utils\basic\StrUtilWin.cpp">
       <Filter>Utils\basic</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\external-libs\iniparser\src\iniparser2.cpp">
+    <ClCompile Include="..\..\..\extern-libs\iniparser\src\iniparser2.cpp">
       <Filter>External\iniparser</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\external-libs\iniparser\src\dictionary.c">
+    <ClCompile Include="..\..\..\extern-libs\iniparser\src\dictionary.c">
       <Filter>External\iniparser</Filter>
     </ClCompile>
   </ItemGroup>
@@ -85,10 +85,10 @@
     <ClInclude Include="..\..\utils\basic\StrUtil.h">
       <Filter>Utils\basic</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\external-libs\iniparser\src\dictionary.h">
+    <ClInclude Include="..\..\..\extern-libs\iniparser\src\dictionary.h">
       <Filter>External\iniparser</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\external-libs\iniparser\src\iniparser.h">
+    <ClInclude Include="..\..\..\extern-libs\iniparser\src\iniparser.h">
       <Filter>External\iniparser</Filter>
     </ClInclude>
   </ItemGroup>
