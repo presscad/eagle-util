@@ -12,17 +12,26 @@
     <Filter Include="Utils">
       <UniqueIdentifier>{e914b59d-e8b5-456e-9338-cc225965f9d0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Utils\Ini">
-      <UniqueIdentifier>{71ae704c-d1f4-4766-8657-4c2cc6593126}</UniqueIdentifier>
-    </Filter>
     <Filter Include="External">
       <UniqueIdentifier>{9fc5107e-2b18-4ffe-ab9e-63f054c3fab7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Utils\basic">
-      <UniqueIdentifier>{7ac0fd8e-46bc-4f13-96e0-88898049aa42}</UniqueIdentifier>
-    </Filter>
     <Filter Include="External\iniparser">
       <UniqueIdentifier>{ed2ef7fd-63e9-4eb1-8764-ec3490448b45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\Win">
+      <UniqueIdentifier>{32c50fd8-6b19-4380-94eb-1b14b82a13f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\Win\basic">
+      <UniqueIdentifier>{7ac0fd8e-46bc-4f13-96e0-88898049aa42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\Win\Ini">
+      <UniqueIdentifier>{71ae704c-d1f4-4766-8657-4c2cc6593126}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\All">
+      <UniqueIdentifier>{4de5c52b-5fd9-496d-88f8-4084975e1ad5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\All\net">
+      <UniqueIdentifier>{7d053eb0-0a88-41d1-97c3-5a7874063d8e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -41,14 +50,17 @@
     <ClCompile Include="..\..\..\extern-libs\iniparser\src\iniparser2.cpp">
       <Filter>External\iniparser</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\utils\win\Ini\SimpleIni.cpp">
+      <Filter>Utils\Win\Ini</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\utils\win\Basic\FileUtilWin.cpp">
-      <Filter>Utils\basic</Filter>
+      <Filter>Utils\Win</Filter>
     </ClCompile>
     <ClCompile Include="..\..\utils\win\Basic\StrUtilWin.cpp">
-      <Filter>Utils\basic</Filter>
+      <Filter>Utils\Win</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\utils\win\Ini\SimpleIni.cpp">
-      <Filter>Utils\Ini</Filter>
+    <ClCompile Include="..\..\utils\all\net\curl_utils.cpp">
+      <Filter>Utils\All\net</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -70,14 +82,17 @@
     <ClInclude Include="..\..\..\extern-libs\iniparser\src\iniparser.h">
       <Filter>External\iniparser</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\utils\win\Ini\SimpleIni.h">
+      <Filter>Utils\Win\Ini</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\utils\win\Basic\FileUtil.h">
-      <Filter>Utils\basic</Filter>
+      <Filter>Utils\Win</Filter>
     </ClInclude>
     <ClInclude Include="..\..\utils\win\Basic\StrUtil.h">
-      <Filter>Utils\basic</Filter>
+      <Filter>Utils\Win</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\utils\win\Ini\SimpleIni.h">
-      <Filter>Utils\Ini</Filter>
+    <ClInclude Include="..\..\utils\all\net\curl_utils.h">
+      <Filter>Utils\All\net</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -94,5 +109,8 @@
     <ResourceCompile Include="MyNanjing.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="readme.txt" />
   </ItemGroup>
 </Project>

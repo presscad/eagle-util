@@ -122,7 +122,7 @@ bool WriteAllLines(const TCHAR * name, const CStringArray &linesArray)
 #endif
          line += "\n";
 
-		 file.Write((const void *)line.c_str(), line.length() * sizeof(line[0]));
+		 file.Write((const void *)line.c_str(), (UINT)line.length() * sizeof(line[0]));
       }
       file.Close();
 

@@ -229,7 +229,7 @@ LRESULT CIEProxyDlg::OnGetTravelInfo(WPARAM wParam, LPARAM lParam)
     return res;
 }
 
-void CIEProxyDlg::OnTimer(UINT nIDEvent)
+void CIEProxyDlg::OnTimer(UINT_PTR nIDEvent)
 {
     CDialog::OnTimer(nIDEvent);
     CIEProxyDlg::OnOK();
