@@ -41,7 +41,11 @@ using namespace utils;
 std::string GetIniPathName()
 {
     std::string modulePathName = GetCurModulePathname();
-    std::string pathname = GetFilePath(modulePathName.c_str()) + GetFileTitle(modulePathName.c_str()) + ".ini";
+    std::string curDir = GetCurDirectory();
+    if (curDir.back() != '\\') {
+        curDir += '\\';
+    }
+    std::string pathname = curDir + GetFileTitle(modulePathName.c_str()) + ".ini";
     return pathname;
 }
 
@@ -109,7 +113,7 @@ BOOL CMyNanjingDlg::ReadSettings()
         }
     }
 
-    CSimpleIni ini;
+    CSimpleIni ini(iniPath.c_str());
     m_config.proxy = ini.GetString("Main", "proxy", "");
     m_config.userId = ini.GetString("Main", "userId", "<userId>");
 
@@ -117,7 +121,7 @@ BOOL CMyNanjingDlg::ReadSettings()
     {
         Task &task = m_tasks.at(i);
         CStringA section;
-        section.Format("task-%d", i+1);
+        section.Format("Task-%d", i+1);
 
         task.tag = ini.GetString(section, "tag", "<None>");
         if (task.tag != "<None>") {
@@ -228,32 +232,34 @@ BOOL CMyNanjingDlg::OnBnClickedBtnTask_X(int num)
         string result;
     };
     vector<Data> threads_data;
-    util::BlockingDataQueue<int> indices;
+    util::SimpleDataQueue<int> indices;
     for (int i = 0; i < task.threadsNum; ++i) {
         indices.Add(i);
         threads_data.push_back(Data());
         threads_data.back().index = i;
     }
 
-    util::CreateSimpleThreadPool("dummy", task.threadsNum, [&task, &threads_data, &indices, this]() {
-        int index;
-        if (false == indices.Get(index)) {
-            return;
-        }
-        auto& data = threads_data[index];
+    util::CreateSimpleThreadPool("dummy", (unsigned)task.threadsNum, [&task, &threads_data, &indices, this]() {
+        while (true) {
+            int index;
+            if (false == indices.Get(index)) {
+                break;
+            }
+            auto& data = threads_data[index];
 
-        auto handle = net::GetCurlHandle(m_config.proxy);
-        if (!task.method.empty()) {
-            net::CurlSetMethod(handle, task.method);
-        }
-        for (auto& header : task.httpHeaders) {
-            net::CurlAppendHeader(handle, header);
-        }
-        for (auto& field : task.postFields) {
-            net::CurlAppendPostField(handle, field);
-        }
+            auto handle = net::GetCurlHandle(m_config.proxy);
+            if (!task.method.empty()) {
+                net::CurlSetMethod(handle, task.method);
+            }
+            for (auto& header : task.httpHeaders) {
+                net::CurlAppendHeader(handle, header);
+            }
+            for (auto& field : task.postFields) {
+                net::CurlAppendPostField(handle, field);
+            }
 
-        data.result = net::SendRequestAndReceive(handle, task.url);
+            data.result = net::SendRequestAndReceive(handle, task.url);
+        }
     }).JoinAll();
 
     return TRUE;

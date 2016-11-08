@@ -50,6 +50,16 @@ std::string GetCurModulePathname()
     return name;
 }
 
+std::string GetCurDirectory()
+{
+    std::string name;
+    char buff[MAX_PATH];
+    DWORD res = ::GetCurrentDirectoryA(MAX_PATH, buff);
+    if (res != 0)
+        name = buff;
+    return name;
+}
+
 // "c:\folder\file.txt" => "c:\folder\"
 std::string GetFilePath(const char* pathname)
 {

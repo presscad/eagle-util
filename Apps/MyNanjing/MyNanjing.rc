@@ -77,7 +77,7 @@ CAPTION "My NJ Status"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,275,235,50,16
-    LTEXT           "Status",IDC_STATUS,21,22,207,229
+    LTEXT           "Status",IDC_STATUS,21,22,207,21
     GROUPBOX        "Status",IDC_STATIC,7,7,224,244
     PUSHBUTTON      "Metro Credit",IDC_BTN_TASK1,243,18,107,20
     PUSHBUTTON      "Walk Credit",IDC_BTN_TASK2,243,50,107,20

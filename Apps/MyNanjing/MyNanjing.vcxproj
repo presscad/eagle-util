@@ -31,7 +31,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <PlatformToolset>v140</PlatformToolset>
-    <UseOfMfc>Static</UseOfMfc>
+    <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <PlatformToolset>v140</PlatformToolset>
@@ -254,6 +254,7 @@
     <Image Include="res\MyNanjing.ico" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="MyNanjing.ini" />
     <None Include="res\MyNanjing.rc2" />
   </ItemGroup>
   <ItemGroup>

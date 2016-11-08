@@ -12,8 +12,11 @@ struct CURL_CORE
     CURL *easy_handle{};
     string err;
     string proxy;
+    string url;
     vector<string> http_headers;
     vector<string> post_fields;
+
+    string data;
 };
 
 static void CurlCloseHandle(CURL_HANDLE *easy_handle)
@@ -24,12 +27,6 @@ static void CurlCloseHandle(CURL_HANDLE *easy_handle)
         handle->easy_handle = nullptr;
         delete handle;
     }
-}
-
-CURL_HANDLE_WRAPPER::~CURL_HANDLE_WRAPPER()
-{
-    CurlCloseHandle(handle);
-    handle = nullptr;
 }
 
 void InitCurl()
@@ -84,7 +81,7 @@ CURL_HANDLE_PTR GetCurlHandle(const string& proxy)
     return p;
 }
 
-string CurlEncodeUrl(CURL_HANDLE_PTR easy_handle, const string& url)
+string CurlEncodeUrl(const CURL_HANDLE_PTR& easy_handle, const string& url)
 {
     CURL_CORE& core = *static_cast<CURL_CORE*>(easy_handle->handle);
     char *encoded_url = curl_easy_escape(core.easy_handle, url.c_str(), 0);
@@ -96,28 +93,29 @@ string CurlEncodeUrl(CURL_HANDLE_PTR easy_handle, const string& url)
     return result;
 }
 
-bool CurlSetMethod(CURL_HANDLE_PTR easy_handle, const string & method)
+bool CurlSetMethod(const CURL_HANDLE_PTR& easy_handle, const string & method)
 {
     CURL_CORE& core = *static_cast<CURL_CORE*>(easy_handle->handle);
     CURLcode return_code = curl_easy_setopt(core.easy_handle, CURLOPT_CUSTOMREQUEST, method.c_str());
     return CURLE_OK == return_code;
 }
 
-bool CurlSetUrl(CURL_HANDLE_PTR easy_handle, const string & url)
+bool CurlSetUrl(const CURL_HANDLE_PTR& easy_handle, const string & url)
 {
     CURL_CORE& core = *static_cast<CURL_CORE*>(easy_handle->handle);
+    core.url = url;
     CURLcode return_code = curl_easy_setopt(core.easy_handle, CURLOPT_URL, url.c_str());
     return CURLE_OK == return_code;
 }
 
-bool CurlAppendHeader(CURL_HANDLE_PTR easy_handle, const std::string & header)
+bool CurlAppendHeader(const CURL_HANDLE_PTR& easy_handle, const std::string & header)
 {
     CURL_CORE& core = *static_cast<CURL_CORE*>(easy_handle->handle);
     core.http_headers.push_back(header);
     return true;
 }
 
-bool CurlAppendPostField(CURL_HANDLE_PTR easy_handle, const std::string & post_field)
+bool CurlAppendPostField(const CURL_HANDLE_PTR& easy_handle, const std::string & post_field)
 {
     CURL_CORE& core = *static_cast<CURL_CORE*>(easy_handle->handle);
     core.post_fields.push_back(post_field);
@@ -133,24 +131,26 @@ static size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdat
     return size * nmemb;
 }
 
-string SendRequestAndReceive(CURL_HANDLE_PTR easy_handle, const string& url,
+string SendRequestAndReceive(const CURL_HANDLE_PTR& easy_handle, const string& url,
     size_t result_reserved_size)
 {
     CURL_CORE& core = *static_cast<CURL_CORE*>(easy_handle->handle);
-    string result;
     CURLcode return_code = CURLE_OK;
 
     if (!url.empty()) {
+        core.url = url;
         return_code = curl_easy_setopt(core.easy_handle, CURLOPT_URL, url.c_str());
     }
     if (CURLE_OK == return_code) {
         return_code = curl_easy_setopt(core.easy_handle, CURLOPT_WRITEFUNCTION, write_callback);
     }
+
+    core.data.clear();
     if (CURLE_OK == return_code) {
         if (result_reserved_size > 0) {
-            result.reserve(result_reserved_size);
+            core.data.reserve(result_reserved_size);
         }
-        return_code = curl_easy_setopt(core.easy_handle, CURLOPT_WRITEDATA, &result);
+        return_code = curl_easy_setopt(core.easy_handle, CURLOPT_WRITEDATA, &core.data);
     }
 
     if (CURLE_OK == return_code && !core.http_headers.empty()) {
@@ -164,19 +164,31 @@ string SendRequestAndReceive(CURL_HANDLE_PTR easy_handle, const string& url,
 
     if (CURLE_OK == return_code && !core.post_fields.empty()) {
         for (auto& field : core.post_fields) {
-            curl_easy_setopt(core.easy_handle, CURLOPT_POSTFIELDS, field.c_str());
+            return_code = curl_easy_setopt(core.easy_handle, CURLOPT_POSTFIELDS, field.c_str());
+            if (CURLE_OK != return_code) {
+                break;
+            }
         }
-        core.post_fields.clear();
     }
 
     if (CURLE_OK == return_code) {
         return_code = curl_easy_perform(core.easy_handle);
+        core.post_fields.clear();
     }
     if (CURLE_OK != return_code) {
         throw exception(core.err.c_str());
     }
 
-    return result;
+    return core.data;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// CURL_HANDLE_WRAPPER
+
+CURL_HANDLE_WRAPPER::~CURL_HANDLE_WRAPPER()
+{
+    CurlCloseHandle(handle);
+    handle = nullptr;
 }
 
 NET_END_NAMESPACE

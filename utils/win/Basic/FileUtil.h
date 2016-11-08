@@ -12,6 +12,7 @@ bool DirectoryExists(const char* directory);
 bool RecursiveCreateDirectory(const char *directory);
 
 std::string GetCurModulePathname();
+std::string GetCurDirectory();
 std::string GetFilePath(const char* pathname);
 std::string GetFileName(const char* pathname);
 std::string GetFileTitle(const char* pathname);
