@@ -4,6 +4,9 @@
 #include "stdafx.h"
 #include "MyNanjing.h"
 #include "MyNanjingDlg.h"
+#include "rapidjson/document.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/prettywriter.h"
 #include "common/simple_thread_pool.hpp"
 #include "Ini/SimpleIni.h"
 #include "basic/FileUtil.h"
@@ -14,7 +17,7 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-#define WM_GET_TRAVEL_INFO  WM_USER
+
 
 #define DEFAULT_INI_TEXT    \
     "[Main]\n" \
@@ -61,6 +64,7 @@ void CMyNanjingDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialog::DoDataExchange(pDX);
     DDX_Control(pDX, IDC_STATUS, m_stcStatus);
+    DDX_Control(pDX, IDC_EDIT1, m_edResult);
 }
 
 BEGIN_MESSAGE_MAP(CMyNanjingDlg, CDialog)
@@ -72,7 +76,6 @@ BEGIN_MESSAGE_MAP(CMyNanjingDlg, CDialog)
     ON_BN_CLICKED(IDC_BTN_TASK2, OnBnClickedBtnTask2)
     ON_BN_CLICKED(IDC_BTN_TASK3, OnBnClickedBtnTask3)
     ON_BN_CLICKED(IDC_BTN_TASK4, OnBnClickedBtnTask4)
-    ON_MESSAGE(WM_GET_TRAVEL_INFO, OnGetTravelInfo) 
     ON_WM_TIMER()
 END_MESSAGE_MAP()
 
@@ -89,10 +92,9 @@ BOOL CMyNanjingDlg::OnInitDialog()
     SetIcon(m_hIcon, FALSE);		// Set small icon
 
     // Add extra initialization here
-    this->PostMessage(WM_GET_TRAVEL_INFO);
-
     ReadSettings();
     UpdateUiBySettings();
+    OnBnClickedBtnTask_X(1);
 
     return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -229,7 +231,10 @@ BOOL CMyNanjingDlg::OnBnClickedBtnTask_X(int num)
 
     struct Data {
         int index{};
-        string result;
+        string result_str;
+
+        // parsed data
+        int credit{};
     };
     vector<Data> threads_data;
     util::SimpleDataQueue<int> indices;
@@ -258,9 +263,69 @@ BOOL CMyNanjingDlg::OnBnClickedBtnTask_X(int num)
                 net::CurlAppendPostField(handle, field);
             }
 
-            data.result = net::SendRequestAndReceive(handle, task.url);
+            data.result_str = net::SendRequestAndReceive(handle, task.url);
         }
     }).JoinAll();
+
+    using namespace rapidjson;
+    int credit = 0;
+    string result_str;
+    for (auto& data : threads_data) {
+        Document document;
+        document.Parse(data.result_str.c_str());
+        if (!document.IsObject()) {
+            continue;
+        }
+        if (!document.HasMember("result")) {
+            continue;
+        }
+        int result = document["result"].GetInt();
+        if (result == 0) {
+            data.credit = document["data"]["points"].GetInt();
+        }
+
+        if (credit < data.credit) {
+            credit = data.credit;
+            result_str = data.result_str;
+        }
+    }
+
+    if (credit > 0) {
+        string text = "Credit: " + to_string(credit);
+        m_stcStatus.SetWindowTextA(text.c_str());
+
+        if (!result_str.empty()) {
+            Document document;
+            document.Parse(result_str.c_str());
+
+            StringBuffer buffer;
+            PrettyWriter<StringBuffer> writer(buffer);
+            document.Accept(writer);
+            result_str = buffer.GetString();
+            util::StringReplace(result_str, "\n", "\r\n");
+            m_edResult.SetWindowTextA(result_str.c_str());
+        }
+    }
+    else {
+        auto& data = threads_data.front(); // simply show the 1st one
+        if (!data.result_str.empty()) {
+            Document document;
+            document.Parse(data.result_str.c_str());
+
+            string text = string("Message: ") + document["message"].GetString();
+            wstring w_text = util::StrToWStr(text);
+            ::SetWindowTextW(m_stcStatus.GetSafeHwnd(), w_text.c_str());
+
+            StringBuffer buffer;
+            PrettyWriter<StringBuffer> writer(buffer);
+            document.Accept(writer);
+            result_str = buffer.GetString();
+            util::StringReplace(result_str, "\n", "\r\n");
+
+            wstring w_str = util::StrToWStr(result_str);
+            ::SetWindowTextW(m_edResult.GetSafeHwnd(), w_str.c_str());
+        }
+    }
 
     return TRUE;
 }
@@ -283,12 +348,6 @@ void CMyNanjingDlg::OnBnClickedBtnTask3()
 void CMyNanjingDlg::OnBnClickedBtnTask4()
 {
     OnBnClickedBtnTask_X(4);
-}
-
-LRESULT CMyNanjingDlg::OnGetTravelInfo(WPARAM wParam, LPARAM lParam)
-{
-    OnBnClickedBtnTask_X(1);
-    return true;
 }
 
 void CMyNanjingDlg::OnTimer(UINT_PTR nIDEvent)

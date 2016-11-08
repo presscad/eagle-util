@@ -46,6 +46,7 @@ protected:
 protected:
     HICON m_hIcon;
     CStatic m_stcStatus;
+    CEdit m_edResult;
     vector<Task> m_tasks;
     MainConfig m_config;
 
@@ -58,7 +59,6 @@ protected:
     afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
     afx_msg void OnPaint();
     afx_msg HCURSOR OnQueryDragIcon();
-    afx_msg LRESULT OnGetTravelInfo(WPARAM wParam, LPARAM lParam); 
     DECLARE_MESSAGE_MAP()
 public:
     afx_msg void OnBnClickedBtnTask1();
