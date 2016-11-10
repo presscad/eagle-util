@@ -3,6 +3,7 @@
 
 #pragma once
 #include "afxwin.h"
+#include <afxbutton.h>
 #include <string>
 #include <vector>
 
@@ -24,7 +25,7 @@ struct Task
     string method;
     vector<string> httpHeaders;
     vector<string> postFields;
-    int threadsNum{1};
+    int threadsNum{ 1 };
 };
 
 
@@ -45,14 +46,13 @@ protected:
     // Implementation
 protected:
     HICON m_hIcon;
-    CStatic m_stcStatus;
-    CEdit m_edResult;
     vector<Task> m_tasks;
     MainConfig m_config;
 
     BOOL OnBnClickedBtnTask_X(int num);
     BOOL ReadSettings();
     BOOL UpdateUiBySettings();
+    void UpdateTaskButtons(const std::string& result_json);
 
     // Generated message map functions
     virtual BOOL OnInitDialog();
@@ -66,4 +66,11 @@ public:
     afx_msg void OnBnClickedBtnTask3();
     afx_msg void OnBnClickedBtnTask4();
     afx_msg void OnTimer(UINT_PTR nIDEvent);
+
+    CStatic m_stcStatus;
+    CEdit m_edResult;
+    CMFCButton m_btnTask1;
+    CMFCButton m_btnTask2;
+    CMFCButton m_btnTask3;
+    CMFCButton m_btnTask4;
 };

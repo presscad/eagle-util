@@ -55,7 +55,7 @@ std::string GetIniPathName()
 // CMyNanjingDlg dialog
 
 CMyNanjingDlg::CMyNanjingDlg(CWnd* pParent /*=NULL*/)
-: CDialog(CMyNanjingDlg::IDD, pParent)
+    : CDialog(CMyNanjingDlg::IDD, pParent)
 {
     m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -65,6 +65,10 @@ void CMyNanjingDlg::DoDataExchange(CDataExchange* pDX)
     CDialog::DoDataExchange(pDX);
     DDX_Control(pDX, IDC_STATUS, m_stcStatus);
     DDX_Control(pDX, IDC_EDIT1, m_edResult);
+    DDX_Control(pDX, IDC_BTN_TASK1, m_btnTask1);
+    DDX_Control(pDX, IDC_BTN_TASK2, m_btnTask2);
+    DDX_Control(pDX, IDC_BTN_TASK3, m_btnTask3);
+    DDX_Control(pDX, IDC_BTN_TASK4, m_btnTask4);
 }
 
 BEGIN_MESSAGE_MAP(CMyNanjingDlg, CDialog)
@@ -123,7 +127,7 @@ BOOL CMyNanjingDlg::ReadSettings()
     {
         Task &task = m_tasks.at(i);
         CStringA section;
-        section.Format("Task-%d", i+1);
+        section.Format("Task-%d", i + 1);
 
         task.tag = ini.GetString(section, "tag", "<None>");
         if (task.tag != "<None>") {
@@ -150,11 +154,9 @@ BOOL CMyNanjingDlg::ReadSettings()
 
 BOOL CMyNanjingDlg::UpdateUiBySettings()
 {
-    for (int i=0; i<MAX_NUM_TASKS; i++)
-    {
+    for (int i = 0; i < MAX_NUM_TASKS; i++) {
         UINT buttonid = 0;
-        switch (i+1)
-        {
+        switch (i + 1) {
         case 1: buttonid = IDC_BTN_TASK1; break;
         case 2: buttonid = IDC_BTN_TASK2; break;
         case 3: buttonid = IDC_BTN_TASK3; break;
@@ -166,6 +168,72 @@ BOOL CMyNanjingDlg::UpdateUiBySettings()
         this->GetDlgItem(buttonid)->SetWindowText(m_tasks[i].tag.c_str());
     }
     return TRUE;
+}
+
+void CMyNanjingDlg::UpdateTaskButtons(const std::string& result_json)
+{
+    using namespace rapidjson;
+
+    struct Flags {
+        bool walk_avai;
+        bool metro_avai;
+        bool bus_avai;
+        bool bicycle_avai;
+    } flags{};
+
+    if (!result_json.empty()) {
+        Document document;
+        document.Parse(result_json.c_str());
+        if (document.IsObject() && document.HasMember("result") && document["result"].GetInt() == 0) {
+            auto& data = document["data"];
+            flags.walk_avai = data["bicycleApplyAvaliable"].GetBool();
+            flags.metro_avai = data["metroApplyAvaliable"].GetBool();
+            flags.bus_avai = data["busApplyAvaliable"].GetBool();
+            flags.bicycle_avai = data["bicycleApplyAvaliable"].GetBool();
+        }
+    }
+
+    auto get_button = [this](const string& text) {
+        vector<CMFCButton*> btns = { &m_btnTask1, &m_btnTask2, &m_btnTask3, &m_btnTask4 };
+        int i = 0;
+        for (auto& task : this->m_tasks) {
+            CString tag = task.tag.c_str(), t = text.c_str();
+            tag.MakeLower();
+            t.MakeLower();
+            if (tag.Find(t) >= 0) {
+                return btns[i];
+            }
+
+            ++i;
+        }
+        return (CMFCButton *)nullptr;
+    };
+
+    auto set_button_color = [this](CMFCButton *p_btn, bool available) {
+        if (available) {
+            p_btn->SetFaceColor(RGB(15, 128, 15), true);
+        }
+        else {
+            p_btn->SetFaceColor(RGB(128, 128, 128), true);
+        }
+    };
+
+    auto p_btn = get_button("Walk");
+    if (p_btn) {
+        set_button_color(p_btn, flags.walk_avai);
+    }
+    p_btn = get_button("Metro");
+    if (p_btn) {
+        set_button_color(p_btn, flags.metro_avai);
+    }
+    p_btn = get_button("Bus");
+    if (p_btn) {
+        set_button_color(p_btn, flags.bus_avai);
+    }
+    p_btn = get_button("Bicycle");
+    if (p_btn) {
+        set_button_color(p_btn, flags.bicycle_avai);
+    }
 }
 
 void CMyNanjingDlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -185,7 +253,7 @@ void CMyNanjingDlg::OnSysCommand(UINT nID, LPARAM lParam)
 //  to draw the icon.  For MFC applications using the document/view model,
 //  this is automatically done for you by the framework.
 
-void CMyNanjingDlg::OnPaint() 
+void CMyNanjingDlg::OnPaint()
 {
     if (IsIconic())
     {
@@ -216,7 +284,6 @@ HCURSOR CMyNanjingDlg::OnQueryDragIcon()
 {
     return static_cast<HCURSOR>(m_hIcon);
 }
-
 
 BOOL CMyNanjingDlg::OnBnClickedBtnTask_X(int num)
 {
@@ -269,7 +336,7 @@ BOOL CMyNanjingDlg::OnBnClickedBtnTask_X(int num)
 
     using namespace rapidjson;
     int credit = 0;
-    string result_str;
+    string result_json;
     for (auto& data : threads_data) {
         Document document;
         document.Parse(data.result_str.c_str());
@@ -286,7 +353,7 @@ BOOL CMyNanjingDlg::OnBnClickedBtnTask_X(int num)
 
         if (credit < data.credit) {
             credit = data.credit;
-            result_str = data.result_str;
+            result_json = data.result_str;
         }
     }
 
@@ -294,16 +361,18 @@ BOOL CMyNanjingDlg::OnBnClickedBtnTask_X(int num)
         string text = "Credit: " + to_string(credit);
         m_stcStatus.SetWindowTextA(text.c_str());
 
-        if (!result_str.empty()) {
+        if (!result_json.empty()) {
             Document document;
-            document.Parse(result_str.c_str());
+            document.Parse(result_json.c_str());
 
             StringBuffer buffer;
             PrettyWriter<StringBuffer> writer(buffer);
             document.Accept(writer);
-            result_str = buffer.GetString();
-            util::StringReplace(result_str, "\n", "\r\n");
-            m_edResult.SetWindowTextA(result_str.c_str());
+            result_json = buffer.GetString();
+            util::StringReplace(result_json, "\n", "\r\n");
+            m_edResult.SetWindowTextA(result_json.c_str());
+
+            UpdateTaskButtons(result_json);
         }
     }
     else {
@@ -319,10 +388,10 @@ BOOL CMyNanjingDlg::OnBnClickedBtnTask_X(int num)
             StringBuffer buffer;
             PrettyWriter<StringBuffer> writer(buffer);
             document.Accept(writer);
-            result_str = buffer.GetString();
-            util::StringReplace(result_str, "\n", "\r\n");
+            string str = buffer.GetString();
+            util::StringReplace(str, "\n", "\r\n");
 
-            wstring w_str = util::StrToWStr(result_str);
+            wstring w_str = util::StrToWStr(str);
             ::SetWindowTextW(m_edResult.GetSafeHwnd(), w_str.c_str());
         }
     }
