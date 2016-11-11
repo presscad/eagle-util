@@ -508,47 +508,47 @@ std::string ValueToStr(const NullType<T>& optional_value)
     }
 }
 
-static inline std::string ValueToStr(const char& value)
+static inline std::string ValueToStr(const char value)
 {
     return std::to_string((int)value);
 }
 
-static inline std::string ValueToStr(const unsigned char& value)
+static inline std::string ValueToStr(const unsigned char value)
 {
     return std::to_string((int)value);
 }
 
-static inline std::string ValueToStr(const short& value)
+static inline std::string ValueToStr(const short value)
 {
     return std::to_string(value);
 }
 
-static inline std::string ValueToStr(const unsigned short& value)
+static inline std::string ValueToStr(const unsigned short value)
 {
     return std::to_string(value);
 }
 
-static inline std::string ValueToStr(const int& value)
+static inline std::string ValueToStr(const int value)
 {
     return std::to_string(value);
 }
 
-static inline std::string ValueToStr(const unsigned int& value)
+static inline std::string ValueToStr(const unsigned int value)
 {
     return std::to_string(value);
 }
 
-static inline std::string ValueToStr(const long long& value)
+static inline std::string ValueToStr(const long long value)
 {
     return std::to_string(value);
 }
 
-static inline std::string ValueToStr(const unsigned long long& value)
+static inline std::string ValueToStr(const unsigned long long value)
 {
     return std::to_string(value);
 }
 
-static inline std::string ValueToStr(const bool& value)
+static inline std::string ValueToStr(const bool value)
 {
     return value ? "1" : "0";
 }
@@ -569,12 +569,12 @@ static inline std::string ValueToStr(const std::string& value)
     }
 }
 
-static inline std::string ValueToStr(const float& value)
+static inline std::string ValueToStr(const float value)
 {
     return std::to_string(value);
 }
 
-static inline std::string ValueToStr(const double& value)
+static inline std::string ValueToStr(const double value)
 {
     return std::to_string(value);
 }
@@ -978,13 +978,14 @@ template<typename T0, typename T1, typename T2, typename T3, typename T4, typena
 }
 
 template<typename... Args>
-bool CsvToTuples(std::istream& in, char delimiter, std::vector<std::tuple<Args...> >& tuples,
-    std::string& err)
+bool CsvToTuplesLimited(std::istream& in, char delimiter, std::vector<std::tuple<Args...> >& tuples,
+    size_t limit, std::string& err)
 {
     const size_t N = sizeof...(Args);
     std::string line;
     std::vector<std::string> subs;
 
+    size_t n_lines = 0;
     std::tuple<Args...> tp;
     while (util::GetLine(in, line)) {
         if (line[0] == '#') { // ignore comment
@@ -1002,9 +1003,23 @@ bool CsvToTuples(std::istream& in, char delimiter, std::vector<std::tuple<Args..
 
         csv_tuple::FillTuple(subs, tp);
         tuples.push_back(tp);
+
+        if (limit != 0) {
+            ++n_lines;
+            if (n_lines >= limit) {
+                break;
+            }
+        }
     }
 
     return true;
+}
+
+template<typename... Args>
+bool CsvToTuples(std::istream& in, char delimiter, std::vector<std::tuple<Args...> >& tuples,
+    std::string& err)
+{
+    return CsvToTuplesLimited(in, delimiter, tuples, 0, err);
 }
 
 template<typename... Args>

@@ -291,8 +291,14 @@ std::string ValueToStr(const SQL_TIME_STRUCT& v)
 std::string ValueToStr(const SQL_TIMESTAMP_STRUCT& v)
 {
     char buff[64];
-    snprintf(buff, sizeof(buff)-1, "%04d-%02d-%02d %02d:%02d:%02d.%06d",
-        v.year, v.month, v.day, v.hour, v.minute, v.second, v.fraction);
+    if (v.fraction) {
+        snprintf(buff, sizeof(buff) - 1, "%04d-%02d-%02d %02d:%02d:%02d.%06d",
+            v.year, v.month, v.day, v.hour, v.minute, v.second, v.fraction);
+    }
+    else {
+        snprintf(buff, sizeof(buff) - 1, "%04d-%02d-%02d %02d:%02d:%02d",
+            v.year, v.month, v.day, v.hour, v.minute, v.second);
+    }
     return buff;
 }
 

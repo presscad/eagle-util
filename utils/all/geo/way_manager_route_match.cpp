@@ -65,6 +65,9 @@ typedef NodeData *NodeDataPtr;
 class InsertedNodeMap
 {
 public:
+    InsertedNodeMap()
+    {}
+
     void Init(int max_node, const util::SimpleObjPool<GraphNode> *p_gnode_pool)
     {
         max_node_ = max_node;
@@ -86,7 +89,7 @@ public:
         }
         throw std::range_error("out of bound");
     }
-    const NodeDataPtr operator[](GraphNodePtr p_gnode) const
+    NodeDataPtr operator[](GraphNodePtr p_gnode) const
     {
         auto p_gnode0 = p_gnode_pool_->ObjPtrByIndex(0);
         if (p_gnode >= p_gnode0 && p_gnode < p_gnode0 + max_node_) {

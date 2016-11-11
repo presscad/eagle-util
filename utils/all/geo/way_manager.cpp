@@ -3115,8 +3115,13 @@ bool WayManager::SetExclusionRoutes(const std::vector<EXCLUDED_ROUTE> &ex_routes
     std::vector<std::vector<SegmentPtr>> seg_routes_rev;
     std::string err;
     ExcludedRoutesToSegs(*this, ex_routes, seg_routes, seg_routes_rev, err);
-    if (!err.empty()) {
-        this->SetErrorString(err);
+    if (seg_routes.empty()) {
+        if (!err.empty()) {
+            this->SetErrorString(err);
+        }
+        else {
+            this->SetErrorString("WayManager::SetExclusionRoutes has errors");
+        }
         return false;
     }
 

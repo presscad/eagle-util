@@ -244,7 +244,7 @@ public:
     ColT(const char *col_name = NULL, bool null_able = true)
         : BaseColumn(col_name, GenDataAttr(data_type, null_able, 0, 0))
     {};
-    ColT(const char *col_name, DATA_ATTR_T attr)
+    ColT(const char *col_name, const DATA_ATTR_T& attr)
         : BaseColumn(col_name, attr)
     {
         mDataAttr.type = data_type;

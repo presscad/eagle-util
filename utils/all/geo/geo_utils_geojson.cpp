@@ -6,6 +6,7 @@
 #include "geo_utils.h"
 #include <string>
 #include <fstream>
+#include <cmath>
 #include "common/common_utils.h"
 #include "common/rapidjson_helper.h"
 #include "rapidjson/writer.h"
@@ -242,6 +243,49 @@ public:
     }
 
     template <typename Writer>
+    static bool AppendJsonValue(Writer& writer, const GeoObj_MultiPolygon& obj)
+    {
+        bool ok = writer.StartObject();
+        if (ok) {
+            ok = util::WritePairString(writer, "type", "Feature");
+            if (ok) {
+                ok = writer.Key("geometry");
+                if (ok) ok = writer.StartObject();
+                if (ok) {
+                    ok = util::WritePairString(writer, "type", "MultiPolygon");
+                    if (ok) ok = writer.Key("coordinates");
+                    if (ok) {
+                        ok = writer.StartArray();
+                        if (ok) {
+                            for (auto& polygon_ : obj.multi_polygon_.polygons) {
+                                ok = writer.StartArray();
+                                if (ok) {
+                                    ok = GeoJsonHelper::AppendJsonCoordinates(writer,
+                                        polygon_.outer_polygon.vertexes);
+                                }
+                                if (ok) {
+                                    for (auto& inner_poly : polygon_.inner_polygons) {
+                                        ok = GeoJsonHelper::AppendJsonCoordinates(writer, inner_poly.vertexes);
+                                        if (!ok) break;
+                                    }
+                                }
+                                if (ok) ok = writer.EndArray();
+                            }
+                        }
+                        if (ok) ok = writer.EndArray();
+                    }
+                }
+                if (ok) ok = writer.EndObject();
+            }
+            if (ok && !obj.props_.empty()) {
+                ok = GeoJsonHelper::AppendJsonProperties(writer, obj.props_);
+            }
+        }
+        if (ok) ok = writer.EndObject();
+        return ok;
+    }
+
+    template <typename Writer>
     static bool AppendJsonValue(Writer& writer, const GeoObj& obj)
     {
         switch (obj.GetObjType()) {
@@ -256,7 +300,7 @@ public:
         case GEOTYPE_POLYGON:
             return AppendJsonValue(writer, static_cast<const GeoObj_Polygon&>(obj));
         case GEOTYPE_MULTIPOLYGON:
-            // TODO:
+            return AppendJsonValue(writer, static_cast<const GeoObj_MultiPolygon&>(obj));
         case GEOTYPE_GEOMETRYCOLLECTION:
             // TODO:
             break;

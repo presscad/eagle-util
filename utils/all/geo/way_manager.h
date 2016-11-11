@@ -47,6 +47,13 @@ typedef long long WAY_ID_T;
 typedef long long NODE_ID_T;
 typedef long long EDGE_ID_T;
 
+struct SegmentEdgeRelation
+{
+    geo::SEG_ID_T   segment_id;
+    geo::EDGE_ID_T  edge_id;
+    int seq_no;
+};
+
 
 // refer to http://wiki.openstreetmap.org/wiki/Key:highway
 typedef enum HIGHWAY_TYPE
@@ -197,12 +204,12 @@ class Node
 public:
     explicit Node(NODE_ID_T nd_id, double lat, double lng)
         : nd_id_(nd_id), geo_point_(lat, lng), nd_type_(NDTYPE_DEFAULT),
-        is_way_connector_(0), is_dead_end_(0), is_weak_connected(0)
+        is_way_connector_(0), is_dead_end_(0), is_weak_connected(0), is_visited(0)
     {}
 
     explicit Node(const NODE& nd)
         : nd_id_(nd.nd_id), geo_point_(nd.geo_point), nd_name_(nd.nd_name), nd_type_(nd.nd_type),
-        is_way_connector_(0), is_dead_end_(0), is_weak_connected(0)
+        is_way_connector_(0), is_dead_end_(0), is_weak_connected(0), is_visited(0)
     {}
 
 public:
@@ -597,7 +604,7 @@ public:
         return segments_.front()->way_name_;
     }
 
-    const bool OneWay() const
+    bool OneWay() const
     {
         return one_way_;
     }
@@ -871,7 +878,7 @@ public:
         return seg_map_.size();
     }
 
-    const SegmentPtr GetSegById(SEG_ID_T seg_id) const
+    SegmentPtr GetSegById(SEG_ID_T seg_id) const
     {
         SegmentMap::const_iterator it = seg_map_.find(seg_id);
         return it == seg_map_.end() ? nullptr : it->second;

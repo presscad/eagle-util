@@ -19,11 +19,11 @@ class csv_reader
 public:
     explicit csv_reader(const std::string &csv_path_name)
         : csv_path_name_(csv_path_name),
-        istream_(new std::ifstream(csv_path_name.c_str()))
+        istream_(std::make_shared<std::ifstream>(csv_path_name.c_str()))
     {}
 
-    explicit csv_reader(const std::string &csv_path_name, std::istream *is)
-        : csv_path_name_(csv_path_name), istream_(is)
+    explicit csv_reader(const std::string &csv_path_name, const std::shared_ptr<std::istream>& p_is)
+        : csv_path_name_(csv_path_name), istream_(p_is)
     {}
 
     bool good() const
@@ -103,7 +103,7 @@ public:
 
 protected:
     std::string csv_path_name_;
-    std::unique_ptr<std::istream> istream_;
+    std::shared_ptr<std::istream> istream_;
     std::string batch_buff_;
 };
 
@@ -112,18 +112,20 @@ class gz_csv_reader : public csv_reader
 {
 public:
     gz_csv_reader(const std::string &csv_path_name)
-        : csv_reader(csv_path_name, new gzifstream(csv_path_name.c_str()))
+        : csv_reader(csv_path_name, std::make_shared<gzifstream>(csv_path_name.c_str()))
     {}
 };
 #endif
 
 static inline csv_reader* get_csv_reader(const std::string &csv)
 {
-#if (COMM_UTIL_WITH_ZLIB == 1)
     if (csv.rfind(".gz") != std::string::npos) {
+#if (COMM_UTIL_WITH_ZLIB == 1)
         return new gz_csv_reader(csv);
-    }
+#else
+        return nullptr;
 #endif
+    }
     return new csv_reader(csv);
 }
 

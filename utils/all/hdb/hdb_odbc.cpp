@@ -40,8 +40,8 @@ SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const TinyIntCol &co
 }
 SQLRETURN SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, TinyIntCol &col)
 {
-    UnImplemented(__FUNCTION__);
-    return 0;
+    SQLLEN *ind_vec = col.NullAble() ? (SQLLEN *)col.GetStrLenOrIndVec() : nullptr;
+    return SQLBindCol(hstmt, ipar, SQL_C_UTINYINT, (SQLPOINTER)col.GetData(), 0, ind_vec);
 }
 
 SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const SmallIntCol &col)

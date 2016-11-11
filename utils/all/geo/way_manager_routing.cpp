@@ -17,6 +17,10 @@
 #include <hana/logging.h>
 #endif
 
+#ifndef _countof
+#define _countof(a) (sizeof(a)/sizeof(*(a)))
+#endif
+
 #ifdef max
 #undef max
 #endif

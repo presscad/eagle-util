@@ -70,8 +70,10 @@ bool FindFiles(const std::string& path_specifier,
     items.clear();
 
 #ifdef _WIN32
+    auto path_spec = path_specifier;
+    util::StringReplace(path_spec, "/", "\\");
     WIN32_FIND_DATA data;
-    HANDLE h = ::FindFirstFileA(path_specifier.c_str(), &data);
+    HANDLE h = ::FindFirstFileA(path_spec.c_str(), &data);
     if (h != INVALID_HANDLE_VALUE) {
         do {
             if (strcmp(".", data.cFileName) == 0 || strcmp("..", data.cFileName) == 0) {
@@ -111,7 +113,12 @@ bool FindFiles(const std::string& path_specifier, std::vector<std::string>& file
 bool GetSubsInFolder(const std::string& pathname,
     std::vector<std::tuple<std::string, bool>>& sub_items)
 {
-    return FindFiles(pathname + "/*.*", sub_items);
+    if (pathname.empty() || pathname.back() == '\\' || pathname.back() == '/') {
+        return FindFiles(pathname + "*.*", sub_items);
+    }
+    else {
+        return FindFiles(pathname + "/*.*", sub_items);
+    }
 }
 
 bool GetFilesInFolder(const std::string& pathname, std::vector<std::string>& filenames)
@@ -321,6 +328,12 @@ time_t TimestampToTime(const TIMESTAMP_STRUCT &st)
     return mktime(&sourcedate);
 }
 
+time_t GetCurTimeT()
+{
+    TIMESTAMP_STRUCT tm_struct;
+    GetCurTimestamp(tm_struct);
+    return TimestampToTime(tm_struct);
+}
 void TimestampToStr(const TIMESTAMP_STRUCT &st, bool with_fraction, std::string& str)
 {
     char buff[128];
@@ -347,7 +360,7 @@ bool StrToTimestamp(const std::string &s, TIMESTAMP_STRUCT &v)
     if (s.empty()) return false;
 
     int year, month, day, hour, minute, second, fraction;
-    int r = sscanf(s.c_str(), "%d-%d-%d%*[ -]%d%*[:.]%d%*[:.]%d%*[:.]%d",
+    int r = sscanf(s.c_str(), "%d-%d-%d%*[T -]%d%*[:.]%d%*[:.]%d%*[:.]%d",
         &year, &month, &day, &hour, &minute, &second, &fraction);
     if (r == 5 || r == 6 || r == 7) {
         if (r == 5) {
@@ -405,6 +418,29 @@ time_t StrToTimeT(const std::string &str)
         return 0;
     }
     return TimestampToTime(timestamp);
+}
+long LocalUtcTimeDiff()
+{
+    time_t secs;
+    time(&secs);  // Current time in GMT
+
+#ifdef _WIN32
+    struct tm tm_data {};
+    struct tm *tptr = &tm_data;
+    localtime_s(tptr, &secs);
+#else
+    struct tm *tptr = localtime(&secs);
+#endif
+
+    time_t local_secs = mktime(tptr);
+#ifdef _WIN32
+    gmtime_s(tptr, &secs);
+#else
+    tptr = gmtime(&secs);
+#endif
+    time_t gmt_secs = mktime(tptr);
+    long diff_secs = long(local_secs - gmt_secs);
+    return diff_secs;
 }
 
 enum DatePrecision {

@@ -209,6 +209,24 @@ public:
         }
     }
 
+    template<class Function>
+    explicit SimpleThreadPool(size_t thread_num, Function&& f)
+    {
+        for (size_t i = 0; i < thread_num; ++i) {
+            threads_.push_back(ThreadInfo(this));
+        }
+        SetThreadFunction(std::forward<Function>(f));
+    }
+
+    template<class Function>
+    void SetThreadFunction(Function&& f)
+    {
+        for (auto& t : threads_) {
+            t.p_thread_ = std::make_shared<std::thread>(
+                std::forward<Function>(f));
+        }
+    }
+
     void JoinAll()
     {
         for (auto& t : threads_) {

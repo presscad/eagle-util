@@ -799,7 +799,6 @@ protected:
     friend class GeoJsonHelper;
 };
 
-
 class GeoObj_MultiLineString : public GeoObj
 {
 public:
@@ -872,6 +871,54 @@ protected:
     friend class GeoJsonHelper;
 };
 
+class GeoObj_MultiPolygon : public GeoObj
+{
+public:
+    GeoObj_MultiPolygon()
+        : GeoObj(GEOTYPE_MULTIPOLYGON)
+    {}
+
+    explicit GeoObj_MultiPolygon(const std::string& wkt)
+        : GeoObj(GEOTYPE_MULTIPOLYGON)
+    {
+        FromWKT(wkt);
+    }
+
+    explicit GeoObj_MultiPolygon(const MultiPolygon& multi_polygon)
+        : GeoObj(GEOTYPE_MULTIPOLYGON), multi_polygon_(multi_polygon)
+    {}
+
+    const MultiPolygon& GetMultiPolygon() const
+    {
+        return multi_polygon_;
+    }
+
+    MultiPolygon& GetMultiPolygon()
+    {
+        return multi_polygon_;
+    }
+
+    bool FromWKT(const std::string& wkt)
+    {
+        return wkt_to_multi_polygon(wkt, multi_polygon_);
+    }
+
+    virtual bool IntersectWithBound(const Bound& bound) const
+    {
+        for (auto& polygon : multi_polygon_.polygons) {
+            for (auto& point : polygon.outer_polygon.Vertexes()) {
+                if (bound.Within(point)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+protected:
+    MultiPolygon multi_polygon_;
+    friend class GeoJsonHelper;
+};
 
 class GeoJSON
 {

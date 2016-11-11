@@ -24,7 +24,7 @@
 UTIL_BEGIN_NAMESPACE
 
 #ifdef _WIN32
-typedef unsigned int SOCKET;
+typedef unsigned long long SOCKET;
 #else
 typedef int SOCKET;
 #endif
@@ -52,12 +52,14 @@ typedef struct TIME_STRUCT
 
 void GetCurTimestamp(TIMESTAMP_STRUCT &st);
 time_t TimestampToTime(const TIMESTAMP_STRUCT &st);
+time_t GetCurTimeT();
 void TimeToTimestamp(time_t tm, TIMESTAMP_STRUCT &st);
 bool StrToTimestamp(const std::string &str, TIMESTAMP_STRUCT &timestamp);
 void TimestampToStr(const TIMESTAMP_STRUCT &st, bool with_fraction, std::string& str);
 std::string TimestampToStr(const TIMESTAMP_STRUCT &st, bool with_fraction);
 std::string TimeTToStr(time_t tm);
 time_t StrToTimeT(const std::string &str);
+long LocalUtcTimeDiff();
 
 bool ParseTimestamp(const char *str, TIMESTAMP_STRUCT &timestamp);
 bool ParseTimestamp(const std::string &str, TIMESTAMP_STRUCT &timestamp);
