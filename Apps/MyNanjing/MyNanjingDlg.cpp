@@ -186,7 +186,7 @@ void CMyNanjingDlg::UpdateTaskButtons(const std::string& result_json)
         document.Parse(result_json.c_str());
         if (document.IsObject() && document.HasMember("result") && document["result"].GetInt() == 0) {
             auto& data = document["data"];
-            flags.walk_avai = data["bicycleApplyAvaliable"].GetBool();
+            flags.walk_avai = data["walkApplyAvaliable"].GetBool();
             flags.metro_avai = data["metroApplyAvaliable"].GetBool();
             flags.bus_avai = data["busApplyAvaliable"].GetBool();
             flags.bicycle_avai = data["bicycleApplyAvaliable"].GetBool();
