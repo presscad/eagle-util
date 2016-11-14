@@ -22,7 +22,7 @@
 #endif
 
 #ifdef _WIN32
-extern "C" ULONGLONG WINAPI GetTickCount64(void);
+extern "C" WINBASEAPI ULONGLONG WINAPI GetTickCount64(void);
 #endif
 
 
