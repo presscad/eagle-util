@@ -19,6 +19,15 @@ struct CURL_CORE
     string data;
 };
 
+struct MyException : public exception
+{
+    MyException(const string& msg) : exception(msg.c_str())
+    {}
+
+    MyException(const char* msg) : exception(msg)
+    {}
+};
+
 static void CurlCloseHandle(CURL_HANDLE *easy_handle)
 {
     if (easy_handle) {
@@ -37,7 +46,7 @@ void InitCurl()
 #endif
     CURLcode return_code = curl_global_init(flags);
     if (CURLE_OK != return_code) {
-        throw exception("init libcurl failed");
+        throw MyException("init libcurl failed");
     }
 }
 
@@ -54,19 +63,19 @@ CURL_HANDLE_PTR GetCurlHandle(const string& proxy)
 
     core.easy_handle = curl_easy_init();
     if (NULL == core.easy_handle) {
-        throw exception("get a easy handle failed");
+        throw MyException("get a easy handle failed");
     }
 
     core.err.resize(CURL_ERROR_SIZE + 1);
     return_code = curl_easy_setopt(core.easy_handle, CURLOPT_ERRORBUFFER, &core.err[0]);
     if (CURLE_OK != return_code) {
-        throw exception("CURL set error buffer failed");
+        throw MyException("CURL set error buffer failed");
     }
 
 #if 0
     return_code = curl_easy_setopt(core.easy_handle, CURLOPT_TIMEOUT, 20L);
     if (CURLE_OK != return_code) {
-        throw exception("CURL set CURLOPT_TIMEOUT failed");
+        throw MyException("CURL set CURLOPT_TIMEOUT failed");
     }
 #endif
 
@@ -74,7 +83,7 @@ CURL_HANDLE_PTR GetCurlHandle(const string& proxy)
         core.proxy = proxy;
         return_code = curl_easy_setopt(core.easy_handle, CURLOPT_PROXY, proxy.c_str());
         if (CURLE_OK != return_code) {
-            throw exception(core.err.c_str());
+            throw MyException(core.err);
         }
     }
 
@@ -86,7 +95,7 @@ string CurlEncodeUrl(const CURL_HANDLE_PTR& easy_handle, const string& url)
     CURL_CORE& core = *static_cast<CURL_CORE*>(easy_handle->handle);
     char *encoded_url = curl_easy_escape(core.easy_handle, url.c_str(), 0);
     if (NULL == encoded_url) {
-        throw exception(core.err.c_str());
+        throw MyException(core.err);
     }
     string result(encoded_url);
     curl_free(encoded_url);
@@ -176,7 +185,7 @@ string SendRequestAndReceive(const CURL_HANDLE_PTR& easy_handle, const string& u
         core.post_fields.clear();
     }
     if (CURLE_OK != return_code) {
-        throw exception(core.err.c_str());
+        throw MyException(core.err);
     }
 
     return core.data;
