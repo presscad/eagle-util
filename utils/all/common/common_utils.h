@@ -32,6 +32,20 @@ typedef int SOCKET;
 
 typedef void dictionary;
 
+enum DatePrecision
+{
+    PRECISION_NULL = 0,
+    PRECISION_YEAR = 1,
+    PRECISION_MONTH = 2,
+    PRECISION_DAY = 3,
+    PRECISION_HOUR = 4,
+    PRECISION_MINUTE = 5,
+    PRECISION_SECOND = 6,
+    PRECISION_MSEC = 7,
+    PRECISION_USEC = 8,
+    PRECISION_NANO100 = 9
+};
+
 typedef struct TIMESTAMP_STRUCT
 {
     short           year;
@@ -63,8 +77,10 @@ long LocalUtcTimeDiff();
 
 bool ParseTimestamp(const char *str, TIMESTAMP_STRUCT &timestamp);
 bool ParseTimestamp(const std::string &str, TIMESTAMP_STRUCT &timestamp);
+bool ParseTimestamp(const char *str, TIMESTAMP_STRUCT &timestamp, DatePrecision& precision);
 bool ParseTime(const char *str, TIME_STRUCT &time);
 bool ParseTime(const std::string &str, TIME_STRUCT &time);
+bool ParseTime(const char *s, TIME_STRUCT &time_struct, DatePrecision& precision);
 
 void SleepMs(long ms);
 unsigned long long GetTimeInMs64();
@@ -98,6 +114,7 @@ bool GetLine(std::ifstream &fs, std::string &line);
 void ParseCsvLine(std::vector<std::string> &strs, const std::string &line, char delimiter);
 void ParseCsvLineInPlace(std::vector<char *> &pstrs, char *line, char delimiter,
     bool ignore_double_quote = false);
+std::vector<std::string> StringSplit(const std::string &line, char delimiter);
 
 // return the tuple (start, end), start <= index <= end
 std::vector<std::tuple<int, int>> SplitIntoSubsBlocks(int task_count, int element_count);
@@ -106,9 +123,9 @@ bool SplitBigData(char *data, size_t len, char delimiter, int n_parts,
     std::vector<char *>& blocks);
 bool ReadAllFromFile(const std::string& pathname, std::string &data);
 bool WriteStrToFile(const std::string& path, const std::string &data);
-void StringReplace(std::string &strBase, const std::string &strSrc,
+int StringReplace(std::string &strBase, const std::string &strSrc,
     const std::string &strDes);
-void StringReplace(std::wstring &wstrBase, const std::wstring &wstrSrc,
+int StringReplace(std::wstring &wstrBase, const std::wstring &wstrSrc,
     const std::wstring &wstrDes);
 void MakeUpper(std::string &str);
 void MakeLower(std::string &str);

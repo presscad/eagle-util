@@ -36,8 +36,10 @@ std::string GetCurrentPath()
     return path;
 #else
     char cwd[1024];
-    ::getcwd(cwd, sizeof(cwd));
+    if (NULL != ::getcwd(cwd, sizeof(cwd))) {
     return cwd;
+    }
+    return std::string();
 #endif
 }
 
@@ -443,18 +445,6 @@ long LocalUtcTimeDiff()
     return diff_secs;
 }
 
-enum DatePrecision {
-    PRECISION_NULL = 0,
-    PRECISION_YEAR = 1,
-    PRECISION_MONTH = 2,
-    PRECISION_DAY = 3,
-    PRECISION_HOUR = 4,
-    PRECISION_MINUTE = 5,
-    PRECISION_SECOND = 6,
-    PRECISION_MSEC = 7,
-    PRECISION_USEC = 8,
-    PRECISION_NANO100 = 9
-};
 
 static const char daysOfMonth[] = { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 static inline bool isLeapYearAbap(int year)
@@ -468,14 +458,13 @@ bool ParseTimestamp(const std::string &s, TIMESTAMP_STRUCT &timestamp)
     return ParseTimestamp(s.c_str(), timestamp);
 }
 
-bool ParseTimestamp(const char *s, TIMESTAMP_STRUCT &timestamp)
+bool ParseTimestamp(const char* s, TIMESTAMP_STRUCT& timestamp, DatePrecision& precision)
 {
     // for ESP, the time format could be like "2015-05-16T00:16:49" ...
     if (s[10] == 'T') {
         ((char*)s)[10] = ' ';
     }
 
-    DatePrecision precision;
     auto& dr = timestamp;
 
     // count digits
@@ -776,6 +765,12 @@ nomore:
     return true;
 }
 
+bool ParseTimestamp(const char *s, TIMESTAMP_STRUCT &timestamp)
+{
+    DatePrecision precision;
+    return ParseTimestamp(s, timestamp, precision);
+}
+
 bool ParseTime(const std::string &s, TIME_STRUCT &time_struct)
 {
     return ParseTime(s.c_str(), time_struct);
@@ -783,9 +778,14 @@ bool ParseTime(const std::string &s, TIME_STRUCT &time_struct)
 
 bool ParseTime(const char *s, TIME_STRUCT &time_struct)
 {
+    DatePrecision precision;
+    return ParseTime(s, time_struct, precision);
+}
+
+bool ParseTime(const char *s, TIME_STRUCT &time_struct, DatePrecision& precision)
+{
     time_struct.hour = time_struct.minute = time_struct.second = 0;
     TIMESTAMP_STRUCT dr;
-    //DatePrecision precision;
 
     // count digits
     // decide wether to read delimited or non delimited format
@@ -800,7 +800,7 @@ bool ParseTime(const char *s, TIME_STRUCT &time_struct)
     dr.minute = 0;
     dr.second = 0;
     dr.fraction = 0;
-    //precision = PRECISION_HOUR;
+    precision = PRECISION_HOUR;
 
     const char *p = s;
     while (*p == ' ')
@@ -816,7 +816,7 @@ bool ParseTime(const char *s, TIME_STRUCT &time_struct)
         } while (*p >= '0' && *p <= '9');
     }
     else if (!*p) {
-        //precision = PRECISION_NULL;
+        precision = PRECISION_NULL;
         return true;
     }
     else
@@ -827,7 +827,7 @@ bool ParseTime(const char *s, TIME_STRUCT &time_struct)
         for (const char *p1 = p0 + 1; p1 != p; ++p1)
             dr.hour = 10 * dr.hour + (*p1 - '0');
         if (*++p) {
-            //precision = PRECISION_MINUTE;
+            precision = PRECISION_MINUTE;
             if ((unsigned)(dr.minute = *p++ - '0') > 9)
                 return false;
             if (*p >= '0' && *p <= '9') {
@@ -838,7 +838,7 @@ bool ParseTime(const char *s, TIME_STRUCT &time_struct)
             if (*p) {
                 if (*p++ != ':')
                     return false;
-                //precision = PRECISION_SECOND;
+                precision = PRECISION_SECOND;
                 if ((unsigned)(dr.second = *p++ - '0') > 9)
                     return false;
                 if (*p >= '0' && *p <= '9') {
@@ -886,14 +886,14 @@ bool ParseTime(const char *s, TIME_STRUCT &time_struct)
     }
     else if (!isNegative)
         if (p - p0 == 4) {
-            //precision = PRECISION_MINUTE;
+            precision = PRECISION_MINUTE;
             dr.hour = 10 * dr.hour + (p0[1] - '0');
             dr.minute = 10 * (p0[2] - '0') + (p0[3] - '0');
             if (dr.minute > 59)
                 return false;
         }
         else if (p - p0 == 6) {
-            //precision = PRECISION_SECOND;
+            precision = PRECISION_SECOND;
             dr.hour = 10 * dr.hour + (p0[1] - '0');
             dr.minute = 10 * (p0[2] - '0') + (p0[3] - '0');
             dr.second = 10 * (p0[4] - '0') + (p0[5] - '0');
@@ -1207,6 +1207,13 @@ void ParseCsvLineInPlace(std::vector<char *> &strs, char *line, char delimiter,
     trim_and_push_back(curstring, curpos);
 }
 
+std::vector<std::string> StringSplit(const std::string &line, char delimiter)
+{
+    std::vector<std::string> strs;
+    ParseCsvLine(strs, line, delimiter);
+    return strs;
+}
+
 // return the tuple (start, end), start <= index <= end
 std::vector<std::tuple<int, int>> SplitIntoSubsBlocks(int task_count, int element_count)
 {
@@ -1352,31 +1359,33 @@ bool WriteStrToFile(const std::string& pathname, const std::string &data)
     return true;
 }
 
-void StringReplace(std::string &strBase, const std::string &strSrc, const std::string &strDes)
+template <typename STR>
+int StringReplaceImpl(STR& base, const STR& src, const STR& dest)
 {
-    using namespace std;
-    string::size_type pos = 0;
-    string::size_type srcLen = strSrc.size();
-    string::size_type desLen = strDes.size();
-    pos = strBase.find(strSrc, pos);
-    while (pos != string::npos) {
-        strBase.replace(pos, srcLen, strDes);
-        pos = strBase.find(strSrc, (pos + desLen));
+    int count = 0;
+    typename STR::size_type pos = 0;
+    auto src_len = src.size();
+    auto des_len = dest.size();
+    pos = base.find(src, pos);
+
+    while (pos != STR::npos) {
+        ++count;
+        base.replace(pos, src_len, dest);
+        pos = base.find(src, pos + des_len);
     }
+
+    return count;
 }
 
-void StringReplace(std::wstring &wstrBase, const std::wstring &wstrSrc,
+int StringReplace(std::string &strBase, const std::string &strSrc, const std::string &strDes)
+{
+    return StringReplaceImpl(strBase, strSrc, strDes);
+}
+
+int StringReplace(std::wstring &wstrBase, const std::wstring &wstrSrc,
     const std::wstring &wstrDes)
 {
-    using namespace std;
-    wstring::size_type pos = 0;
-    wstring::size_type srcLen = wstrSrc.size();
-    wstring::size_type desLen = wstrDes.size();
-    pos = wstrBase.find(wstrSrc, pos);
-    while (pos != string::npos) {
-        wstrBase.replace(pos, srcLen, wstrDes);
-        pos = wstrBase.find(wstrSrc, (pos + desLen));
-    }
+    return StringReplaceImpl(wstrBase, wstrSrc, wstrDes);
 }
 
 #ifdef _WIN32
