@@ -10,7 +10,7 @@
 #include "zfstream.h"
 #endif
 #include "common/common_utils.h"
-
+#include "common/small_string.hpp"
 
 namespace util {
 
@@ -41,12 +41,26 @@ public:
         return *istream_;
     }
 
-    size_t get_lines(std::vector<std::string> &lines, size_t num)
+    template <std::size_t N>
+    std::size_t get_lines(std::vector<util::SmallString<N>>& lines, std::size_t num)
     {
         std::string line;
         lines.clear();
         lines.reserve(num);
-        for (size_t i = 0; i < num; i++) {
+        for (std::size_t i = 0; i < num; i++) {
+            if (get_line(line) == false) {
+                break;
+            }
+            lines.push_back(util::SmallString<N>(line));
+        }
+        return lines.size();
+    }
+    std::size_t get_lines(std::vector<std::string>& lines, std::size_t num)
+    {
+        std::string line;
+        lines.clear();
+        lines.reserve(num);
+        for (std::size_t i = 0; i < num; i++) {
             if (get_line(line) == false) {
                 break;
             }

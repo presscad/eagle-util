@@ -6,19 +6,21 @@
 #include <cstring>
 #include <fstream>
 #include <algorithm>
+#include <functional>
+#include <boost/xpressive/xpressive.hpp>
 #if (COMM_UTIL_WITH_ZLIB == 1)
 #include "zfstream.h"
 #endif
 
 #ifdef _WIN32
 #  include <direct.h>
-#  include <WinSock2.h>
-#  pragma comment(lib, "ws2_32.lib")
+#  ifndef WIN32_LEAN_AND_MEAN
+#    define WIN32_LEAN_AND_MEAN
+#  endif
+#  include <Windows.h>
 #else
 #  include <unistd.h>
 #  include <sys/time.h>
-#  include <sys/socket.h>
-#  include <netinet/in.h>
 #endif
 
 #ifdef _WIN32
@@ -27,6 +29,11 @@ extern "C" WINBASEAPI ULONGLONG WINAPI GetTickCount64(void);
 
 
 UTIL_BEGIN_NAMESPACE
+#ifdef _WIN32
+static const char SPLASH = '\\', OTHER_SPLASH = '/';
+#else
+static const char SPLASH = '/', OTHER_SPLASH = '\\';
+#endif
 
 std::string GetCurrentPath()
 {
@@ -43,7 +50,7 @@ std::string GetCurrentPath()
 #endif
 }
 
-bool GetFileModifyTime(const char *path, time_t& mtime)
+bool GetFileModifyTime(const char *path, std::time_t& mtime)
 {
     struct stat statbuf;
     if (stat(path, &statbuf) == -1) {
@@ -66,16 +73,45 @@ long long FileSize(const std::string& file_path)
 }
 
 // path_specifier: e.g., abc/*.*, tuple: (file name/dir name, is directory)
-bool FindFiles(const std::string& path_specifier,
+#ifndef _WIN32
+#include <dirent.h>
+#endif
+
+static std::string WildcardsToRegex(std::string wildcard_pattern)
+{
+    // Escape all regex special chars
+    StringReplace(wildcard_pattern, "\\", "\\\\");
+    StringReplace(wildcard_pattern, "^", "\\^");
+    StringReplace(wildcard_pattern, ".", "\\.");
+    StringReplace(wildcard_pattern, "$", "\\$");
+    StringReplace(wildcard_pattern, "|", "\\|");
+    StringReplace(wildcard_pattern, "(", "\\(");
+    StringReplace(wildcard_pattern, ")", "\\)");
+    StringReplace(wildcard_pattern, "[", "\\[");
+    StringReplace(wildcard_pattern, "]", "\\]");
+    StringReplace(wildcard_pattern, "*", "\\*");
+    StringReplace(wildcard_pattern, "+", "\\+");
+    StringReplace(wildcard_pattern, "?", "\\?");
+    StringReplace(wildcard_pattern, "/", "\\/");
+
+    // Convert chars '*?' back to their regex equivalents
+    StringReplace(wildcard_pattern, "\\?", ".");
+    StringReplace(wildcard_pattern, "\\*", ".*");
+
+    return wildcard_pattern;
+}
+
+static bool GetSubsInDir(std::string directory, const std::string& specifier,
     std::vector<std::tuple<std::string, bool>>& items)
 {
-    items.clear();
+    if (directory.back() == SPLASH || directory.back() == OTHER_SPLASH) {
+        directory.pop_back();
+    }
 
 #ifdef _WIN32
-    auto path_spec = path_specifier;
-    util::StringReplace(path_spec, "/", "\\");
+    // specifier is natively supported on Windows
     WIN32_FIND_DATA data;
-    HANDLE h = ::FindFirstFileA(path_spec.c_str(), &data);
+    HANDLE h = ::FindFirstFileA((directory + SPLASH + specifier).c_str(), &data);
     if (h != INVALID_HANDLE_VALUE) {
         do {
             if (strcmp(".", data.cFileName) == 0 || strcmp("..", data.cFileName) == 0) {
@@ -89,11 +125,76 @@ bool FindFiles(const std::string& path_specifier,
     else {
         return false;
     }
-    return true;
 #else
-    // TODO: on linux
-    return false;
+    DIR *dir;
+    class dirent *ent;
+    class stat st;
+
+    boost::xpressive::sregex rex;
+    const bool with_wildcards = specifier.find('*') != std::string::npos ||
+        specifier.find('?') != std::string::npos;
+    if (with_wildcards) {
+        rex = boost::xpressive::sregex::compile(WildcardsToRegex(specifier));
+    }
+
+    dir = opendir(directory.c_str());
+    if (NULL == dir) {
+        return false;
+    }
+    std::string file_name, full_file_name;
+    while ((ent = readdir(dir)) != NULL) {
+        file_name = ent->d_name;
+        full_file_name = directory + SPLASH + file_name;
+
+        if (file_name.front() == '.') {
+            continue;
+        }
+        if (stat(full_file_name.c_str(), &st) == -1) {
+            continue;
+        }
+        const bool is_dir = (st.st_mode & S_IFDIR) != 0;
+
+        if (with_wildcards) {
+            if (boost::xpressive::regex_match(file_name, rex)) {
+                items.push_back(std::make_tuple(file_name, is_dir));
+            }
+        }
+        else {
+            items.push_back(std::make_tuple(file_name, is_dir));
+            // no need to continue the loop
+            break;
+        }
+    }
+    closedir(dir);
 #endif
+
+    return true;
+}
+bool FindFiles(const std::string& path_specifier,
+    std::vector<std::tuple<std::string, bool>>& items)
+{
+    items.clear();
+    auto path_spec = path_specifier;
+    if (path_spec == "*" || path_spec == "*.*") {
+        return GetSubsInDir(".", path_spec, items);
+    }
+    if (path_spec == "." || path_spec == "..") {
+        return GetSubsInDir(path_spec, "*.*", items);
+    }
+
+    // get all the sub files/dirs in the folder
+    util::StringReplaceChar(path_spec, OTHER_SPLASH, SPLASH);
+    auto f = path_spec.rfind(SPLASH);
+    std::string directory, specifier;
+    if (f == std::string::npos) {
+        directory = ".";
+        specifier = path_spec;
+    }
+    else {
+        directory = path_spec.substr(0, f);
+        specifier = path_spec.substr(f + 1);
+    }
+    return GetSubsInDir(directory, specifier, items);
 }
 
 bool FindFiles(const std::string& path_specifier, std::vector<std::string>& filenames)
@@ -115,7 +216,7 @@ bool FindFiles(const std::string& path_specifier, std::vector<std::string>& file
 bool GetSubsInFolder(const std::string& pathname,
     std::vector<std::tuple<std::string, bool>>& sub_items)
 {
-    if (pathname.empty() || pathname.back() == '\\' || pathname.back() == '/') {
+    if (pathname.empty() || pathname.back() == SPLASH || pathname.back() == OTHER_SPLASH) {
         return FindFiles(pathname + "*.*", sub_items);
     }
     else {
@@ -147,13 +248,8 @@ bool GetPathnamesInFolder(const std::string& folder_pathname,
         return false;
     }
 
-#ifdef _WIN32
-    const char *p = strrchr(folder_pathname.c_str(), '\\');
-#else
-    const char *p = strrchr(folder_pathname.c_str(), '/');
-#endif
-
-    if (p == NULL) {
+    const char *p = strrchr(folder_pathname.c_str(), SPLASH);
+    if (!p) {
         pathnames.swap(names);
     }
     else {
@@ -231,9 +327,9 @@ bool Rm(const std::string& specifier, bool recursive)
     }
 
     // get the path part. e.g., "abc/def*.*" => "abc/"
-    auto pos = specifier.rfind('/');
+    auto pos = specifier.rfind(SPLASH);
     if (pos == std::string::npos) {
-        pos = specifier.rfind('\\');
+        pos = specifier.rfind(OTHER_SPLASH);
     }
     std::string path;
     if (pos != std::string::npos) {
@@ -281,7 +377,7 @@ unsigned long long GetTimeInMs64()
 
 void GetCurTimestamp(TIMESTAMP_STRUCT &st)
 {
-    time_t t;
+    std::time_t t;
     time(&t);
     struct tm stm;
 #ifdef _WIN32
@@ -299,24 +395,37 @@ void GetCurTimestamp(TIMESTAMP_STRUCT &st)
     st.fraction = 0;
 }
 
-void TimeToTimestamp(time_t tm, TIMESTAMP_STRUCT &st)
+void TimeToTimestamp(std::time_t tt, TIMESTAMP_STRUCT &ts)
 {
     struct tm stm;
-#ifdef _WIN32
-    localtime_s(&stm, &tm);
-#else
-    localtime_r(&tm, &stm);
-#endif
-    st.year = stm.tm_year + 1900;
-    st.month = stm.tm_mon + 1;
-    st.day = stm.tm_mday;
-    st.hour = stm.tm_hour;
-    st.minute = stm.tm_min;
-    st.second = stm.tm_sec;
-    st.fraction = 0;
+    TimeToTM(tt, stm);
+
+    ts.year = stm.tm_year + 1900;
+    ts.month = stm.tm_mon + 1;
+    ts.day = stm.tm_mday;
+    ts.hour = stm.tm_hour;
+    ts.minute = stm.tm_min;
+    ts.second = stm.tm_sec;
+    ts.fraction = 0;
 }
 
-time_t TimestampToTime(const TIMESTAMP_STRUCT &st)
+void TimeToTM(std::time_t tt, std::tm& stm)
+{
+#ifdef _WIN32
+    localtime_s(&stm, &tt);
+#else
+    localtime_r(&tt, &stm);
+#endif
+}
+
+std::tm TimeToTM(std::time_t tt)
+{
+    std::tm stm;
+    TimeToTM(tt, stm);
+    return stm;
+}
+
+std::time_t TimestampToTime(const TIMESTAMP_STRUCT &st)
 {
     struct tm sourcedate;
     memset(&sourcedate, 0, sizeof(sourcedate));
@@ -330,7 +439,7 @@ time_t TimestampToTime(const TIMESTAMP_STRUCT &st)
     return mktime(&sourcedate);
 }
 
-time_t GetCurTimeT()
+std::time_t GetCurTimeT()
 {
     TIMESTAMP_STRUCT tm_struct;
     GetCurTimestamp(tm_struct);
@@ -364,8 +473,12 @@ bool StrToTimestamp(const std::string &s, TIMESTAMP_STRUCT &v)
     int year, month, day, hour, minute, second, fraction;
     int r = sscanf(s.c_str(), "%d-%d-%d%*[T -]%d%*[:.]%d%*[:.]%d%*[:.]%d",
         &year, &month, &day, &hour, &minute, &second, &fraction);
-    if (r == 5 || r == 6 || r == 7) {
-        if (r == 5) {
+    if (r == 3 || r == 5 || r == 6 || r == 7) {
+        if (r == 3) {
+            hour = minute = second = 0;
+            fraction = 0;
+        }
+        else if (r == 5) {
             second = fraction = 0;
         }
         else if (r == 6) {
@@ -402,7 +515,7 @@ bool StrToTimestamp(const std::string &s, TIMESTAMP_STRUCT &v)
     return false;
 }
 
-std::string TimeTToStr(time_t tm)
+std::string TimeTToStr(std::time_t tm)
 {
     util::TIMESTAMP_STRUCT ts;
     util::TimeToTimestamp(tm, ts);
@@ -413,7 +526,7 @@ std::string TimeTToStr(time_t tm)
     return buff;
 }
 
-time_t StrToTimeT(const std::string &str)
+std::time_t StrToTimeT(const std::string &str)
 {
     TIMESTAMP_STRUCT timestamp;
     if (false == StrToTimestamp(str, timestamp)) {
@@ -423,7 +536,7 @@ time_t StrToTimeT(const std::string &str)
 }
 long LocalUtcTimeDiff()
 {
-    time_t secs;
+    std::time_t secs;
     time(&secs);  // Current time in GMT
 
 #ifdef _WIN32
@@ -434,13 +547,13 @@ long LocalUtcTimeDiff()
     struct tm *tptr = localtime(&secs);
 #endif
 
-    time_t local_secs = mktime(tptr);
+    std::time_t local_secs = mktime(tptr);
 #ifdef _WIN32
     gmtime_s(tptr, &secs);
 #else
     tptr = gmtime(&secs);
 #endif
-    time_t gmt_secs = mktime(tptr);
+    std::time_t gmt_secs = mktime(tptr);
     long diff_secs = long(local_secs - gmt_secs);
     return diff_secs;
 }
@@ -759,7 +872,7 @@ nomore:
             return false;
         dr.hour = 0;
         // dr.addDays(1);
-        time_t tt = TimestampToTime(dr);
+        std::time_t tt = TimestampToTime(dr);
         TimeToTimestamp(tt + 24 * 60 * 26, dr);
     }
     return true;
@@ -932,48 +1045,32 @@ void MakeLower(std::string &str)
     std::transform(str.begin(), str.end(), str.begin(), ::tolower);
 }
 
-bool LoadSocketLib()
-{
-#ifdef _WIN32
-    WSADATA wsaData;
-    int nResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-
-    if (NO_ERROR != nResult) {
-        printf("failed to init Winsock!\n");
-        return false;
-    }
-#endif
-    return true;
+// trim from start
+static inline std::string &ltrim(std::string &s) {
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(),
+        std::not1(std::ptr_fun<int, int>(std::isspace))));
+    return s;
 }
 
-bool SetSendTimeOutInMs(SOCKET sockfd, long timeout)
-{
-    int ret;
-#ifdef _WIN32
-    ret = setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, (const char *)&timeout, sizeof(timeout));
-#else
-    struct timeval tv;
-    tv.tv_sec = timeout / 1000;
-    tv.tv_usec = (timeout % 1000) * 1000;
-    ret = setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO,
-        (struct timeval *)&tv, sizeof(struct timeval));
-#endif
-    return ret == 0;
+static inline std::string &rtrim(std::string &s) {
+    s.erase(std::find_if(s.rbegin(), s.rend(),
+        std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+    return s;
 }
 
-bool SetRecvTimeOutInMs(SOCKET sockfd, long timeout)
+std::string& LeftTrimString(std::string& str)
 {
-    int ret;
-#ifdef _WIN32
-    ret = setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (const char *)&timeout, sizeof(timeout));
-#else
-    struct timeval tv;
-    tv.tv_sec = timeout / 1000;
-    tv.tv_usec = (timeout % 1000) * 1000;
-    ret = setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO,
-        (struct timeval *)&tv, sizeof(struct timeval));
-#endif
-    return ret == 0;
+    return ltrim(str);
+}
+
+std::string& RightTrimString(std::string& str)
+{
+    return rtrim(str);
+}
+
+std::string& TrimString(std::string& str)
+{
+    return ltrim(rtrim(str));
 }
 
 bool GetLine(std::istream &is, std::string &line)
@@ -999,42 +1096,47 @@ bool GetLine(std::ifstream &fs, std::string &line)
     return GetLine(is, line);
 }
 
-// Optimized version
-void ParseCsvLine(std::vector<std::string> &record, const std::string &line, char delimiter)
+void ParseCsvLine(std::vector<std::string> &sub_strs, const std::string& line, char delimiter)
 {
-    if (line.empty()) {
-        record.clear();
+    ParseCsvLine(sub_strs, line.c_str(), delimiter);
+}
+
+// Optimized version
+void ParseCsvLine(std::vector<std::string>& sub_strs, const char* line, char delimiter)
+{
+    if (nullptr == line || '\0' == line[0]) {
+        sub_strs.clear();
         return;
     }
 
     int linepos = 0;
     bool inquotes = false;
-    int linemax = (int)line.size();
+    int linemax = (int)std::strlen(line);
 
     char *curstring;
     char local_buff[4096];
-    if (line.size() < sizeof(local_buff)) {
+    if (linemax < (int)sizeof(local_buff)) {
         curstring = local_buff;
     }
     else {
-        curstring = new char[line.size() + 4];
+        curstring = new char[linemax + 4];
     }
     int cur_cur = 0;
-    int rec_num = 0, rec_size = (int)record.size();
+    int rec_num = 0, rec_size = (int)sub_strs.size();
 
     int i_quote_end = -1; // index of end of the quote in the curstring
-    auto trim_and_push_back = [&record, &rec_num, &rec_size, &i_quote_end](const char* s) {
+    auto trim_and_push_back = [&sub_strs, &rec_num, &rec_size, &i_quote_end](const char* s) {
         // no need to trim the whitespace at begin, it was done outside of this function
 
         if (rec_num >= rec_size) {
-            record.push_back(s);
+            sub_strs.push_back(s);
             rec_size++;
         }
         else {
-            record[rec_num] = s;
+            sub_strs[rec_num] = s;
         }
 
-        auto& str = record[rec_num];
+        auto& str = sub_strs[rec_num];
         if (i_quote_end >= 0) { // ending qoute found
             while ((str.size() > (size_t)i_quote_end + 1) &&
                 (str.back() == ' ' || str.back() == '\t')) {
@@ -1101,7 +1203,7 @@ void ParseCsvLine(std::vector<std::string> &record, const std::string &line, cha
     trim_and_push_back(curstring);
 
     if (rec_size > rec_num) {
-        record.resize(rec_num);
+        sub_strs.resize(rec_num);
     }
     if (curstring != local_buff) {
         delete[] curstring;
@@ -1214,6 +1316,12 @@ std::vector<std::string> StringSplit(const std::string &line, char delimiter)
     return strs;
 }
 
+std::vector<char*> StringSplitInPlace(std::string& line, char delimiter)
+{
+    std::vector<char*> strs;
+    ParseCsvLineInPlace(strs, (char *)line.c_str(), delimiter);
+    return strs;
+}
 // return the tuple (start, end), start <= index <= end
 std::vector<std::tuple<int, int>> SplitIntoSubsBlocks(int task_count, int element_count)
 {
@@ -1388,6 +1496,28 @@ int StringReplace(std::wstring &wstrBase, const std::wstring &wstrSrc,
     return StringReplaceImpl(wstrBase, wstrSrc, wstrDes);
 }
 
+template <typename STR, typename CHAR>
+int StringReplaceCharImpl(STR& base, CHAR ch_src, CHAR ch_des)
+{
+    int count = 0;
+    for (CHAR& ch : base) {
+        if (ch == ch_src) {
+            ch = ch_des;
+            ++count;
+        }
+    }
+    return count;
+}
+
+int StringReplaceChar(std::string& str_base, char ch_src, char ch_des)
+{
+    return StringReplaceCharImpl(str_base, ch_src, ch_des);
+}
+
+int StringReplaceChar(std::wstring& wstr_base, wchar_t ch_src, wchar_t ch_des)
+{
+    return StringReplaceCharImpl(wstr_base, ch_src, ch_des);
+}
 #ifdef _WIN32
 std::wstring utf82ws(const char *src)
 {

@@ -14,6 +14,7 @@
 
 
 #include <cstdio>
+#include <ctime>
 #include <string>
 #include <vector>
 #include <tuple>
@@ -22,13 +23,6 @@
 
 
 UTIL_BEGIN_NAMESPACE
-
-#ifdef _WIN32
-typedef unsigned long long SOCKET;
-#else
-typedef int SOCKET;
-#endif
-
 
 typedef void dictionary;
 
@@ -48,13 +42,13 @@ enum DatePrecision
 
 typedef struct TIMESTAMP_STRUCT
 {
-    short           year;
-    unsigned short  month;
-    unsigned short  day;
-    unsigned short  hour;
-    unsigned short  minute;
-    unsigned short  second;
-    unsigned long   fraction;
+    short           year{};
+    unsigned short  month{};  // [1, 12]
+    unsigned short  day{};    // [1, 31]
+    unsigned short  hour{};   // [0, 23]
+    unsigned short  minute{}; // [0, 59]
+    unsigned short  second{}; // [0, 60] including leap second
+    unsigned long   fraction{};
 } TIMESTAMP_STRUCT;
 
 typedef struct TIME_STRUCT
@@ -65,14 +59,16 @@ typedef struct TIME_STRUCT
 } TIME_STRUCT;
 
 void GetCurTimestamp(TIMESTAMP_STRUCT &st);
-time_t TimestampToTime(const TIMESTAMP_STRUCT &st);
-time_t GetCurTimeT();
-void TimeToTimestamp(time_t tm, TIMESTAMP_STRUCT &st);
+std::time_t TimestampToTime(const TIMESTAMP_STRUCT &st);
+std::time_t GetCurTimeT();
+void TimeToTimestamp(std::time_t tt, TIMESTAMP_STRUCT &st);
+void TimeToTM(std::time_t tt, std::tm& stm);
+std::tm TimeToTM(std::time_t tt);
 bool StrToTimestamp(const std::string &str, TIMESTAMP_STRUCT &timestamp);
 void TimestampToStr(const TIMESTAMP_STRUCT &st, bool with_fraction, std::string& str);
 std::string TimestampToStr(const TIMESTAMP_STRUCT &st, bool with_fraction);
-std::string TimeTToStr(time_t tm);
-time_t StrToTimeT(const std::string &str);
+std::string TimeTToStr(std::time_t tm);
+std::time_t StrToTimeT(const std::string &str);
 long LocalUtcTimeDiff();
 
 bool ParseTimestamp(const char *str, TIMESTAMP_STRUCT &timestamp);
@@ -84,7 +80,7 @@ bool ParseTime(const char *s, TIME_STRUCT &time_struct, DatePrecision& precision
 
 void SleepMs(long ms);
 unsigned long long GetTimeInMs64();
-bool GetFileModifyTime(const char *path, time_t& mtime);
+bool GetFileModifyTime(const char *path, std::time_t& mtime);
 std::string GetCurrentPath();
 bool FileExists(const std::string& file_path);
 long long FileSize(const std::string& file_path);
@@ -112,9 +108,11 @@ bool Rm(const std::string& specifier, bool recursive);
 bool GetLine(std::istream &is, std::string &line);
 bool GetLine(std::ifstream &fs, std::string &line);
 void ParseCsvLine(std::vector<std::string> &strs, const std::string &line, char delimiter);
+void ParseCsvLine(std::vector<std::string> &strs, const char* line, char delimiter);
 void ParseCsvLineInPlace(std::vector<char *> &pstrs, char *line, char delimiter,
     bool ignore_double_quote = false);
 std::vector<std::string> StringSplit(const std::string &line, char delimiter);
+std::vector<char *> StringSplitInPlace(std::string &line, char delimiter);
 
 // return the tuple (start, end), start <= index <= end
 std::vector<std::tuple<int, int>> SplitIntoSubsBlocks(int task_count, int element_count);
@@ -123,12 +121,17 @@ bool SplitBigData(char *data, size_t len, char delimiter, int n_parts,
     std::vector<char *>& blocks);
 bool ReadAllFromFile(const std::string& pathname, std::string &data);
 bool WriteStrToFile(const std::string& path, const std::string &data);
-int StringReplace(std::string &strBase, const std::string &strSrc,
-    const std::string &strDes);
-int StringReplace(std::wstring &wstrBase, const std::wstring &wstrSrc,
+int StringReplace(std::string &str_base, const std::string &str_src,
+    const std::string &str_des);
+int StringReplace(std::wstring &wstr_base, const std::wstring &wstrSrc,
     const std::wstring &wstrDes);
+int StringReplaceChar(std::string &str_base, char ch_src, char ch_des);
+int StringReplaceChar(std::wstring &wstr_base, wchar_t ch_src, wchar_t ch_des);
 void MakeUpper(std::string &str);
 void MakeLower(std::string &str);
+std::string& LeftTrimString(std::string& str);
+std::string& RightTrimString(std::string& str);
+std::string& TrimString(std::string& str);
 
 std::wstring StrToWStr(const std::string &str);
 std::string WStrToStr(const std::wstring &wstr);
@@ -142,7 +145,7 @@ std::wstring gb2312_2_ws(const char *src);
 bool IsUtf8String(const std::string& str);
 std::string Gb2312HanziToPinyin(const std::string& hanzi_str, bool each_first_cap);
 
-dictionary * IniInitDict(const std::string& ini_name);
+dictionary * IniInitDict(const std::string& ini_pathname);
 void IniFreeDict(dictionary * dict);
 bool ReadIniInt(dictionary *dict, const char*section, int &value,
     std::string &err);
@@ -156,10 +159,10 @@ bool ReadIniDouble(dictionary *dict, const std::string& section, double &value,
     std::string &err);
 bool ReadIniString(dictionary *dict, const std::string& section, std::string &str,
     std::string &err);
-
-bool LoadSocketLib();
-bool SetSendTimeOutInMs(SOCKET sockfd, long timeout);
-bool SetRecvTimeOutInMs(SOCKET sockfd, long timeout);
+bool WriteDictString(dictionary *dict, const char *section, const std::string &str,
+    std::string &err);
+bool WriteSectionToFile(const std::string& ini_pathname, const char *section, const std::string &str,
+    std::string &err);
 
 UTIL_END_NAMESPACE
 
