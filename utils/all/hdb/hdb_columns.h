@@ -772,7 +772,7 @@ public:
             else {
                 result = (char *)ColT<T, data_type>::mDataVec.data() + len;
             }
-            if (result.size() > ColT<T, data_type>::mDataAttr.a) {
+            if ((int)result.size() > ColT<T, data_type>::mDataAttr.a) {
                 result.resize(ColT<T, data_type>::mDataAttr.a);
             }
         }
@@ -789,7 +789,7 @@ public:
             else {
                 result = StrToWStr((const char *)ColT<T, data_type>::mDataVec.data() + len);
             }
-            if (result.size() > ColT<T, data_type>::mDataAttr.a) {
+            if ((int)result.size() > ColT<T, data_type>::mDataAttr.a) {
                 result.resize(ColT<T, data_type>::mDataAttr.a);
             }
         }

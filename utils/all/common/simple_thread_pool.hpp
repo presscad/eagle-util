@@ -262,6 +262,7 @@ SimpleThreadPool CreateSimpleThreadPool(const std::string &/*task_name*/, unsign
 {
     if (task_count == 0) {
         task_count = std::thread::hardware_concurrency();
+        if (task_count == 0) task_count = 2;
     }
     return SimpleThreadPool(task_count, task_fun);
 }

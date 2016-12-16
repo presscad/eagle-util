@@ -119,11 +119,12 @@ SQLRETURN SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, LongVarColT<unsigned 
 class OdbcConn
 {
 public:
-    OdbcConn(const char *dsn, const char *user, const char *password)
-        : mDsn(dsn), mUser(user), mPassword(password),
-        mHenv(nullptr), mHdbc(nullptr), mConnected(false)
+    explicit OdbcConn(const char* dsn, const char* user, const char* password)
+        : mDsn(dsn), mUser(user), mPassword(password)
     {}
-
+    explicit OdbcConn(const std::string& dsn, const std::string& user, const std::string& password)
+        : mDsn(dsn), mUser(user), mPassword(password)
+    {}
     ~OdbcConn()
     {
         DisConnect();
@@ -156,9 +157,9 @@ protected:
     std::string mDsn;
     std::string mUser;
     std::string mPassword;
-    SQLHENV mHenv;
-    SQLHDBC mHdbc;
-    bool mConnected;
+    SQLHENV mHenv{};
+    SQLHDBC mHdbc{};
+    bool mConnected{};
 };
 
 class BaseColumn;
@@ -168,8 +169,8 @@ class InsertExecutor
 {
 public:
     explicit InsertExecutor(OdbcConn *pConn)
+        : mpConn(pConn)
     {
-        mpConn = pConn;
         SQLAllocHandle(SQL_HANDLE_STMT, pConn->GetHDbc(), &mHstmt);
     };
     ~InsertExecutor()
@@ -197,7 +198,7 @@ public:
     bool ExecuteInsert(const ColRecords &records, bool commit = true) const;
 
 protected:
-    OdbcConn *mpConn;
+    OdbcConn *mpConn{};
     SQLHSTMT mHstmt;
     mutable std::string mErrStr;
 };
@@ -210,6 +211,14 @@ public:
     {
         mpConn = pConn;
         if (sql) {
+            mSql = sql;
+        }
+        SQLAllocHandle(SQL_HANDLE_STMT, pConn->GetHDbc(), &mHstmt);
+    };
+    explicit QueryExecutor(OdbcConn *pConn, const std::string& sql)
+    {
+        mpConn = pConn;
+        if (!sql.empty()) {
             mSql = sql;
         }
         SQLAllocHandle(SQL_HANDLE_STMT, pConn->GetHDbc(), &mHstmt);
@@ -232,9 +241,17 @@ public:
             mSql.clear();
         }
     };
+    void SetSql(const std::string& sql)
+    {
+        mSql = sql;
+    };
     const char *GetSql() const
     {
         return mSql.c_str();
+    };
+    const std::string& Sql() const
+    {
+        return mSql;
     };
     SQLHSTMT GetHStmt() const
     {

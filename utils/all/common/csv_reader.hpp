@@ -77,7 +77,7 @@ public:
 
         line.clear();
         do {
-            if (getline(*istream_, line)) {
+            if (util::GetLine(*istream_, line)) {
                 if (istream_->good() && line.empty()) {
                     continue;
                 }

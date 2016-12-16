@@ -119,7 +119,7 @@ static void LogCleanUp()
     std::vector<std::string> filenames;
     std::string tLogPath = sLogPath + "/20*.log";
     if (true == util::FindFiles(FormatPath(tLogPath), filenames)) {
-        if (filenames.size() > KEEP_NUM) {
+        if ((int)filenames.size() > KEEP_NUM) {
             std::sort(filenames.begin(), filenames.end());
             for (int i = 0; i < (int)filenames.size() - KEEP_NUM; ++i) {
                 tLogPath = sLogPath + '/' + filenames[i];

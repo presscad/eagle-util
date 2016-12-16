@@ -7,7 +7,6 @@
 #include <fstream>
 #include <algorithm>
 #include <functional>
-#include <boost/xpressive/xpressive.hpp>
 #if (COMM_UTIL_WITH_ZLIB == 1)
 #include "zfstream.h"
 #endif
@@ -21,6 +20,8 @@
 #else
 #  include <unistd.h>
 #  include <sys/time.h>
+#  include <dirent.h>
+#  include <boost/xpressive/xpressive.hpp>
 #endif
 
 #ifdef _WIN32
@@ -72,10 +73,6 @@ long long FileSize(const std::string& file_path)
     return (long long)file.tellg();
 }
 
-// path_specifier: e.g., abc/*.*, tuple: (file name/dir name, is directory)
-#ifndef _WIN32
-#include <dirent.h>
-#endif
 
 static std::string WildcardsToRegex(std::string wildcard_pattern)
 {
@@ -445,7 +442,7 @@ std::time_t GetCurTimeT()
     GetCurTimestamp(tm_struct);
     return TimestampToTime(tm_struct);
 }
-void TimestampToStr(const TIMESTAMP_STRUCT &st, bool with_fraction, std::string& str)
+std::string& TimestampToStr(const TIMESTAMP_STRUCT &st, bool with_fraction, std::string& str)
 {
     char buff[128];
     if (with_fraction) {
@@ -457,13 +454,13 @@ void TimestampToStr(const TIMESTAMP_STRUCT &st, bool with_fraction, std::string&
             st.year, st.month, st.day, st.hour, st.minute, st.second);
     }
     str = buff;
+    return str;
 }
 
 std::string TimestampToStr(const TIMESTAMP_STRUCT &st, bool with_fraction)
 {
     std::string str;
-    TimestampToStr(st, with_fraction, str);
-    return str;
+    return TimestampToStr(st, with_fraction, str);
 }
 
 bool StrToTimestamp(const std::string &s, TIMESTAMP_STRUCT &v)
@@ -517,13 +514,20 @@ bool StrToTimestamp(const std::string &s, TIMESTAMP_STRUCT &v)
 
 std::string TimeTToStr(std::time_t tm)
 {
+    std::string str;
+    return TimeTToStr(tm, str);
+}
+
+std::string& TimeTToStr(std::time_t tm, std::string& str)
+{
     util::TIMESTAMP_STRUCT ts;
     util::TimeToTimestamp(tm, ts);
 
     char buff[128];
     snprintf(buff, sizeof(buff) - 1, "%04d-%02u-%02u %02u:%02u:%02u",
         ts.year, ts.month, ts.day, ts.hour, ts.minute, ts.second);
-    return buff;
+    str = buff;
+    return str;
 }
 
 std::time_t StrToTimeT(const std::string &str)
@@ -1073,21 +1077,36 @@ std::string& TrimString(std::string& str)
     return ltrim(rtrim(str));
 }
 
-bool GetLine(std::istream &is, std::string &line)
+// this version of read_line handles mixed dos/unix '\n'
+bool GetLine(std::istream& is, std::string& line)
 {
     line.clear();
-    do {
-        if (getline(is, line)) {
-            if (line.empty()){
-                continue;
-            }
+
+    std::istream::sentry se(is, true);
+    std::streambuf* sb = is.rdbuf();
+
+    for (;;) {
+        int c = sb->sbumpc();
+        switch (c) {
+        case '\n': {
             return true;
         }
-        else {
-            return false;
+        case '\r':
+            if (sb->sgetc() == '\n') {
+                sb->sbumpc();
+            }
+            return true;
+        case EOF:
+            // Also handle the case when the last line has no line ending
+            if (line.empty()) {
+                is.setstate(std::ios::eofbit);
+            }
+            return false; // because of EOF
+        default:
+            line += (char)c;
         }
-    } while (true);
-    return false;
+    }
+    return true;
 }
 
 bool GetLine(std::ifstream &fs, std::string &line)
@@ -1521,20 +1540,34 @@ int StringReplaceChar(std::wstring& wstr_base, wchar_t ch_src, wchar_t ch_des)
 #ifdef _WIN32
 std::wstring utf82ws(const char *src)
 {
-    int slength = (int)strlen(src);
-    int len = MultiByteToWideChar(CP_UTF8, 0, src, slength, 0, 0);
-    std::wstring ws(len, '\0');
-    MultiByteToWideChar(CP_UTF8, 0, src, slength, (LPWSTR)&ws[0], len);
+    std::wstring ws;
+    return utf82ws(src, ws);
+}
+
+std::wstring& utf82ws(const char* s, std::wstring& ws)
+{
+    int slength = (int)strlen(s);
+    int len = MultiByteToWideChar(CP_UTF8, 0, s, slength, 0, 0);
+    ws.clear();
+    ws.resize(len, '\0');
+    MultiByteToWideChar(CP_UTF8, 0, s, slength, (LPWSTR)&ws[0], len);
     return ws;
 }
 
 std::string ws2utf8(const wchar_t *ws)
 {
-    int slength = (int)wcslen(ws);
-    int len = WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR)ws, slength, 0, 0, 0, 0);
-    std::string r(len, '\0');
-    WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR)ws, slength, &r[0], len, 0, 0);
-    return r;
+    std::string s;
+    return ws2utf8(ws, s);
+}
+
+std::string& ws2utf8(const wchar_t* ws, std::string& s)
+{
+    const int slength = (int)wcslen(ws);
+    const int len = WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR)ws, slength, 0, 0, 0, 0);
+    s.clear();
+    s.resize(len, '\0');
+    WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR)ws, slength, &s[0], len, 0, 0);
+    return s;
 }
 
 std::string ws2gb2312(const wchar_t *wstr)
@@ -1555,22 +1588,36 @@ std::wstring gb2312_2_ws(const char *src)
 
 #endif
 
-std::wstring StrToWStr(const std::string &str)
+std::wstring& StrToWStr(const std::string& str, std::wstring& wstr)
 {
 #ifdef _WIN32
-    return utf82ws(str.c_str());
+    return utf82ws(str.c_str(), wstr);
 #else
-    return std::wstring(str.begin(), str.end());
+    wstr = std::wstring(str.begin(), str.end());
+    return wstr;
 #endif
+}
+
+std::string& WStrToStr(const std::wstring& wstr, std::string& str)
+{
+#ifdef _WIN32
+    return ws2utf8(wstr.c_str(), str);
+#else
+    str = std::string(wstr.begin(), wstr.end());
+    return str;
+#endif
+}
+
+std::wstring StrToWStr(const std::string &str)
+{
+    std::wstring wstr;
+    return StrToWStr(str, wstr);
 }
 
 std::string WStrToStr(const std::wstring &wstr)
 {
-#ifdef _WIN32
-    return ws2utf8((wchar_t *)wstr.c_str());
-#else
-    return std::string(wstr.begin(), wstr.end());
-#endif
+    std::string str;
+    return WStrToStr(wstr, str);
 }
 
 bool IsUtf8String(const std::string& str)

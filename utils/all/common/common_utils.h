@@ -65,9 +65,10 @@ void TimeToTimestamp(std::time_t tt, TIMESTAMP_STRUCT &st);
 void TimeToTM(std::time_t tt, std::tm& stm);
 std::tm TimeToTM(std::time_t tt);
 bool StrToTimestamp(const std::string &str, TIMESTAMP_STRUCT &timestamp);
-void TimestampToStr(const TIMESTAMP_STRUCT &st, bool with_fraction, std::string& str);
 std::string TimestampToStr(const TIMESTAMP_STRUCT &st, bool with_fraction);
+std::string& TimestampToStr(const TIMESTAMP_STRUCT &st, bool with_fraction, std::string& str);
 std::string TimeTToStr(std::time_t tm);
+std::string& TimeTToStr(std::time_t tm, std::string& str);
 std::time_t StrToTimeT(const std::string &str);
 long LocalUtcTimeDiff();
 
@@ -133,11 +134,15 @@ std::string& LeftTrimString(std::string& str);
 std::string& RightTrimString(std::string& str);
 std::string& TrimString(std::string& str);
 
+std::wstring& StrToWStr(const std::string &str, std::wstring& wstr);
+std::string& WStrToStr(const std::wstring &wstr, std::string& str);
 std::wstring StrToWStr(const std::string &str);
 std::string WStrToStr(const std::wstring &wstr);
 #ifdef _WIN32
-std::wstring utf82ws(const char *src);
+std::wstring utf82ws(const char *s);
+std::wstring& utf82ws(const char *s, std::wstring& ws);
 std::string ws2utf8(const wchar_t *ws);
+std::string& ws2utf8(const wchar_t *ws, std::string& s);
 std::string ws2gb2312(const wchar_t *wstr);
 std::wstring gb2312_2_ws(const char *src);
 #endif

@@ -621,11 +621,11 @@ bool ParseTableFromSql(const char *create_sql, PARSED_TABLE_T &table, std::strin
 void UnImplemented(const char *desc)
 {
     if (desc) {
-        printf("%s: Unimplemented feature: %s\n", ElapsedTimeStr().c_str(), desc);
+        std::cout << ElapsedTimeStr() << ": Unimplemented feature: " << desc << std::endl;
     } else {
-        printf("%s: Unimplemented feature\n", ElapsedTimeStr().c_str());
+        std::cout << ElapsedTimeStr() << ": Unimplemented feature" << std::endl;
     }
-    printf("%s: THIS APP WILL CRASH!\n", ElapsedTimeStr().c_str());
+    std::cout << ElapsedTimeStr() << ": THIS APP IS CRASHING!" << std::endl;
     *(int *)0 = 0; // to crash!
 }
 

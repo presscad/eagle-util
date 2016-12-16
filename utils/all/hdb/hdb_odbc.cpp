@@ -112,7 +112,7 @@ SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const FloatCol &col)
 }
 SQLRETURN SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, FloatCol &col)
 {
-    UnImplemented(__FUNCTION__);
+    UnImplemented("SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, FloatCol &col)");
     return 0;
 }
 
@@ -124,7 +124,7 @@ SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const DateCol &col)
 }
 SQLRETURN SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, DateCol &col)
 {
-    UnImplemented(__FUNCTION__);
+    UnImplemented("SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, DateCol &col)");
     return 0;
 }
 
@@ -136,7 +136,7 @@ SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const TimeCol &col)
 }
 SQLRETURN SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, TimeCol &col)
 {
-    UnImplemented(__FUNCTION__);
+    UnImplemented("SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, TimeCol &col)");
     return 0;
 }
 
@@ -160,7 +160,7 @@ SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const SecondDateCol 
 }
 SQLRETURN SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, SecondDateCol &col)
 {
-    UnImplemented(__FUNCTION__);
+    UnImplemented("SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, SecondDateCol &col)");
     return 0;
 }
 
@@ -172,7 +172,7 @@ SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const SmallDecimalCo
 }
 SQLRETURN SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, SmallDecimalCol &col)
 {
-    UnImplemented(__FUNCTION__);
+    UnImplemented("SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, SmallDecimalCol &col)");
     return 0;
 }
 
@@ -197,8 +197,9 @@ SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const DecimalPsCol &
 }
 SQLRETURN SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, DecimalPsCol &col)
 {
-    UnImplemented(__FUNCTION__);
-    return 0;
+    SQLLEN BufferLength = col.GetDataAttr().a + 1;
+    SQLLEN *IndVec = col.NullAble() ? (SQLLEN *)col.GetStrLenOrIndVec() : nullptr;
+    return SQLBindCol(hstmt, ipar, SQL_C_CHAR, (SQLPOINTER)col.GetData(), BufferLength, IndVec);
 }
 
 SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const CharColT<SQLWCHAR, T_CHAR> &col)
@@ -211,8 +212,10 @@ SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const CharColT<SQLWC
 }
 SQLRETURN SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, CharColT<SQLWCHAR, T_CHAR> &col)
 {
-    UnImplemented(__FUNCTION__);
-    return 0;
+    SQLULEN ColumnSize = col.GetDataAttr().a;
+    SQLLEN BufferLength = 2 * (col.GetDataAttr().a + 1);
+    return SQLBindParameter(hstmt, ipar, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_CHAR,
+        ColumnSize, 0, (SQLPOINTER)col.GetData(), BufferLength, (SQLLEN *)col.GetStrLenOrIndVec());
 }
 
 SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const CharColT<SQLWCHAR, T_VARCHAR> &col)
@@ -238,7 +241,7 @@ SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const CharColT<SQLCH
 }
 SQLRETURN SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, CharColT<SQLCHAR, T_CHAR> &col)
 {
-    UnImplemented(__FUNCTION__);
+    UnImplemented("SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, CharColT<SQLCHAR, T_CHAR> &col)");
     return 0;
 }
 
@@ -265,7 +268,7 @@ SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const CharColT<SQLWC
 }
 SQLRETURN SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, CharColT<SQLWCHAR, T_NCHAR> &col)
 {
-    UnImplemented(__FUNCTION__);
+    UnImplemented("SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, CharColT<SQLWCHAR, T_NCHAR> &col)");
     return 0;
 }
 
@@ -278,7 +281,7 @@ SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const CharColT<SQLWC
 }
 SQLRETURN SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, CharColT<SQLWCHAR, T_NVARCHAR> &col)
 {
-    UnImplemented(__FUNCTION__);
+    UnImplemented("SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, CharColT<SQLWCHAR, T_NVARCHAR> &col)");
     return 0;
 }
 
@@ -291,7 +294,7 @@ SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const CharColT<SQLCH
 }
 SQLRETURN SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, CharColT<SQLCHAR, T_ALPHANUM> &col)
 {
-    UnImplemented(__FUNCTION__);
+    UnImplemented("SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, CharColT<SQLCHAR, T_ALPHANUM> &col)");
     return 0;
 }
 
@@ -303,7 +306,7 @@ SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const LongVarColT<un
 }
 SQLRETURN SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, LongVarColT<unsigned char, T_BLOB> &col)
 {
-    UnImplemented(__FUNCTION__);
+    UnImplemented("SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, LongVarColT<unsigned char, T_BLOB> &col)");
     return 0;
 }
 
@@ -317,7 +320,7 @@ SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const LongVarColT<un
 }
 SQLRETURN SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, LongVarColT<unsigned char, T_CLOB> &col)
 {
-    UnImplemented(__FUNCTION__);
+    UnImplemented("SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, LongVarColT<unsigned char, T_CLOB> &col)");
     return 0;
 }
 
@@ -329,7 +332,7 @@ SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const LongVarColT<SQ
 }
 SQLRETURN SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, LongVarColT<SQLWCHAR, T_NCLOB> &col)
 {
-    UnImplemented(__FUNCTION__);
+    UnImplemented("SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, LongVarColT<SQLWCHAR, T_NCLOB> &col)");
     return 0;
 }
 
@@ -341,7 +344,7 @@ SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const LongVarColT<SQ
 }
 SQLRETURN SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, LongVarColT<SQLCHAR, T_TEXT> &col)
 {
-    UnImplemented(__FUNCTION__);
+    UnImplemented("SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, LongVarColT<SQLCHAR, T_TEXT> &col)");
     return 0;
 }
 
@@ -353,7 +356,7 @@ SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const LongVarColT<un
 }
 SQLRETURN SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, LongVarColT<unsigned char, T_ST_GEOMETRY> &col)
 {
-    UnImplemented(__FUNCTION__);
+    UnImplemented("SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, LongVarColT<unsigned char, T_ST_GEOMETRY> &col)");
     return 0;
 }
 
@@ -767,8 +770,11 @@ static DATA_ATTR_T OdbcTypeToDataAttr(SQLSMALLINT dataType, SQLULEN columnSize, 
     case SQL_TYPE_TIMESTAMP:
         attr.type = T_TIMESTAMP;
         break;
+    case SQL_UNKNOWN_TYPE:
+        attr.type = T_UNKNOWN;
+        break;
     default:
-        hdb::UnImplemented("OdbcTypeToDataAttr: unimplemented type");
+        hdb::UnImplemented(("OdbcTypeToDataAttr: unimplemented type: " + std::to_string(dataType)).c_str());
         attr.type = T_UNKNOWN;
         break;
     }
@@ -800,6 +806,15 @@ bool QueryExecutor::Prepare()
             if (SQL_SUCCEEDED(rc) && ColumnSize > 0) {
                 ColumnName[sizeof(ColumnName) - 1] = '\0';
                 DATA_ATTR_T attr = OdbcTypeToDataAttr(DataType, ColumnSize, DecimalDigits, Nullable != 0);
+                if (attr.type == T_UNKNOWN) {
+                    std::cout << "Warning: SQLDescribeCol returned unknown column type!" << std::endl;
+                    attr.type = T_CHAR;
+                }
+#if 0
+                std::cout << "ColumnNumber = " << ColumnNumber << ", ColumnName = " << ColumnName
+                    << ", DataType = " << DataType << ", ColumnSize = " << ColumnSize << ", DecimalDigits = "
+                    << DecimalDigits << std::endl;
+#endif
                 mRecordsBuff->AddCol((const char *)ColumnName, attr);
             }
             else {
@@ -812,11 +827,6 @@ bool QueryExecutor::Prepare()
     }
 
     return SQL_SUCCEEDED(rc);
-}
-
-static SQLRETURN BindOutCol(SQLHSTMT hstmt, SQLUSMALLINT column_number, IntCol &col)
-{
-    return SQL_SUCCESS;
 }
 
 // Refer to http://msdn.microsoft.com/en-us/library/windows/desktop/ms713541(v=vs.85).aspx

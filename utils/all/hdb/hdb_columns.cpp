@@ -280,19 +280,36 @@ bool ColRecords::AddColsFromRecords(const ColRecords &src_records)
     return true;
 }
 
-static bool GetLine(std::istream &fs, std::string &line)
+// this version of read_line handles mixed dos/unix '\n'
+static bool GetLine(std::istream& is, std::string& line)
 {
-    do{
-        if(getline(fs, line)) {
-            if(fs.good() && line.empty()){
-                continue;
+    line.clear();
+
+    std::istream::sentry se(is, true);
+    std::streambuf* sb = is.rdbuf();
+
+    for (;;) {
+        int c = sb->sbumpc();
+        switch (c) {
+        case '\n': {
+            return true;
+        }
+        case '\r':
+            if (sb->sgetc() == '\n') {
+                sb->sbumpc();
             }
             return true;
-        } else {
-            return false;
+        case EOF:
+            // Also handle the case when the last line has no line ending
+            if (line.empty()) {
+                is.setstate(std::ios::eofbit);
+            }
+            return false; // because of EOF
+        default:
+            line += (char)c;
         }
-    } while(true);
-    return false;
+    }
+    return true;
 }
 
 // return the number of lines actually added

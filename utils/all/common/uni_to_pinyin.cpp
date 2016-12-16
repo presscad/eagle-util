@@ -10,8 +10,8 @@ using namespace std;
 
 namespace util {
     struct PinyinPair {
-        unsigned code;
-        char *pinyin;
+        wchar_t code;
+        const char *pinyin;
     };
 
     const static PinyinPair table[] = {
@@ -20931,7 +20931,7 @@ namespace util {
         if (it != table + _countof(table) && it->code == ch) {
             return *it;
         }
-        static const PinyinPair dummy;
+        static const PinyinPair dummy{};
         return dummy;
     }
 
