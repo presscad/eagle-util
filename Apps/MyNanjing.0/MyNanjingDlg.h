@@ -21,7 +21,11 @@ struct MainConfig
 struct Task
 {
     string tag;
-
+    string url;
+    string method;
+    vector<string> httpHeaders;
+    vector<string> postFields;
+    int threadsNum{ 1 };
 };
 
 
@@ -48,6 +52,7 @@ protected:
     BOOL OnBnClickedBtnTask_X(int num);
     BOOL ReadSettings();
     BOOL UpdateUiBySettings();
+    void UpdateTaskButtons(const std::string& result_json);
 
     // Generated message map functions
     virtual BOOL OnInitDialog();

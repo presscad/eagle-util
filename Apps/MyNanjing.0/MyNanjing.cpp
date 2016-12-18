@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "MyNanjing.h"
 #include "MyNanjingDlg.h"
+#include "net/curl_utils.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -34,6 +35,8 @@ CIEProxyApp theApp;
 
 BOOL CIEProxyApp::InitInstance()
 {
+    net::InitCurl();
+
     // InitCommonControls() is required on Windows XP if an application
     // manifest specifies use of ComCtl32.dll version 6 or later to enable
     // visual styles.  Otherwise, any window creation will fail.
@@ -46,6 +49,8 @@ BOOL CIEProxyApp::InitInstance()
     CMyNanjingDlg dlg;
     m_pMainWnd = &dlg;
     dlg.DoModal();
+
+    net::CloseCurl();
 
     // Since the dialog has been closed, return FALSE so that we exit the
     //  application, rather than start the application's message pump.
