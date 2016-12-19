@@ -6,8 +6,8 @@ TASK_DATA_PATH = "C:\Users\Eagle\Dropbox\Temp\VWT\data"
 NOX_PATH = expanduser("~") + "\\AppData\\Roaming\\Nox\\bin\\Nox.exe"
 DEBUG = 0
 #APP = "Salary"
-APP = "YuQing"
-#APP = "KaoQin"
+#APP = "YuQing"
+APP = "KaoQin"
 PASSWORDS = []
 NOX_PROCESS = None
 
