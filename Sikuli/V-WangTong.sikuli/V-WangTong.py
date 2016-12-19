@@ -92,6 +92,8 @@ def logonVWT(phoneNum, password):
     else:
         if exists("vwt-after-logon-popup.png", 0):
             click("vwt-after-logon-popup-close.png")
+        elif exists("vwt-after-logon-new-version.png", 0):
+            click("vwt-update-later.png")
         else:
             waitVanish("vwt-log-updating-phonebook.png")
         waitVanish("vwt-log-updating-phonebook.png")
@@ -103,6 +105,8 @@ def logoutVWT(ready):
     if not ready:
         if exists("vwt-after-logon-popup.png"):
             click("vwt-after-logon-popup-close.png")
+        elif exists("vwt-after-logon-new-version.png", 0):
+            click("vwt-update-later.png")
         while (exists("vwt-int-back.png")):
             click("android-back.png")
         meButton1 = "vwt-bar-me.png"

@@ -164,6 +164,8 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
     <span class="kw">else</span>:
         <span class="kw">if</span> exists(<img src="vwt-after-logon-popup.png" />, <span class="dig">0</span>):
             <span class="skw">click</span>(<img src="vwt-after-logon-popup-close.png" />)
+        <span class="kw">elif</span> exists(<img src="vwt-after-logon-new-version.png" />, <span class="dig">0</span>):
+            <span class="skw">click</span>(<img src="vwt-update-later.png" />)
         <span class="kw">else</span>:
             waitVanish(<img src="vwt-log-updating-phonebook.png" />)
         waitVanish(<img src="vwt-log-updating-phonebook.png" />)
@@ -175,6 +177,8 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
     <span class="kw">if</span> <span class="kw">not</span> ready:
         <span class="kw">if</span> exists(<img src="vwt-after-logon-popup.png" />):
             <span class="skw">click</span>(<img src="vwt-after-logon-popup-close.png" />)
+        <span class="kw">elif</span> exists(<img src="vwt-after-logon-new-version.png" />, <span class="dig">0</span>):
+            <span class="skw">click</span>(<img src="vwt-update-later.png" />)
         <span class="kw">while</span> (exists(<img src="vwt-int-back.png" />)):
             <span class="skw">click</span>(<img src="android-back.png" />)
         meButton1 = <img src="vwt-bar-me.png" />
