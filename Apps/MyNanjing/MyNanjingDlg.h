@@ -14,8 +14,8 @@ using namespace std;
 
 struct MainConfig
 {
-    string proxy;
-    string userId;
+    string adb;
+    vector<string> devices;
 };
 
 struct Task

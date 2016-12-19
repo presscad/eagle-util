@@ -2,13 +2,15 @@
 //
 
 #include "stdafx.h"
+
+#define _SCL_SECURE_NO_WARNINGS // supress warning C4996 in debug build
 #include "MyNanjing.h"
 #include "MyNanjingDlg.h"
-#include <boost/process.hpp>
 #include "Ini/SimpleIni.h"
 #include "basic/FileUtil.h"
 #include "common/common_utils.h"
-
+#include <boost/process.hpp>
+#include <boost/iostreams/stream.hpp>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -86,13 +88,17 @@ BOOL CMyNanjingDlg::ReadSettings()
 
     std::string iniPath = GetIniPathName();
     if (!FileExists(iniPath.c_str())) {
-
+        m_stcStatus.SetWindowTextA(("INI error: " + iniPath + " does not exist").c_str());
         return FALSE;
     }
 
     CSimpleIni ini(iniPath.c_str());
-    m_config.proxy = ini.GetString("Main", "proxy", "");
-    m_config.userId = ini.GetString("Main", "userId", "<userId>");
+    m_config.adb = ini.GetString("Main", "adb", "");
+    m_config.devices = util::StringSplit(ini.GetString("Main", "devices", ""), ',');
+    if (m_config.devices.empty()) {
+        m_stcStatus.SetWindowTextA("INI error: invalid devices in main section");
+        return FALSE;
+    }
 
     for (int i = 0; i < MAX_NUM_TASKS; i++)
     {
@@ -176,6 +182,12 @@ HCURSOR CMyNanjingDlg::OnQueryDragIcon()
     return static_cast<HCURSOR>(m_hIcon);
 }
 
+void CMyNanjingDlg::OnTimer(UINT_PTR nIDEvent)
+{
+    CDialog::OnTimer(nIDEvent);
+    CMyNanjingDlg::OnOK();
+}
+
 BOOL CMyNanjingDlg::OnBnClickedBtnTask_X(int num)
 {
     CWaitCursor wait;
@@ -203,13 +215,34 @@ void CMyNanjingDlg::OnBnClickedBtnTask3()
     OnBnClickedBtnTask_X(3);
 }
 
-void CMyNanjingDlg::OnBnClickedBtnTask4()
+using namespace boost::process;
+using namespace boost::process::initializers;
+using namespace boost::iostreams;
+
+static boost::process::pipe create_async_pipe()
 {
-    OnBnClickedBtnTask_X(4);
+#if defined(BOOST_WINDOWS_API)
+    std::string name = "\\\\.\\pipe\\boost_process_async_io";
+    HANDLE handle1 = ::CreateNamedPipeA(name.c_str(), PIPE_ACCESS_INBOUND |
+        FILE_FLAG_OVERLAPPED, 0, 1, 8192, 8192, 0, NULL);
+    HANDLE handle2 = ::CreateFileA(name.c_str(), GENERIC_WRITE, 0, NULL,
+        OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
+    return make_pipe(handle1, handle2);
+#elif defined(BOOST_POSIX_API)
+    return create_pipe();
+#endif
 }
 
-void CMyNanjingDlg::OnTimer(UINT_PTR nIDEvent)
+// click the "Apply" button, last step
+void CMyNanjingDlg::OnBnClickedBtnTask4()
 {
-    CDialog::OnTimer(nIDEvent);
-    CMyNanjingDlg::OnOK();
+    for (auto device : m_config.devices) {
+        string cmd = "nox_adb -s " + device + " shell input tap 246 236";
+        
+        boost::process::pipe p = create_async_pipe();
+        execute(
+            run_exe(m_config.adb),
+            set_cmd_line(cmd)
+        );
+    }
 }
