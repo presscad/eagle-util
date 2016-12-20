@@ -57,6 +57,9 @@ def setNoxMEID(phoneNum, IMEI):
     click(r.find("close.png"))
 
 def logonVWT(phoneNum, password):
+    if exists("vwt-after-logon-new-version.png", 0):
+        click("vwt-update-later.png")
+
     wait("vwt-logon-password.png")
     r = find("vwt-logon-password.png").right(80)
     doubleClick(r)
