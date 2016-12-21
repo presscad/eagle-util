@@ -235,7 +235,7 @@ def vwtSalary(phoneNum, failToKaoQin, password):
         r = find("vwt-salayapp-log-passwd2.png").right(80)
         click(r)
         time.sleep(0.2)
-        paste('123123')
+        paste('123321')
         time.sleep(0.2)
 
         click("vwt-salaryapp-logon-btn.png")
