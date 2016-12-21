@@ -5,9 +5,9 @@ TASK_DATA_PATH = "C:\Users\Eagle\Dropbox\Temp\VWT\data"
 
 NOX_PATH = os.environ["ProgramFiles(x86)"] + "\\Nox\\bin\\Nox.exe"
 DEBUG = 0
-#APP = "Salary"
+APP = "Salary"
 #APP = "YuQing"
-APP = "KaoQin"
+#APP = "KaoQin"
 PASSWORDS = []
 NOX_PROCESS = None
 
@@ -231,11 +231,11 @@ def vwtSalary(phoneNum, failToKaoQin, password):
 
     ret = '' # unknown result by defaut
     if exists("vwt-app-slary-auth-title.png"):
-        wait("vwt-salayapp-log-passwd.png")
-        r = find("vwt-salayapp-log-passwd.png").right(80)
-        doubleClick(r)
-        type(Key.BACKSPACE)
-        paste("123123")
+        wait("vwt-salayapp-log-passwd2.png")
+        r = find("vwt-salayapp-log-passwd2.png").right(80)
+        click(r)
+        time.sleep(0.2)
+        paste('123123')
         time.sleep(0.2)
 
         click("vwt-salaryapp-logon-btn.png")
@@ -294,7 +294,9 @@ def vwtSalary(phoneNum, failToKaoQin, password):
     time.sleep(0.3)
     click("android-back.png")
     time.sleep(0.5)
-    click("vwt-bar-me.png")
+    #click("vwt-bar-me.png")
+    r = find("android-show-recent.png").left(40)    
+    click(r)
     logoutVWT(True)
     click("android-show-main.png")
     time.sleep(0.4)
@@ -383,7 +385,7 @@ def doTask(phoneNum, MEID, password):
         setNoxMEID(phoneNum, MEID)
 
     if "Salary" == APP:
-        return vwtSalary(phoneNum, True, password)
+        return vwtSalary(phoneNum, False, password)
     elif "YuQing" == APP:
         return vwtYuQing(phoneNum, password)
     elif "KaoQin" == APP:

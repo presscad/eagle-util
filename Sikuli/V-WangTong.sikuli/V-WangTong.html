@@ -77,9 +77,9 @@ TASK_DATA_PATH = <span class="str">"C:\Users\Eagle\Dropbox\Temp\VWT\data"</span>
 
 NOX_PATH = os.environ[<span class="str">"ProgramFiles(x86)"</span>] + <span class="str">"\\Nox\\bin\\Nox.exe"</span>
 DEBUG = <span class="dig">0</span>
-<span class="cmt">#APP = "Salary"</span>
+APP = <span class="str">"Salary"</span>
 <span class="cmt">#APP = "YuQing"</span>
-APP = <span class="str">"KaoQin"</span>
+<span class="cmt">#APP = "KaoQin"</span>
 PASSWORDS = []
 NOX_PROCESS = None
 
@@ -303,11 +303,11 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
 
     ret = <span class="str">''</span> <span class="cmt"># unknown result by defaut</span>
     <span class="kw">if</span> exists(<img src="vwt-app-slary-auth-title.png" />):
-        <span class="skw">wait</span>(<img src="vwt-salayapp-log-passwd.png" />)
-        r = <span class="skw">find</span>(<img src="vwt-salayapp-log-passwd.png" />).right(<span class="dig">80</span>)
-        <span class="skw">doubleClick</span>(r)
-        <span class="skw">type</span>(Key.BACKSPACE)
-        paste(<span class="str">"123123"</span>)
+        <span class="skw">wait</span>(<img src="vwt-salayapp-log-passwd2.png" />)
+        r = <span class="skw">find</span>(<img src="vwt-salayapp-log-passwd2.png" />).right(<span class="dig">80</span>)
+        <span class="skw">click</span>(r)
+        time.<span class="skw">sleep</span>(<span class="dig">0.2</span>)
+        paste(<span class="str">'123123'</span>)
         time.<span class="skw">sleep</span>(<span class="dig">0.2</span>)
 
         <span class="skw">click</span>(<img src="vwt-salaryapp-logon-btn.png" />)
@@ -366,7 +366,9 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
     time.<span class="skw">sleep</span>(<span class="dig">0.3</span>)
     <span class="skw">click</span>(<img src="android-back.png" />)
     time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
-    <span class="skw">click</span>(<img src="vwt-bar-me.png" />)
+    <span class="cmt">#click("vwt-bar-me.png")</span>
+    r = <span class="skw">find</span>(<img src="android-show-recent.png" />).left(<span class="dig">40</span>)
+    <span class="skw">click</span>(r)
     logoutVWT(True)
     <span class="skw">click</span>(<img src="android-show-main.png" />)
     time.<span class="skw">sleep</span>(<span class="dig">0.4</span>)
@@ -455,7 +457,7 @@ Settings.MoveMouseDelay = <span class="dig">0.11</span>
         setNoxMEID(phoneNum, MEID)
 
     <span class="kw">if</span> <span class="str">"Salary"</span> == APP:
-        <span class="kw">return</span> vwtSalary(phoneNum, True, password)
+        <span class="kw">return</span> vwtSalary(phoneNum, False, password)
     <span class="kw">elif</span> <span class="str">"YuQing"</span> == APP:
         <span class="kw">return</span> vwtYuQing(phoneNum, password)
     <span class="kw">elif</span> <span class="str">"KaoQin"</span> == APP:
