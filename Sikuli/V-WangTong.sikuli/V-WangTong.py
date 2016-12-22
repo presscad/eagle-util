@@ -5,8 +5,8 @@ TASK_DATA_PATH = "C:\Users\Eagle\Dropbox\Temp\VWT\data"
 
 NOX_PATH = os.environ["ProgramFiles(x86)"] + "\\Nox\\bin\\Nox.exe"
 DEBUG = 0
-APP = "Salary"
-#APP = "YuQing"
+#APP = "Salary"
+APP = "YuQing"
 #APP = "KaoQin"
 PASSWORDS = []
 NOX_PROCESS = None
@@ -179,12 +179,13 @@ def vwtYuQing(phoneNum, password):
     if not exists("vwt-yuqing-news-yuqing.png"): time.sleep(0.5)
     if not exists("vwt-yuqing-news-yuqing.png"): time.sleep(0.5)
     if not exists("vwt-yuqing-news-yuqing.png"): time.sleep(0.5)
+    if not exists("vwt-yuqing-news-yuqing.png"): time.sleep(0.5)
     wait("vwt-yuqing-news-yuqing.png")
     time.sleep(0.4)
     r = find("vwt-yuqing-news-all.png").below(80)
     click(r)
     wait("vwt-yuqing-news-details.png")
-    time.sleep(0.5)
+    time.sleep(0.8)
 
     click("vwt-yuqing-news-close.png")
     time.sleep(0.5)
