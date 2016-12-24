@@ -330,9 +330,12 @@ bool Rm(const std::string& specifier, bool recursive)
     }
     std::string path;
     if (pos != std::string::npos) {
-        path = specifier.substr(0, pos);
+        path = specifier.substr(0, pos + 1);
     }
-    path += '/';
+    else {
+        path += '.';
+        path += SPLASH;
+    }
 
     for (const auto& item : sub_items) {
         std::string sub_name(path);

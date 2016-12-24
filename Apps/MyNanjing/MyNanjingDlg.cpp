@@ -205,34 +205,70 @@ BOOL CMyNanjingDlg::OnBnClickedBtnTask_X(int num)
     return TRUE;
 }
 
-static string ExecuteCmd(string exe, string cmd)
+static string ReadStream(stream<file_descriptor_source>& is)
 {
-    boost::process::pipe p = create_pipe();
-
-    file_descriptor_sink sink(p.sink, close_handle);
-    execute(
-        run_exe(exe),
-#ifdef _WIN32
-        show_window(SW_HIDE),
-#endif
-        bind_stdout(sink),
-        set_cmd_line(cmd)
-    );
-
-    file_descriptor_source source(p.source, close_handle);
-    stream<file_descriptor_source> is(source);
     std::string s;
-    if (is.good() && !is.eof()) {
-        std::getline(is, s);
+    if (!is.bad() && is.good() && !is.eof() && !is.fail()) {
+        char buffer[255];
+        streamsize read = is.readsome(buffer, sizeof(buffer) - 1);
+        while (read > 0) {
+            buffer[read] = '\0';
+            s.resize(s.size() + read);
+            s += buffer;
+            read = is.readsome(buffer, sizeof(buffer) - 1);
+        }
     }
     return s;
+}
+
+struct ProcessOutput
+{
+    string std_out;
+    string std_err;
+};
+
+static ProcessOutput ExecuteCmd(string exe, string cmd)
+{
+    const string std_out_name = "stdout.txt";
+    const string std_err_name = "stderr.txt";
+    ProcessOutput po;
+
+    {
+        file_descriptor_sink sink_out(std_out_name);
+        file_descriptor_sink sink_err(std_err_name);
+
+        child c = execute(
+            run_exe(exe),
+            start_in_dir("."),
+            bind_stdout(sink_out),
+            bind_stderr(sink_err),
+#ifdef _WIN32
+            show_window(SW_HIDE),
+#endif
+            set_cmd_line(cmd)
+        );
+        auto exit_code = wait_for_exit(c);
+    }
+
+    util::ReadAllFromFile(std_out_name, po.std_out);
+    util::ReadAllFromFile(std_err_name, po.std_err);
+
+    util::Rm(std_out_name, false);
+    util::Rm(std_err_name, false);
+    return po;
 }
 
 // ADB Connect ...
 void CMyNanjingDlg::OnBnClickedBtnTask1()
 {
-    string cmd = ADB + " -s " + m_config.devices.front() + " shell input tap 246 236";
-    ExecuteCmd(m_config.adb, cmd);
+    auto response = ExecuteCmd(m_config.adb, ADB + " kill-server");
+
+    for (auto device : m_config.devices) {
+        response = ExecuteCmd(m_config.adb, ADB + " connect " + device);
+
+    }
+
+    response = ExecuteCmd(m_config.adb, ADB + " -s " + m_config.devices.front() + " shell input tap 246 236");
 }
 
 void CMyNanjingDlg::OnBnClickedBtnTask2()
