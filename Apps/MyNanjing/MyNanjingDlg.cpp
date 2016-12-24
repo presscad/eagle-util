@@ -17,17 +17,23 @@
 #endif
 
 
-using namespace utils;
+using namespace std;
+
+using namespace boost::process;
+using namespace boost::process::initializers;
+using namespace boost::iostreams;
+
+static const string ADB = "nox_adb";
 
 
 std::string GetIniPathName()
 {
-    std::string modulePathName = GetCurModulePathname();
-    std::string curDir = GetCurDirectory();
+    std::string modulePathName = utils::GetCurModulePathname();
+    std::string curDir = utils::GetCurDirectory();
     if (curDir.back() != '\\') {
         curDir += '\\';
     }
-    std::string pathname = curDir + GetFileTitle(modulePathName.c_str()) + ".ini";
+    std::string pathname = curDir + utils::GetFileTitle(modulePathName.c_str()) + ".ini";
     return pathname;
 }
 
@@ -87,12 +93,12 @@ BOOL CMyNanjingDlg::ReadSettings()
     m_tasks.resize(MAX_NUM_TASKS);
 
     std::string iniPath = GetIniPathName();
-    if (!FileExists(iniPath.c_str())) {
+    if (!utils::FileExists(iniPath.c_str())) {
         m_stcStatus.SetWindowTextA(("INI error: " + iniPath + " does not exist").c_str());
         return FALSE;
     }
 
-    CSimpleIni ini(iniPath.c_str());
+    utils::CSimpleIni ini(iniPath.c_str());
     m_config.adb = ini.GetString("Main", "adb", "");
     m_config.devices = util::StringSplit(ini.GetString("Main", "devices", ""), ',');
     if (m_config.devices.empty()) {
@@ -100,8 +106,7 @@ BOOL CMyNanjingDlg::ReadSettings()
         return FALSE;
     }
 
-    for (int i = 0; i < MAX_NUM_TASKS; i++)
-    {
+    for (int i = 0; i < MAX_NUM_TASKS; i++) {
         Task &task = m_tasks.at(i);
         CStringA section;
         section.Format("Task-%d", i + 1);
@@ -200,9 +205,34 @@ BOOL CMyNanjingDlg::OnBnClickedBtnTask_X(int num)
     return TRUE;
 }
 
+static string ExecuteCmd(string exe, string cmd)
+{
+    boost::process::pipe p = create_pipe();
+
+    file_descriptor_sink sink(p.sink, close_handle);
+    execute(
+        run_exe(exe),
+#ifdef _WIN32
+        show_window(SW_HIDE),
+#endif
+        bind_stdout(sink),
+        set_cmd_line(cmd)
+    );
+
+    file_descriptor_source source(p.source, close_handle);
+    stream<file_descriptor_source> is(source);
+    std::string s;
+    if (is.good() && !is.eof()) {
+        std::getline(is, s);
+    }
+    return s;
+}
+
+// ADB Connect ...
 void CMyNanjingDlg::OnBnClickedBtnTask1()
 {
-    OnBnClickedBtnTask_X(1);
+    string cmd = ADB + " -s " + m_config.devices.front() + " shell input tap 246 236";
+    ExecuteCmd(m_config.adb, cmd);
 }
 
 void CMyNanjingDlg::OnBnClickedBtnTask2()
@@ -214,10 +244,6 @@ void CMyNanjingDlg::OnBnClickedBtnTask3()
 {
     OnBnClickedBtnTask_X(3);
 }
-
-using namespace boost::process;
-using namespace boost::process::initializers;
-using namespace boost::iostreams;
 
 static boost::process::pipe create_async_pipe()
 {
@@ -237,11 +263,14 @@ static boost::process::pipe create_async_pipe()
 void CMyNanjingDlg::OnBnClickedBtnTask4()
 {
     for (auto device : m_config.devices) {
-        string cmd = "nox_adb -s " + device + " shell input tap 246 236";
-        
+        string cmd = ADB + " -s " + device + " shell input tap 246 236";
+
         boost::process::pipe p = create_async_pipe();
         execute(
             run_exe(m_config.adb),
+#ifdef _WIN32
+            show_window(SW_HIDE),
+#endif
             set_cmd_line(cmd)
         );
     }

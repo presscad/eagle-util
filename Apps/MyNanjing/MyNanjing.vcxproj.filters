@@ -30,6 +30,9 @@
     <Filter Include="Utils\All\common">
       <UniqueIdentifier>{00e510cd-d9c6-4446-9143-517d0285037c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="External\sqlite">
+      <UniqueIdentifier>{7296700e-f837-44ad-9d64-0cd93b10ab4e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -58,6 +61,9 @@
     </ClCompile>
     <ClCompile Include="..\..\utils\all\common\common_utils.cpp">
       <Filter>Utils\All\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\extern-libs\sqlite\sqlite3.c">
+      <Filter>External\sqlite</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -90,6 +96,9 @@
     </ClInclude>
     <ClInclude Include="..\..\utils\all\common\common_utils.h">
       <Filter>Utils\All\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\extern-libs\sqlite\sqlite3.h">
+      <Filter>External\sqlite</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

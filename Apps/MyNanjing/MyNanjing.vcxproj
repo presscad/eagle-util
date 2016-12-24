@@ -198,6 +198,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\..\..\extern-libs\sqlite\sqlite3.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4996</DisableSpecificWarnings>
+      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4996</DisableSpecificWarnings>
+    </ClCompile>
     <ClCompile Include="..\..\utils\all\common\common_utils.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
@@ -232,6 +238,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\extern-libs\iniparser\src\dictionary.h" />
     <ClInclude Include="..\..\..\extern-libs\iniparser\src\iniparser.h" />
+    <ClInclude Include="..\..\..\extern-libs\sqlite\sqlite3.h" />
     <ClInclude Include="..\..\utils\all\common\common_utils.h" />
     <ClInclude Include="..\..\utils\win\Basic\FileUtil.h" />
     <ClInclude Include="..\..\utils\win\Basic\StrUtil.h" />
