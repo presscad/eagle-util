@@ -11,6 +11,7 @@
 #include <vector>
 #include <memory>
 #include "common/common_utils.h"
+#include "common/csv_reader.hpp"
 
 namespace util {
 namespace csv_tuple {
@@ -1026,13 +1027,13 @@ template<typename... Args>
 bool CsvToTuples(const std::string& csv_pathname, char delimiter,
     std::vector<std::tuple<Args...> >& tuples, std::string& err)
 {
-    std::ifstream in(csv_pathname.c_str());
-    if (!in.good()) {
-        err = "Error in opening file \"" + csv_pathname + "\"";
+    std::shared_ptr<util::csv_reader> cr(util::get_csv_reader(csv_pathname));
+    if (cr == nullptr || !cr->good()) {
+        err = "CsvToTuples: error in opening file \"" + csv_pathname + "\"";
         return false;
     }
 
-    return CsvToTuples(in, delimiter, tuples, err);
+    return CsvToTuples(cr->get_istream(), delimiter, tuples, err);
 }
 
 template<typename... Args>
@@ -1077,13 +1078,13 @@ bool CsvToTuplesSelectedCols(const std::string& csv_pathname, char delimiter,
     const std::vector<int>& selected_cols, std::vector<std::tuple<Args...> >& tuples,
     std::string& err)
 {
-    std::ifstream in(csv_pathname.c_str());
-    if (!in.good()) {
-        err = "Error in opening file \"" + csv_pathname + "\"";
+    std::shared_ptr<csv_reader> cr(util::get_csv_reader(csv_pathname));
+    if (cr == nullptr || !cr->good()) {
+        err = "CsvToTuplesSelectedCols: error in opening file \"" + csv_pathname + "\"";
         return false;
     }
 
-    return CsvToTuplesSelectedCols(in, delimiter, selected_cols, tuples, err);
+    return CsvToTuplesSelectedCols(cr->get_istream(), delimiter, selected_cols, tuples, err);
 }
 
 template<typename... Args>

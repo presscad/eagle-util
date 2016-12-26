@@ -59,6 +59,7 @@ typedef struct TIME_STRUCT
 } TIME_STRUCT;
 
 void GetCurTimestamp(TIMESTAMP_STRUCT &st);
+std::string GetCurTimestampStr(bool with_fraction);
 std::time_t TimestampToTime(const TIMESTAMP_STRUCT &st);
 std::time_t GetCurTimeT();
 void TimeToTimestamp(std::time_t tt, TIMESTAMP_STRUCT &st);
