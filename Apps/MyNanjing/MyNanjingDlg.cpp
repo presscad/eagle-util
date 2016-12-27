@@ -205,43 +205,18 @@ BOOL CMyNanjingDlg::OnBnClickedBtnTask_X(int num)
     return TRUE;
 }
 
-static string ReadStream(stream<file_descriptor_source>& is)
+static string ExecuteCmd(string exe, string cmd)
 {
-    std::string s;
-    if (!is.bad() && is.good() && !is.eof() && !is.fail()) {
-        char buffer[255];
-        streamsize read = is.readsome(buffer, sizeof(buffer) - 1);
-        while (read > 0) {
-            buffer[read] = '\0';
-            s.resize(s.size() + read);
-            s += buffer;
-            read = is.readsome(buffer, sizeof(buffer) - 1);
-        }
-    }
-    return s;
-}
-
-struct ProcessOutput
-{
-    string std_out;
-    string std_err;
-};
-
-static ProcessOutput ExecuteCmd(string exe, string cmd)
-{
-    const string std_out_name = "stdout.txt";
-    const string std_err_name = "stderr.txt";
-    ProcessOutput po;
+    CWaitCursor wait;
+    const string std_out_name = "~stdout.txt";
 
     {
         file_descriptor_sink sink_out(std_out_name);
-        file_descriptor_sink sink_err(std_err_name);
-
         child c = execute(
             run_exe(exe),
             start_in_dir("."),
             bind_stdout(sink_out),
-            bind_stderr(sink_err),
+            bind_stderr(sink_out),
 #ifdef _WIN32
             show_window(SW_HIDE),
 #endif
@@ -250,25 +225,52 @@ static ProcessOutput ExecuteCmd(string exe, string cmd)
         auto exit_code = wait_for_exit(c);
     }
 
-    util::ReadAllFromFile(std_out_name, po.std_out);
-    util::ReadAllFromFile(std_err_name, po.std_err);
-
+    string std_out;
+    util::ReadAllFromFile(std_out_name, std_out);
     util::Rm(std_out_name, false);
-    util::Rm(std_err_name, false);
-    return po;
+    return std_out;
+}
+
+static void AppendTextToEditCtrl(CEdit& edit, string text)
+{
+    util::StringReplace(text, "\n", "\r\n");
+
+    // add CR/LF to text
+    CString strLine;
+    strLine.Format(_T("%s\r\n"), text.c_str());
+
+    // get the initial text length
+    int nLength = edit.GetWindowTextLength();
+    // put the selection at the end of text
+    edit.SetSel(nLength, nLength);
+    // replace the selection
+    edit.ReplaceSel(strLine);
+}
+
+static void ClearEditCtrl(CEdit& edit)
+{
+    edit.SetWindowTextA("");
+    AppendTextToEditCtrl(edit, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+    edit.SetWindowTextA("");
 }
 
 // ADB Connect ...
 void CMyNanjingDlg::OnBnClickedBtnTask1()
 {
-    auto response = ExecuteCmd(m_config.adb, ADB + " kill-server");
+    ClearEditCtrl(m_edResult);
+
+    string cmd = ADB + " kill-server";
+    AppendTextToEditCtrl(m_edResult, "> " + cmd);
+
+    auto response = ExecuteCmd(m_config.adb, cmd);
+    AppendTextToEditCtrl(m_edResult, response);
 
     for (auto device : m_config.devices) {
-        response = ExecuteCmd(m_config.adb, ADB + " connect " + device);
-
+        cmd = ADB + " connect " + device;
+        AppendTextToEditCtrl(m_edResult, "> " + cmd);
+        response = ExecuteCmd(m_config.adb, cmd);
+        AppendTextToEditCtrl(m_edResult, response);
     }
-
-    response = ExecuteCmd(m_config.adb, ADB + " -s " + m_config.devices.front() + " shell input tap 246 236");
 }
 
 void CMyNanjingDlg::OnBnClickedBtnTask2()
