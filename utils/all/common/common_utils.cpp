@@ -1611,7 +1611,7 @@ std::wstring& StrToWStr(const std::string& str, std::wstring& wstr)
     if (in == nullptr)
         return wstr;
 
-    unsigned int codepoint;
+    unsigned int codepoint = 0;
     while (*in != 0) {
         unsigned char ch = static_cast<unsigned char>(*in);
         if (ch <= 0x7f) {
