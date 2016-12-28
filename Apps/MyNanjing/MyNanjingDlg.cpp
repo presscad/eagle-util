@@ -210,7 +210,7 @@ static string ExecuteCmd(string exe, string cmd)
     CWaitCursor wait;
     const string std_out_name = "~stdout.txt";
 
-    {
+    try {
         file_descriptor_sink sink_out(std_out_name);
         child c = execute(
             run_exe(exe),
@@ -222,7 +222,15 @@ static string ExecuteCmd(string exe, string cmd)
 #endif
             set_cmd_line(cmd)
         );
-        auto exit_code = wait_for_exit(c);
+        if (c.process_handle()) {
+            wait_for_exit(c);
+        }
+        else {
+            return "[ERROR] invalid process handle returned";
+        }
+    }
+    catch (const exception& e) {
+        return string("[ERROR] ") + e.what();
     }
 
     string std_out;
