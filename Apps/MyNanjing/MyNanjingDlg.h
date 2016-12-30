@@ -68,4 +68,5 @@ public:
     CMFCButton m_btnTask2;
     CMFCButton m_btnTask3;
     CMFCButton m_btnTask4;
+    afx_msg void OnDestroy();
 };

@@ -66,6 +66,8 @@ BEGIN_MESSAGE_MAP(CMyNanjingDlg, CDialog)
     ON_BN_CLICKED(IDC_BTN_TASK3, OnBnClickedBtnTask3)
     ON_BN_CLICKED(IDC_BTN_TASK4, OnBnClickedBtnTask4)
     ON_WM_TIMER()
+    ON_WM_CLOSE()
+    ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -226,11 +228,11 @@ static string ExecuteCmd(string exe, string cmd)
             wait_for_exit(c);
         }
         else {
-            return "[ERROR] invalid process handle returned";
+            return "error: invalid process handle returned";
         }
     }
     catch (const exception& e) {
-        return string("[ERROR] ") + e.what();
+        return string("error: ") + e.what();
     }
 
     string std_out;
@@ -269,8 +271,7 @@ void CMyNanjingDlg::OnBnClickedBtnTask1()
 
     string cmd = ADB + " kill-server";
     AppendTextToEditCtrl(m_edResult, "> " + cmd);
-
-    auto response = ExecuteCmd(m_config.adb, cmd);
+    string response = ExecuteCmd(m_config.adb, cmd);
     AppendTextToEditCtrl(m_edResult, response);
 
     for (auto device : m_config.devices) {
@@ -281,9 +282,26 @@ void CMyNanjingDlg::OnBnClickedBtnTask1()
     }
 }
 
+static string UpdateTodayStep(string db_pathname)
+{
+    return "";
+}
+
+// copy db to local, modify and copy to device
 void CMyNanjingDlg::OnBnClickedBtnTask2()
 {
-    OnBnClickedBtnTask_X(2);
+    ClearEditCtrl(m_edResult);
+    string cmd = ADB + " -s " + m_config.devices.front() + " pull /data/data/com.hoperun.intelligenceportal/databases/step.db ~step.db";
+    AppendTextToEditCtrl(m_edResult, "> " + cmd);
+    string response = ExecuteCmd(m_config.adb, cmd);
+    AppendTextToEditCtrl(m_edResult, response);
+    if (response.find("error:") != string::npos) {
+        return;
+    }
+
+
+
+    //util::Rm("~step.db", false);
 }
 
 void CMyNanjingDlg::OnBnClickedBtnTask3()
@@ -320,4 +338,12 @@ void CMyNanjingDlg::OnBnClickedBtnTask4()
             set_cmd_line(cmd)
         );
     }
+}
+
+void CMyNanjingDlg::OnDestroy()
+{
+    CDialog::OnDestroy();
+
+    ExecuteCmd(m_config.adb, ADB + " kill-server");
+    util::Rm("~step.db", false);
 }
