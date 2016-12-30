@@ -11,6 +11,8 @@
 #include "common/common_utils.h"
 #include <boost/process.hpp>
 #include <boost/iostreams/stream.hpp>
+#include <SQLiteCpp/SQLiteCpp.h>
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -284,6 +286,12 @@ void CMyNanjingDlg::OnBnClickedBtnTask1()
 
 static string UpdateTodayStep(string db_pathname)
 {
+    try {
+        SQLite::Database db(db_pathname, SQLite::OPEN_READWRITE);
+    }
+    catch (std::exception& e) {
+        return string("error: ") + e.what();
+    }
     return "";
 }
 

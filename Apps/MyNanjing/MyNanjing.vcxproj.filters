@@ -30,8 +30,14 @@
     <Filter Include="Utils\All\common">
       <UniqueIdentifier>{00e510cd-d9c6-4446-9143-517d0285037c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="External\sqlite">
+    <Filter Include="External\SQLiteCpp">
       <UniqueIdentifier>{7296700e-f837-44ad-9d64-0cd93b10ab4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\SQLiteCpp\sqlite3">
+      <UniqueIdentifier>{35862008-481e-4df1-86a6-de9682b43dba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\SQLiteCpp\src">
+      <UniqueIdentifier>{132ff5c4-5fb1-447e-aa03-8539cf8fb227}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -62,8 +68,26 @@
     <ClCompile Include="..\..\utils\all\common\common_utils.cpp">
       <Filter>Utils\All\common</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\extern-libs\sqlite\sqlite3.c">
-      <Filter>External\sqlite</Filter>
+    <ClCompile Include="..\..\..\extern-libs\SQLiteCpp\sqlite3\sqlite3.c">
+      <Filter>External\SQLiteCpp\sqlite3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\extern-libs\SQLiteCpp\src\Backup.cpp">
+      <Filter>External\SQLiteCpp\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\extern-libs\SQLiteCpp\src\Column.cpp">
+      <Filter>External\SQLiteCpp\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\extern-libs\SQLiteCpp\src\Database.cpp">
+      <Filter>External\SQLiteCpp\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\extern-libs\SQLiteCpp\src\Exception.cpp">
+      <Filter>External\SQLiteCpp\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\extern-libs\SQLiteCpp\src\Statement.cpp">
+      <Filter>External\SQLiteCpp\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\extern-libs\SQLiteCpp\src\Transaction.cpp">
+      <Filter>External\SQLiteCpp\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -97,8 +121,8 @@
     <ClInclude Include="..\..\utils\all\common\common_utils.h">
       <Filter>Utils\All\common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\extern-libs\sqlite\sqlite3.h">
-      <Filter>External\sqlite</Filter>
+    <ClInclude Include="..\..\..\extern-libs\SQLiteCpp\sqlite3\sqlite3.h">
+      <Filter>External\SQLiteCpp\sqlite3</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
