@@ -292,7 +292,7 @@ static string TodayAsStr()
     return (const char *)str;
 }
 
-static string RandomSteps()
+static string RandomStepsStr()
 {
     std::srand((unsigned)std::time(0));
     return to_string(21000 + std::rand() % 5000);
@@ -307,7 +307,7 @@ static string UpdateTodayStep(string db_pathname)
         SQLite::Database db(db_pathname, SQLite::OPEN_READWRITE);
 
         try {
-            auto col_steps = db.execAndGet("SELECT steps FROM stepinfo WHERE curdate=" + today_str);
+            auto col_steps = db.execAndGet("SELECT steps FROM stepinfo WHERE curdate=\'" + today_str + "\'");
             if (!col_steps.isNull()) {
                 n_steps = col_steps.getInt();
             }
@@ -316,9 +316,13 @@ static string UpdateTodayStep(string db_pathname)
 
         if (-1 == n_steps) {
             // insert new entry
+            string sql = string("INSERT INTO stepinfo (steps, curdate) VALUES (") + RandomStepsStr() + ", \'" + today_str + "\')";
+            db.exec(sql);
         }
         else if (n_steps < 20000) {
             // update existing entry
+            string sql = "UPDATE stepinfo SET steps = " + RandomStepsStr() + " WHERE curdate = '" + today_str + "\'";
+            db.exec(sql);
         }
     }
     catch (std::exception& e) {
@@ -346,7 +350,14 @@ void CMyNanjingDlg::OnBnClickedBtnTask2()
         return;
     }
 
-    //util::Rm("~step.db", false);
+    for (auto device : m_config.devices) {
+        string cmd = ADB + " -s " + device + " push ~step.db /data/data/com.hoperun.intelligenceportal/databases/step.db";
+        AppendTextToEditCtrl(m_edResult, "> " + cmd);
+        string response = ExecuteCmd(m_config.adb, cmd);
+        AppendTextToEditCtrl(m_edResult, response);
+    }
+
+    util::Rm("~step.db", false);
 }
 
 void CMyNanjingDlg::OnBnClickedBtnTask3()
