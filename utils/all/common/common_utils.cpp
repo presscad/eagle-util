@@ -395,12 +395,20 @@ void GetCurTimestamp(TIMESTAMP_STRUCT &st)
     st.fraction = 0;
 }
 
+TIMESTAMP_STRUCT GetCurTimestamp()
+{
+    TIMESTAMP_STRUCT ts;
+    GetCurTimestamp(ts);
+    return ts;
+}
+
 std::string GetCurTimestampStr(bool with_fraction)
 {
     TIMESTAMP_STRUCT ts;
     GetCurTimestamp(ts);
     return TimestampToStr(ts, with_fraction);
 }
+
 void TimeToTimestamp(std::time_t tt, TIMESTAMP_STRUCT &ts)
 {
     struct tm stm;

@@ -284,10 +284,42 @@ void CMyNanjingDlg::OnBnClickedBtnTask1()
     }
 }
 
+static string TodayAsStr()
+{
+    auto ts = util::GetCurTimestamp();
+    CStringA str;
+    str.Format("%04d-%02u-%02u", ts.year, ts.month, ts.day);
+    return (const char *)str;
+}
+
+static string RandomSteps()
+{
+    std::srand((unsigned)std::time(0));
+    return to_string(21000 + std::rand() % 5000);
+}
+
 static string UpdateTodayStep(string db_pathname)
 {
+    string today_str = TodayAsStr();
+    int n_steps = -1;
+
     try {
         SQLite::Database db(db_pathname, SQLite::OPEN_READWRITE);
+
+        try {
+            auto col_steps = db.execAndGet("SELECT steps FROM stepinfo WHERE curdate=" + today_str);
+            if (!col_steps.isNull()) {
+                n_steps = col_steps.getInt();
+            }
+        }
+        catch (std::exception&) {} // no rows case
+
+        if (-1 == n_steps) {
+            // insert new entry
+        }
+        else if (n_steps < 20000) {
+            // update existing entry
+        }
     }
     catch (std::exception& e) {
         return string("error: ") + e.what();
@@ -307,7 +339,12 @@ void CMyNanjingDlg::OnBnClickedBtnTask2()
         return;
     }
 
-
+    AppendTextToEditCtrl(m_edResult, "> UpdateTodayStep ...");
+    response = UpdateTodayStep("~step.db");
+    AppendTextToEditCtrl(m_edResult, response);
+    if (response.find("error:") != string::npos) {
+        return;
+    }
 
     //util::Rm("~step.db", false);
 }
