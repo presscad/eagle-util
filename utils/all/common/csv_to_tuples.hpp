@@ -989,7 +989,8 @@ bool CsvToTuplesLimited(std::istream& in, char delimiter, std::vector<std::tuple
     size_t n_lines = 0;
     std::tuple<Args...> tp;
     while (util::GetLine(in, line)) {
-        if (line[0] == '#') { // ignore comment
+        util::TrimString(line);
+        if (line.empty() || line[0] == '#') { // ignore comment
             continue;
         }
 
@@ -1056,7 +1057,8 @@ bool CsvToTuplesSelectedCols(std::istream& in, char delimiter,
 
     std::tuple<Args...> tp;
     while (util::GetLine(in, line)) {
-        if (line[0] == '#') { // ignore comment
+        util::TrimString(line);
+        if (line.empty() || line[0] == '#') { // ignore comment
             continue;
         }
 
@@ -1095,16 +1097,16 @@ bool TuplesToCsv(const std::string& head, std::vector<std::tuple<Args...>>& tupl
         out << head << std::endl;
     }
 
-    const size_t buff_size = 1024 * 8;
+    const size_t buff_limit = 1024 * 8;
     std::string line;
     std::string buff;
-    buff.reserve(buff_size + 256);
+    buff.reserve(buff_limit + 256);
 
     for (auto& t : tuples) {
         csv_tuple::FillLine(t, delimiter, line);
         buff += line;
         buff += '\n';
-        if (buff.length() > buff_size) {
+        if (buff.length() > buff_limit) {
             out << buff;
             buff.clear();
         }
@@ -1120,7 +1122,7 @@ template<typename... Args>
 bool TuplesToCsv(const std::string& head, std::vector<std::tuple<Args...> >& tuples,
     const std::string& csv_pathname, char delimiter, std::string& err)
 {
-    std::ofstream out(csv_pathname.c_str());
+    std::ofstream out(csv_pathname.c_str(), std::ios_base::binary | std::ios_base::out);
     if (!out.good()) {
         err = "Error in opening file \"" + csv_pathname + "\"";
         return false;
@@ -1148,7 +1150,8 @@ bool TuplesToCsvs(const std::string &head, std::vector<std::tuple<Args...>> &tup
 
     std::vector<std::shared_ptr<std::ofstream>> outs;
     for (auto& csv_pathname : csv_pathnames) {
-        auto out = std::make_shared<std::ofstream>(csv_pathname.c_str());
+        auto out = std::make_shared<std::ofstream>(csv_pathname.c_str(),
+            std::ios_base::binary | std::ios_base::out);
         if (!out->good()) {
             err = "Error in opening file \"" + csv_pathname + "\"";
             return false;
@@ -1160,13 +1163,13 @@ bool TuplesToCsvs(const std::string &head, std::vector<std::tuple<Args...>> &tup
     }
 
 
-    const size_t buff_size = 1024 * 8;
+    const size_t buff_limit = 1024 * 8;
     std::vector<std::string> lines;
     std::vector<std::string> buffs;
     lines.resize(csv_pathnames.size());
     buffs.resize(csv_pathnames.size());
     for (auto &buff : buffs) {
-        buff.reserve(buff_size + 256);
+        buff.reserve(buff_limit + 256);
     }
 
     for (auto &t : tuples) {
@@ -1178,8 +1181,9 @@ bool TuplesToCsvs(const std::string &head, std::vector<std::tuple<Args...>> &tup
         auto &buff = buffs[i];
 
         csv_tuple::FillLine(t, delimiter, line);
-        buff += line + '\n';
-        if (buff.length() > buff_size) {
+        buff += line;
+        buff += '\n';
+        if (buff.length() > buff_limit) {
             *outs[i] << buff;
             buff.clear();
         }

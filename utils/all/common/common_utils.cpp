@@ -24,6 +24,8 @@
 #  include <boost/xpressive/xpressive.hpp>
 #endif
 
+using namespace std;
+
 #ifdef _WIN32
 extern "C" WINBASEAPI ULONGLONG WINAPI GetTickCount64(void);
 #endif
@@ -36,7 +38,7 @@ static const char SPLASH = '\\', OTHER_SPLASH = '/';
 static const char SPLASH = '/', OTHER_SPLASH = '\\';
 #endif
 
-std::string GetCurrentPath()
+string GetCurrentPath()
 {
 #ifdef _WIN32
     TCHAR path[MAX_PATH];
@@ -47,11 +49,11 @@ std::string GetCurrentPath()
     if (NULL != ::getcwd(cwd, sizeof(cwd))) {
     return cwd;
     }
-    return std::string();
+    return string();
 #endif
 }
 
-bool GetFileModifyTime(const char *path, std::time_t& mtime)
+bool GetFileModifyTime(const char *path, time_t& mtime)
 {
     struct stat statbuf;
     if (stat(path, &statbuf) == -1) {
@@ -61,20 +63,20 @@ bool GetFileModifyTime(const char *path, std::time_t& mtime)
     return true;
 }
 
-bool FileExists(const std::string& file_path)
+bool FileExists(const string& file_path)
 {
-    std::ifstream file(file_path);
+    ifstream file(file_path);
     return file.good();
 }
 
-long long FileSize(const std::string& file_path)
+long long FileSize(const string& file_path)
 {
-    std::ifstream file(file_path, std::ios::binary | std::ios::ate);
+    ifstream file(file_path, ios::binary | ios::ate);
     return (long long)file.tellg();
 }
 
 
-static std::string WildcardsToRegex(std::string wildcard_pattern)
+static string WildcardsToRegex(string wildcard_pattern)
 {
     // Escape all regex special chars
     StringReplace(wildcard_pattern, "\\", "\\\\");
@@ -98,8 +100,8 @@ static std::string WildcardsToRegex(std::string wildcard_pattern)
     return wildcard_pattern;
 }
 
-static bool GetSubsInDir(std::string directory, const std::string& specifier,
-    std::vector<std::tuple<std::string, bool>>& items)
+static bool GetSubsInDir(string directory, const string& specifier,
+    vector<tuple<string, bool>>& items)
 {
     if (directory.back() == SPLASH || directory.back() == OTHER_SPLASH) {
         directory.pop_back();
@@ -115,7 +117,7 @@ static bool GetSubsInDir(std::string directory, const std::string& specifier,
                 continue;
             }
             bool is_dir = (data.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY);
-            items.push_back(std::make_tuple(data.cFileName, is_dir));
+            items.push_back(make_tuple(data.cFileName, is_dir));
         } while (::FindNextFileA(h, &data));
         ::FindClose(h);
     }
@@ -128,8 +130,8 @@ static bool GetSubsInDir(std::string directory, const std::string& specifier,
     class stat st;
 
     boost::xpressive::sregex rex;
-    const bool with_wildcards = specifier.find('*') != std::string::npos ||
-        specifier.find('?') != std::string::npos;
+    const bool with_wildcards = specifier.find('*') != string::npos ||
+        specifier.find('?') != string::npos;
     if (with_wildcards) {
         rex = boost::xpressive::sregex::compile(WildcardsToRegex(specifier));
     }
@@ -138,7 +140,7 @@ static bool GetSubsInDir(std::string directory, const std::string& specifier,
     if (NULL == dir) {
         return false;
     }
-    std::string file_name, full_file_name;
+    string file_name, full_file_name;
     while ((ent = readdir(dir)) != NULL) {
         file_name = ent->d_name;
         full_file_name = directory + SPLASH + file_name;
@@ -153,11 +155,11 @@ static bool GetSubsInDir(std::string directory, const std::string& specifier,
 
         if (with_wildcards) {
             if (boost::xpressive::regex_match(file_name, rex)) {
-                items.push_back(std::make_tuple(file_name, is_dir));
+                items.push_back(make_tuple(file_name, is_dir));
             }
         }
         else {
-            items.push_back(std::make_tuple(file_name, is_dir));
+            items.push_back(make_tuple(file_name, is_dir));
             // no need to continue the loop
             break;
         }
@@ -167,8 +169,9 @@ static bool GetSubsInDir(std::string directory, const std::string& specifier,
 
     return true;
 }
-bool FindFiles(const std::string& path_specifier,
-    std::vector<std::tuple<std::string, bool>>& items)
+
+// path_specifier: e.g., abc/*.*, tuple: (file name/dir name, is directory)
+bool FindFiles(const string& path_specifier, vector<tuple<string, bool>>& items)
 {
     items.clear();
     auto path_spec = path_specifier;
@@ -182,8 +185,8 @@ bool FindFiles(const std::string& path_specifier,
     // get all the sub files/dirs in the folder
     util::StringReplaceChar(path_spec, OTHER_SPLASH, SPLASH);
     auto f = path_spec.rfind(SPLASH);
-    std::string directory, specifier;
-    if (f == std::string::npos) {
+    string directory, specifier;
+    if (f == string::npos) {
         directory = ".";
         specifier = path_spec;
     }
@@ -194,24 +197,24 @@ bool FindFiles(const std::string& path_specifier,
     return GetSubsInDir(directory, specifier, items);
 }
 
-bool FindFiles(const std::string& path_specifier, std::vector<std::string>& filenames)
+bool FindFiles(const string& path_specifier, vector<string>& filenames)
 {
-    std::vector<std::tuple<std::string, bool> > sub_items;
+    vector<tuple<string, bool>> sub_items;
     if (false == FindFiles(path_specifier, sub_items)) {
         return false;
     }
 
     filenames.clear();
     for (const auto& item : sub_items) {
-        if (std::get<1>(item) == false) {
-            filenames.push_back(std::get<0>(item));
+        if (get<1>(item) == false) {
+            filenames.push_back(get<0>(item));
         }
     }
     return true;
 }
 
-bool GetSubsInFolder(const std::string& pathname,
-    std::vector<std::tuple<std::string, bool>>& sub_items)
+bool GetSubsInFolder(const string& pathname,
+    vector<tuple<string, bool>>& sub_items)
 {
     if (pathname.empty() || pathname.back() == SPLASH || pathname.back() == OTHER_SPLASH) {
         return FindFiles(pathname + "*.*", sub_items);
@@ -221,26 +224,26 @@ bool GetSubsInFolder(const std::string& pathname,
     }
 }
 
-bool GetFilesInFolder(const std::string& pathname, std::vector<std::string>& filenames)
+bool GetFilesInFolder(const string& pathname, vector<string>& filenames)
 {
-    std::vector<std::tuple<std::string, bool> > sub_items;
+    vector<tuple<string, bool>> sub_items;
     if (false == GetSubsInFolder(pathname, sub_items)) {
         return false;
     }
 
     filenames.clear();
     for (const auto& item : sub_items) {
-        if (std::get<1>(item) == false) {
-            filenames.push_back(std::get<0>(item));
+        if (get<1>(item) == false) {
+            filenames.push_back(get<0>(item));
         }
     }
     return true;
 }
 
-bool GetPathnamesInFolder(const std::string& folder_pathname,
-    std::vector<std::string>& pathnames)
+bool GetPathnamesInFolder(const string& folder_pathname,
+    vector<string>& pathnames)
 {
-    std::vector<std::string> names;
+    vector<string> names;
     if (false == GetFilesInFolder(folder_pathname, names)) {
         return false;
     }
@@ -250,7 +253,7 @@ bool GetPathnamesInFolder(const std::string& folder_pathname,
         pathnames.swap(names);
     }
     else {
-        std::string path(folder_pathname);
+        string path(folder_pathname);
         path.resize(p - folder_pathname.c_str() + 1);
 
         pathnames.clear();
@@ -262,7 +265,7 @@ bool GetPathnamesInFolder(const std::string& folder_pathname,
     return true;
 }
 
-bool DirExists(const std::string& pathname)
+bool DirExists(const string& pathname)
 {
     struct stat info;
     if (stat(pathname.c_str(), &info) != 0) {
@@ -271,7 +274,7 @@ bool DirExists(const std::string& pathname)
     return (info.st_mode & S_IFDIR) ? true : false;
 }
 
-bool MakeDir(const std::string& pathname)
+bool MakeDir(const string& pathname)
 {
 #ifdef _WIN32
     return 0 == _mkdir(pathname.c_str());
@@ -280,19 +283,19 @@ bool MakeDir(const std::string& pathname)
 #endif
 }
 
-bool RmDir(const std::string& pathname, bool recursive)
+bool RmDir(const string& pathname, bool recursive)
 {
     if (recursive) {
-        std::vector<std::tuple<std::string, bool> > sub_items;
+        vector<tuple<string, bool>> sub_items;
         if (false == GetSubsInFolder(pathname, sub_items)) {
             return false;
         }
 
         for (const auto& item : sub_items) {
-            std::string sub_name(pathname + '/');
-            sub_name += std::get<0>(item);
+            string sub_name(pathname + '/');
+            sub_name += get<0>(item);
 
-            if (std::get<1>(item) == true) {
+            if (get<1>(item) == true) {
                 // sub folder
                 RmDir(sub_name, true);
             }
@@ -313,9 +316,9 @@ bool RmDir(const std::string& pathname, bool recursive)
 }
 
 // Remove files/folders, specifier: file specifier with *, ?
-bool Rm(const std::string& specifier, bool recursive)
+bool Rm(const string& specifier, bool recursive)
 {
-    std::vector<std::tuple<std::string, bool> > sub_items;
+    vector<tuple<string, bool>> sub_items;
     if (false == FindFiles(specifier, sub_items)) {
         return false;
     }
@@ -325,11 +328,11 @@ bool Rm(const std::string& specifier, bool recursive)
 
     // get the path part. e.g., "abc/def*.*" => "abc/"
     auto pos = specifier.rfind(SPLASH);
-    if (pos == std::string::npos) {
+    if (pos == string::npos) {
         pos = specifier.rfind(OTHER_SPLASH);
     }
-    std::string path;
-    if (pos != std::string::npos) {
+    string path;
+    if (pos != string::npos) {
         path = specifier.substr(0, pos + 1);
     }
     else {
@@ -338,10 +341,10 @@ bool Rm(const std::string& specifier, bool recursive)
     }
 
     for (const auto& item : sub_items) {
-        std::string sub_name(path);
-        sub_name += std::get<0>(item);
+        string sub_name(path);
+        sub_name += get<0>(item);
 
-        if (std::get<1>(item) == true) {
+        if (get<1>(item) == true) {
             // sub folder
             RmDir(sub_name, recursive);
         }
@@ -377,7 +380,7 @@ unsigned long long GetTimeInMs64()
 
 void GetCurTimestamp(TIMESTAMP_STRUCT &st)
 {
-    std::time_t t;
+    time_t t;
     time(&t);
     struct tm stm;
 #ifdef _WIN32
@@ -402,14 +405,14 @@ TIMESTAMP_STRUCT GetCurTimestamp()
     return ts;
 }
 
-std::string GetCurTimestampStr(bool with_fraction)
+string GetCurTimestampStr(bool with_fraction)
 {
     TIMESTAMP_STRUCT ts;
     GetCurTimestamp(ts);
     return TimestampToStr(ts, with_fraction);
 }
 
-void TimeToTimestamp(std::time_t tt, TIMESTAMP_STRUCT &ts)
+void TimeToTimestamp(time_t tt, TIMESTAMP_STRUCT &ts)
 {
     struct tm stm;
     TimeToTM(tt, stm);
@@ -423,7 +426,7 @@ void TimeToTimestamp(std::time_t tt, TIMESTAMP_STRUCT &ts)
     ts.fraction = 0;
 }
 
-void TimeToTM(std::time_t tt, std::tm& stm)
+void TimeToTM(time_t tt, tm& stm)
 {
 #ifdef _WIN32
     localtime_s(&stm, &tt);
@@ -432,14 +435,14 @@ void TimeToTM(std::time_t tt, std::tm& stm)
 #endif
 }
 
-std::tm TimeToTM(std::time_t tt)
+tm TimeToTM(time_t tt)
 {
-    std::tm stm;
+    tm stm;
     TimeToTM(tt, stm);
     return stm;
 }
 
-std::time_t TimestampToTime(const TIMESTAMP_STRUCT &st)
+time_t TimestampToTime(const TIMESTAMP_STRUCT &st)
 {
     struct tm sourcedate;
     memset(&sourcedate, 0, sizeof(sourcedate));
@@ -453,13 +456,14 @@ std::time_t TimestampToTime(const TIMESTAMP_STRUCT &st)
     return mktime(&sourcedate);
 }
 
-std::time_t GetCurTimeT()
+time_t GetCurTimeT()
 {
     TIMESTAMP_STRUCT tm_struct;
     GetCurTimestamp(tm_struct);
     return TimestampToTime(tm_struct);
 }
-std::string& TimestampToStr(const TIMESTAMP_STRUCT &st, bool with_fraction, std::string& str)
+
+string& TimestampToStr(const TIMESTAMP_STRUCT &st, bool with_fraction, string& str)
 {
     char buff[128];
     if (with_fraction) {
@@ -474,13 +478,13 @@ std::string& TimestampToStr(const TIMESTAMP_STRUCT &st, bool with_fraction, std:
     return str;
 }
 
-std::string TimestampToStr(const TIMESTAMP_STRUCT &st, bool with_fraction)
+string TimestampToStr(const TIMESTAMP_STRUCT &st, bool with_fraction)
 {
-    std::string str;
+    string str;
     return TimestampToStr(st, with_fraction, str);
 }
 
-bool StrToTimestamp(const std::string &s, TIMESTAMP_STRUCT &v)
+bool StrToTimestamp(const string &s, TIMESTAMP_STRUCT &v)
 {
     if (s.empty()) return false;
 
@@ -529,13 +533,13 @@ bool StrToTimestamp(const std::string &s, TIMESTAMP_STRUCT &v)
     return false;
 }
 
-std::string TimeTToStr(std::time_t tm)
+string TimeTToStr(time_t tm)
 {
-    std::string str;
+    string str;
     return TimeTToStr(tm, str);
 }
 
-std::string& TimeTToStr(std::time_t tm, std::string& str)
+string& TimeTToStr(time_t tm, string& str)
 {
     util::TIMESTAMP_STRUCT ts;
     util::TimeToTimestamp(tm, ts);
@@ -547,7 +551,7 @@ std::string& TimeTToStr(std::time_t tm, std::string& str)
     return str;
 }
 
-std::time_t StrToTimeT(const std::string &str)
+time_t StrToTimeT(const string &str)
 {
     TIMESTAMP_STRUCT timestamp;
     if (false == StrToTimestamp(str, timestamp)) {
@@ -555,9 +559,10 @@ std::time_t StrToTimeT(const std::string &str)
     }
     return TimestampToTime(timestamp);
 }
+
 long LocalUtcTimeDiff()
 {
-    std::time_t secs;
+    time_t secs;
     time(&secs);  // Current time in GMT
 
 #ifdef _WIN32
@@ -568,13 +573,13 @@ long LocalUtcTimeDiff()
     struct tm *tptr = localtime(&secs);
 #endif
 
-    std::time_t local_secs = mktime(tptr);
+    time_t local_secs = mktime(tptr);
 #ifdef _WIN32
     gmtime_s(tptr, &secs);
 #else
     tptr = gmtime(&secs);
 #endif
-    std::time_t gmt_secs = mktime(tptr);
+    time_t gmt_secs = mktime(tptr);
     long diff_secs = long(local_secs - gmt_secs);
     return diff_secs;
 }
@@ -587,7 +592,7 @@ static inline bool isLeapYearAbap(int year)
     return year % 4 == 0 && (year <= 1582 || year % 100 != 0 || year % 400 == 0);
 }
 
-bool ParseTimestamp(const std::string &s, TIMESTAMP_STRUCT &timestamp)
+bool ParseTimestamp(const string &s, TIMESTAMP_STRUCT &timestamp)
 {
     return ParseTimestamp(s.c_str(), timestamp);
 }
@@ -893,7 +898,7 @@ nomore:
             return false;
         dr.hour = 0;
         // dr.addDays(1);
-        std::time_t tt = TimestampToTime(dr);
+        time_t tt = TimestampToTime(dr);
         TimeToTimestamp(tt + 24 * 60 * 26, dr);
     }
     return true;
@@ -905,7 +910,7 @@ bool ParseTimestamp(const char *s, TIMESTAMP_STRUCT &timestamp)
     return ParseTimestamp(s, timestamp, precision);
 }
 
-bool ParseTime(const std::string &s, TIME_STRUCT &time_struct)
+bool ParseTime(const string &s, TIME_STRUCT &time_struct)
 {
     return ParseTime(s.c_str(), time_struct);
 }
@@ -1056,51 +1061,52 @@ bool ParseTime(const char *s, TIME_STRUCT &time_struct, DatePrecision& precision
     return true;
 }
 
-void MakeUpper(std::string &str)
+void MakeUpper(string &str)
 {
-    std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+    transform(str.begin(), str.end(), str.begin(), ::toupper);
 }
 
-void MakeLower(std::string &str)
+void MakeLower(string &str)
 {
-    std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+    transform(str.begin(), str.end(), str.begin(), ::tolower);
 }
 
 // trim from start
-static inline std::string &ltrim(std::string &s) {
-    s.erase(s.begin(), std::find_if(s.begin(), s.end(),
-        std::not1(std::ptr_fun<int, int>(std::isspace))));
+static inline string &ltrim(string &s) {
+    s.erase(s.begin(), find_if(s.begin(), s.end(),
+        not1(ptr_fun<int, int>(isspace))));
     return s;
 }
 
-static inline std::string &rtrim(std::string &s) {
-    s.erase(std::find_if(s.rbegin(), s.rend(),
-        std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+// trim from end
+static inline string &rtrim(string &s) {
+    s.erase(find_if(s.rbegin(), s.rend(),
+        not1(ptr_fun<int, int>(isspace))).base(), s.end());
     return s;
 }
 
-std::string& LeftTrimString(std::string& str)
+string& LeftTrimString(string& str)
 {
     return ltrim(str);
 }
 
-std::string& RightTrimString(std::string& str)
+string& RightTrimString(string& str)
 {
     return rtrim(str);
 }
 
-std::string& TrimString(std::string& str)
+string& TrimString(string& str)
 {
     return ltrim(rtrim(str));
 }
 
 // this version of read_line handles mixed dos/unix '\n'
-bool GetLine(std::istream& is, std::string& line)
+bool GetLine(istream& is, string& line)
 {
     line.clear();
 
-    std::istream::sentry se(is, true);
-    std::streambuf* sb = is.rdbuf();
+    istream::sentry se(is, true);
+    streambuf* sb = is.rdbuf();
 
     for (;;) {
         int c = sb->sbumpc();
@@ -1116,9 +1122,9 @@ bool GetLine(std::istream& is, std::string& line)
         case EOF:
             // Also handle the case when the last line has no line ending
             if (line.empty()) {
-                is.setstate(std::ios::eofbit);
+                is.setstate(ios::eofbit);
             }
-            return false; // because of EOF
+            return !line.empty(); // because of EOF
         default:
             line += (char)c;
         }
@@ -1126,19 +1132,19 @@ bool GetLine(std::istream& is, std::string& line)
     return true;
 }
 
-bool GetLine(std::ifstream &fs, std::string &line)
+bool GetLine(ifstream &fs, string &line)
 {
-    std::istream &is = fs;
+    istream &is = fs;
     return GetLine(is, line);
 }
 
-void ParseCsvLine(std::vector<std::string> &sub_strs, const std::string& line, char delimiter)
+void ParseCsvLine(vector<string> &sub_strs, const string& line, char delimiter)
 {
     ParseCsvLine(sub_strs, line.c_str(), delimiter);
 }
 
 // Optimized version
-void ParseCsvLine(std::vector<std::string>& sub_strs, const char* line, char delimiter)
+void ParseCsvLine(vector<string>& sub_strs, const char* line, char delimiter)
 {
     if (nullptr == line || '\0' == line[0]) {
         sub_strs.clear();
@@ -1147,7 +1153,7 @@ void ParseCsvLine(std::vector<std::string>& sub_strs, const char* line, char del
 
     int linepos = 0;
     bool inquotes = false;
-    int linemax = (int)std::strlen(line);
+    int linemax = (int)strlen(line);
 
     char *curstring;
     char local_buff[4096];
@@ -1247,7 +1253,7 @@ void ParseCsvLine(std::vector<std::string>& sub_strs, const char* line, char del
     return;
 }
 
-void ParseCsvLineInPlace(std::vector<char *> &strs, char *line, char delimiter,
+void ParseCsvLineInPlace(vector<char *> &strs, char *line, char delimiter,
     bool ignore_double_quote)
 {
     strs.clear();
@@ -1345,29 +1351,30 @@ void ParseCsvLineInPlace(std::vector<char *> &strs, char *line, char delimiter,
     trim_and_push_back(curstring, curpos);
 }
 
-std::vector<std::string> StringSplit(const std::string &line, char delimiter)
+vector<string> StringSplit(const string &line, char delimiter)
 {
-    std::vector<std::string> strs;
+    vector<string> strs;
     ParseCsvLine(strs, line, delimiter);
     return strs;
 }
 
-std::vector<char*> StringSplitInPlace(std::string& line, char delimiter)
+vector<char*> StringSplitInPlace(string& line, char delimiter)
 {
-    std::vector<char*> strs;
+    vector<char*> strs;
     ParseCsvLineInPlace(strs, (char *)line.c_str(), delimiter);
     return strs;
 }
+
 // return the tuple (start, end), start <= index <= end
-std::vector<std::tuple<int, int>> SplitIntoSubsBlocks(int task_count, int element_count)
+vector<tuple<int, int>> SplitIntoSubsBlocks(int task_count, int element_count)
 {
-    std::vector<std::tuple<int, int>> blocks(task_count);
+    vector<tuple<int, int>> blocks(task_count);
 
     const int sub_width = element_count / task_count;
     for (int i = 0; i < task_count; ++i) {
-        blocks[i] = std::make_tuple(sub_width * i, sub_width * (i + 1) - 1);
+        blocks[i] = make_tuple(sub_width * i, sub_width * (i + 1) - 1);
     }
-    std::get<1>(blocks.back()) = element_count - 1;
+    get<1>(blocks.back()) = element_count - 1;
 
     return blocks;
 }
@@ -1376,7 +1383,7 @@ std::vector<std::tuple<int, int>> SplitIntoSubsBlocks(int task_count, int elemen
 //  - data is not NULL
 //  - delimiter must be existing between blocks
 bool SplitBigData(char *data, size_t len, char delimiter, int n_blocks,
-    std::vector<char *>& blocks)
+    vector<char *>& blocks)
 {
     if (n_blocks == 0) {
         return false;
@@ -1422,7 +1429,7 @@ bool SplitBigData(char *data, size_t len, char delimiter, int n_blocks,
     return !blocks.empty();
 }
 
-bool ReadAllFromFile(const std::string& pathname, std::string &data)
+bool ReadAllFromFile(const string& pathname, string &data)
 {
     long long file_size = FileSize(pathname);
     if (file_size == 0) {
@@ -1443,7 +1450,7 @@ bool ReadAllFromFile(const std::string& pathname, std::string &data)
             auto read_size = gzin.gcount();
             if (read_size <= 0) {
                 // shall not happen
-                data = std::move(std::string());
+                data = move(string());
                 return false;
             }
             else {
@@ -1453,11 +1460,11 @@ bool ReadAllFromFile(const std::string& pathname, std::string &data)
         }
         else {
             // read the rest of the data
-            std::string rest_data;
+            string rest_data;
             rest_data.reserve(file_size * 2);
 
             const size_t BLOCK_SIZE = 32 * 1024;
-            std::string buff;
+            string buff;
             buff.resize(BLOCK_SIZE);
 
             while (gzin.good()) {
@@ -1485,7 +1492,7 @@ bool ReadAllFromFile(const std::string& pathname, std::string &data)
 #endif // COMM_UTIL_WITH_ZLIB == 1
     }
 
-    std::ifstream in(pathname.c_str());
+    ifstream in(pathname.c_str());
     if (!in.good()) {
         return false;
     }
@@ -1495,9 +1502,9 @@ bool ReadAllFromFile(const std::string& pathname, std::string &data)
     return true;
 }
 
-bool WriteStrToFile(const std::string& pathname, const std::string &data)
+bool WriteStrToFile(const string& pathname, const string &data)
 {
-    std::ofstream out(pathname);
+    ofstream out(pathname);
     if (!out.good()) return false;
     out << data;
     return true;
@@ -1521,13 +1528,13 @@ int StringReplaceImpl(STR& base, const STR& src, const STR& dest)
     return count;
 }
 
-int StringReplace(std::string &strBase, const std::string &strSrc, const std::string &strDes)
+int StringReplace(string &strBase, const string &strSrc, const string &strDes)
 {
     return StringReplaceImpl(strBase, strSrc, strDes);
 }
 
-int StringReplace(std::wstring &wstrBase, const std::wstring &wstrSrc,
-    const std::wstring &wstrDes)
+int StringReplace(wstring &wstrBase, const wstring &wstrSrc,
+    const wstring &wstrDes)
 {
     return StringReplaceImpl(wstrBase, wstrSrc, wstrDes);
 }
@@ -1545,23 +1552,23 @@ int StringReplaceCharImpl(STR& base, CHAR ch_src, CHAR ch_des)
     return count;
 }
 
-int StringReplaceChar(std::string& str_base, char ch_src, char ch_des)
+int StringReplaceChar(string& str_base, char ch_src, char ch_des)
 {
     return StringReplaceCharImpl(str_base, ch_src, ch_des);
 }
 
-int StringReplaceChar(std::wstring& wstr_base, wchar_t ch_src, wchar_t ch_des)
+int StringReplaceChar(wstring& wstr_base, wchar_t ch_src, wchar_t ch_des)
 {
     return StringReplaceCharImpl(wstr_base, ch_src, ch_des);
 }
 #ifdef _WIN32
-std::wstring utf82ws(const char *src)
+wstring utf82ws(const char* src)
 {
-    std::wstring ws;
+    wstring ws;
     return utf82ws(src, ws);
 }
 
-std::wstring& utf82ws(const char* s, std::wstring& ws)
+wstring& utf82ws(const char* s, wstring& ws)
 {
     int slength = (int)strlen(s);
     int len = MultiByteToWideChar(CP_UTF8, 0, s, slength, 0, 0);
@@ -1571,13 +1578,13 @@ std::wstring& utf82ws(const char* s, std::wstring& ws)
     return ws;
 }
 
-std::string ws2utf8(const wchar_t *ws)
+string ws2utf8(const wchar_t *ws)
 {
-    std::string s;
+    string s;
     return ws2utf8(ws, s);
 }
 
-std::string& ws2utf8(const wchar_t* ws, std::string& s)
+string& ws2utf8(const wchar_t* ws, string& s)
 {
     const int slength = (int)wcslen(ws);
     const int len = WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR)ws, slength, 0, 0, 0, 0);
@@ -1587,30 +1594,31 @@ std::string& ws2utf8(const wchar_t* ws, std::string& s)
     return s;
 }
 
-std::string ws2gb2312(const wchar_t *wstr)
+string ws2gb2312(const wchar_t *wstr)
 {
     int n = WideCharToMultiByte(CP_ACP, 0, wstr, -1, 0, 0, 0, 0);
-    std::string result(n, '\0');
+    string result(n, '\0');
     ::WideCharToMultiByte(CP_ACP, 0, wstr, -1, &result[0], n, 0, 0);
     return result;
 }
 
-std::wstring gb2312_2_ws(const char *src)
+wstring gb2312_2_ws(const char *src)
 {
     int n = MultiByteToWideChar(CP_ACP, 0, src, -1, NULL, 0);
-    std::wstring result(n, '\0');
+    wstring result(n, '\0');
     ::MultiByteToWideChar(CP_ACP, 0, src, -1, (LPWSTR)result.c_str(), n);
     return result;
 }
 
 #endif
 
-std::wstring& StrToWStr(const std::string& str, std::wstring& wstr)
+
+wstring& StrToWStr(const string& str, wstring& wstr)
 {
 #ifdef _WIN32
     return utf82ws(str.c_str(), wstr);
 #else
-    wstr = std::wstring(str.begin(), str.end());
+    wstr = wstring(str.begin(), str.end());
     return wstr;
 
     wstr.clear();
@@ -1652,7 +1660,7 @@ std::wstring& StrToWStr(const std::string& str, std::wstring& wstr)
 #endif
 }
 
-std::string& WStrToStr(const std::wstring& wstr, std::string& str)
+string& WStrToStr(const wstring& wstr, string& str)
 {
 #ifdef _WIN32
     return ws2utf8(wstr.c_str(), str);
@@ -1698,19 +1706,189 @@ std::string& WStrToStr(const std::wstring& wstr, std::string& str)
 #endif
 }
 
-std::wstring StrToWStr(const std::string &str)
+wstring StrToWStr(const string &str)
 {
-    std::wstring wstr;
+    wstring wstr;
     return StrToWStr(str, wstr);
 }
 
-std::string WStrToStr(const std::wstring &wstr)
+string WStrToStr(const wstring &wstr)
 {
-    std::string str;
+    string str;
     return WStrToStr(wstr, str);
 }
 
-bool IsUtf8String(const std::string& str)
+static const string base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" \
+    "abcdefghijklmnopqrstuvwxyz" \
+    "0123456789+/";
+
+void Base64Encode(const char* str, string& ret)
+{
+    int i = 0;
+    unsigned char char_array_3[3];
+    unsigned char char_array_4[4];
+
+    int in_len = (int)strlen(str);
+    ret.clear();
+    ret.reserve(4 * (in_len / 3) + 4);
+
+    while (in_len--) {
+        char_array_3[i++] = *(str++);
+        if (i == 3) {
+            char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+            char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+            char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+            char_array_4[3] = char_array_3[2] & 0x3f;
+
+            for (i = 0; (i < 4); i++) {
+                ret += base64_chars[char_array_4[i]];
+            }
+            i = 0;
+        }
+    }
+
+    if (i) {
+        for (int j = i; j < 3; j++) {
+            char_array_3[j] = '\0';
+        }
+        char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+        char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+        char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+        char_array_4[3] = char_array_3[2] & 0x3f;
+
+        for (int j = 0; (j < i + 1); j++) {
+            ret += base64_chars[char_array_4[j]];
+        }
+        while ((i++ < 3)) {
+            ret += '=';
+        }
+    }
+}
+
+void Base64Decode(const char* str, string& ret)
+{
+    int in_len = (int)strlen(str);
+    ret.clear();
+    ret.reserve(in_len * 3 / 4);
+
+    int i = 0;
+    int in_ = 0;
+    unsigned char char_array_4[4], char_array_3[3];
+
+    auto is_base64 = [](unsigned char c) {
+        return (isalnum(c) || (c == '+') || (c == '/'));
+    };
+
+    while (in_len-- && (str[in_] != '=') && is_base64(str[in_])) {
+        char_array_4[i++] = str[in_]; in_++;
+        if (i == 4) {
+            for (i = 0; i < 4; i++) {
+                char_array_4[i] = (unsigned char)base64_chars.find(char_array_4[i]);
+            }
+            char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
+            char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
+            char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
+
+            for (i = 0; (i < 3); i++) {
+                ret += char_array_3[i];
+            }
+            i = 0;
+        }
+    }
+
+    if (i) {
+        for (int j = i; j < 4; j++) {
+            char_array_4[j] = 0;
+        }
+        for (int j = 0; j < 4; j++) {
+            char_array_4[j] = (unsigned char)base64_chars.find(char_array_4[j]);
+        }
+
+        char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
+        char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
+        char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
+
+        for (int j = 0; (j < i - 1); j++) {
+            ret += char_array_3[j];
+        }
+    }
+}
+
+struct LangEntry {
+    char spras;
+    char laspez;
+    char lahq;
+    const char *laiso;
+    const char *sptxt;
+};
+const static LangEntry locale_table[] = {
+// SPRAS LASPEZ LAHQ LAISO SPTXT
+    { '0', 'S', '0', "SR", "Serbian" },
+    { '1', 'D', '0', "ZH", "Chinese" },
+    { '2', 'M', '0', "TH", "Thai" },
+    { '3', 'D', '0', "KO", "Korean" },
+    { '4', 'S', '0', "RO", "Romanian" },
+    { '5', 'S', '0', "SL", "Slovenian" },
+    { '6', 'S', '0', "HR", "Croatian" },
+    { '7', 'S', '4', "MS", "Malaysian" },
+    { '8', 'S', '0', "UK", "Ukrainian" },
+    { '9', 'S', '0', "ET", "Estonian" },
+    { 'A', 'L', '0', "AR", "Arabic" },
+    { 'B', 'L', '0', "HE", "Hebrew" },
+    { 'C', 'S', '4', "CS", "Czech" },
+    { 'D', 'S', '1', "DE", "German" },
+    { 'E', 'S', '1', "EN", "English" },
+    { 'F', 'S', '2', "FR", "French" },
+    { 'G', 'S', '0', "EL", "Greek" },
+    { 'H', 'S', '4', "HU", "Hungarian" },
+    { 'I', 'S', '2', "IT", "Italian" },
+    { 'J', 'D', '2', "JA", "Japanese" },
+    { 'K', 'S', '3', "DA", "Danish" },
+    { 'L', 'S', '0', "PL", "Polish" },
+    { 'M', 'D', '0', "ZF", "Chinese trad." },
+    { 'N', 'S', '2', "NL", "Dutch" },
+    { 'O', 'S', '3', "NO", "Norwegian" },
+    { 'P', 'S', '4', "PT", "Portuguese" },
+    { 'Q', 'S', '0', "SK", "Slovakian" },
+    { 'R', 'S', '3', "RU", "Russian" },
+    { 'S', 'S', '2', "ES", "Spanish" },
+    { 'T', 'S', '0', "TR", "Turkish" },
+    { 'U', 'S', '3', "FI", "Finnish" },
+    { 'V', 'S', '3', "SV", "Swedish" },
+    { 'W', 'S', '4', "BG", "Bulgarian" },
+    { 'X', 'S', '0', "LT", "Lithuanian" },
+    { 'Y', 'S', '0', "LV", "Latvian" },
+    { 'Z', 'S', '0', "Z1", "Customer reserve" },
+    { 'a', 'S', '0', "AF", "Afrikaans" },
+    { 'b', 'S', '0', "IS", "Icelandic" },
+    { 'c', 'S', '4', "CA", "Catalan" },
+    { 'd', 'S', '4', "SH", "Serbian (Latin)" },
+    { 'i', 'S', '0', "ID", "Indonesian" }
+};
+
+bool LocaleToLangChar(const string& locale, char& lang_char)
+{
+    return LocaleToLangChar(locale.c_str(), lang_char);
+}
+
+bool LocaleToLangChar(const char* locale, char& lang_char)
+{
+    if (locale == nullptr) return false;
+    if (strlen(locale) != 2) return false;
+    string locale_upper = locale;
+    util::MakeUpper(locale_upper);
+
+    for (auto& e : locale_table) {
+        if (e.laiso[0] == locale_upper.front() && e.laiso[1] == locale_upper.at(1)) {
+            lang_char = e.spras;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool IsUtf8String(const string& str)
 {
     const int MAX_UTF8_CHECK_LENGTH = 20;
 
@@ -1808,9 +1986,9 @@ const static char Pystr[396][7] = { "A", "Ai", "An", "Ang", "Ao", "Ba", "Bai", "
 "Zhao", "Zhe", "Zhen", "Zheng", "Zhi", "Zhong", "Zhou", "Zhu", "Zhua", "Zhuai", "Zhuan", "Zhuang", "Zhui", "Zhun", "Zhuo",
 "Zi", "Zong", "Zou", "Zu", "Zuan", "Zui", "Zun", "Zuo" };
 
-std::string Gb2312HanziToPinyin(const std::string& hanzi_str, bool each_first_cap)
+string Gb2312HanziToPinyin(const string& hanzi_str, bool each_first_cap)
 {
-    std::string result;
+    string result;
 
     for (size_t j = 0; j < hanzi_str.length();) {
         auto& ch = hanzi_str[j];

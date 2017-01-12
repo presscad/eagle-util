@@ -20956,6 +20956,9 @@ namespace util {
                 }
                 result += py;
             }
+            else if (isprint(ch)) {
+                result += (char)ch;
+            }
             else {
                 result += '?';
             }

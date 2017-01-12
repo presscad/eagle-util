@@ -32,7 +32,7 @@ static inline std::shared_ptr<std::istream> get_opt_gz_istream(const std::string
 }
 
 static inline std::shared_ptr<std::ostream> get_opt_gz_ostream(const std::string& filepath,
-    std::ios_base::openmode mode = std::ios_base::out)
+    std::ios_base::openmode mode = std::ios_base::binary | std::ios_base::out)
 {
     std::shared_ptr<std::ostream> stream;
 

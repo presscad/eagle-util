@@ -149,6 +149,23 @@ std::string ws2gb2312(const wchar_t *wstr);
 std::wstring gb2312_2_ws(const char *src);
 #endif
 
+void Base64Encode(const char *str, std::string& ret);
+void Base64Decode(const char *str, std::string& ret);
+static inline std::string Base64Encode(const char *str)
+{
+    std::string ret;
+    Base64Encode(str, ret);
+    return ret;
+}
+static inline std::string Base64Decode(const char *str)
+{
+    std::string ret;
+    Base64Decode(str, ret);
+    return ret;
+}
+
+bool LocaleToLangChar(const std::string& locale, char& lang_char);
+bool LocaleToLangChar(const char* locale, char& lang_char);
 bool IsUtf8String(const std::string& str);
 std::string Gb2312HanziToPinyin(const std::string& hanzi_str, bool each_first_cap);
 
