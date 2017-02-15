@@ -44,6 +44,26 @@ double FixedGeoPoint::FixedLng2Lng(int lng)
 }
 
 
+Bound::Bound(const std::string & bbox_str)
+{
+    std::vector<std::string> bounds;
+    util::ParseCsvLine(bounds, bbox_str, ',');
+    if (bounds.size() != 4) {
+        minlat = minlng = maxlat = maxlng = 0;
+    }
+    else {
+        minlat = std::stod(bounds[1].c_str());
+        maxlat = std::stod(bounds[3].c_str());
+        minlng = std::stod(bounds[0].c_str());
+        maxlng = std::stod(bounds[2].c_str());
+    }
+
+    if (minlat >= maxlat || minlng >= maxlng) {
+        minlat = minlng = maxlat = maxlng = 0;
+    }
+}
+
+
 // degree to rad
 double rad(double degree)
 {
@@ -179,26 +199,24 @@ double get_heading_in_degree(const double &from_lat, const double &from_lng,
     const double &to_lat, const double &to_lng)
 {
     if (from_lat == to_lat && from_lng == to_lng) {
-        // -0 so that we know something is wrong, but can still be used to calculation
+        // return -0 so that we know something is wrong, but can still be used to calculation
         return -0.00000001;
     }
 
-    double heading;
-    double x1 = to_lng - from_lng;
-    double y1 = to_lat - from_lat;
-    const double x2 = 0;
-    const double y2 = 1;
-    double cos_value = (x1*x2 + y1*y2) / (std::sqrt(x1*x1 + y1*y1) * (std::sqrt(x2*x2 + y2*y2)));
-    double delta_radian = std::acos(cos_value);
-    if (x1 > 0) {
-        heading = delta_radian * 180.0 / M_PI;
+    const double lat1 = rad(from_lat);
+    const double lat2 = rad(to_lat);
+    const double d_lng = rad(to_lng - from_lng);
+    const double y = std::sin(d_lng) * std::cos(lat2);
+    const double x = std::cos(lat1) * std::sin(lat2) - std::sin(lat1) * std::cos(lat2) * std::cos(d_lng);
+
+    double heading = degree(std::atan2(y, x));
+    if (heading < 0) {
+        heading += 360.0;
     }
-    else {
-        heading = 360.0 - delta_radian * 180.0 / M_PI;
-        if (heading >= 360.0) {
-            heading -= 360.0;
-        }
+    else if (heading >= 360.0) {
+        heading -= 360.0;
     }
+
     return heading;
 }
 

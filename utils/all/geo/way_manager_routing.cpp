@@ -75,44 +75,44 @@ struct Connection
     ROUTING_NODE_INDEX i_from_rn_;
     ROUTING_NODE_INDEX i_to_rn_;
 #if (EASY_NODE_DEBUG == 1)
-    NodePtr p_from_nd_;
-    NodePtr p_to_nd_;
+    NodePtr p_from_nd_{};
+    NodePtr p_to_nd_{};
 #endif
-    WAY_ID_T conn_way_id_; // signed way ID
-    int weight_; // modified weight considering length, way type, etc.
+    WAY_ID_T conn_way_id_{}; // signed way ID
+    int weight_{}; // modified weight considering length, way type, etc.
     vector<SegmentPtr> segs_;
-    bool excluded_flag_; // true if any of the segs' flag is set
+    bool excluded_flag_{}; // true if any of the segs' flag is set
 };
 
 // From RN1 via RN2, to RN3, is TwoStepConnection
 struct TwoStepConnection
 {
-    ROUTING_NODE_INDEX i_from_rn_;
-    ROUTING_NODE_INDEX i_mid_rn_;
-    ROUTING_NODE_INDEX i_to_rn_; // to simplify, not including connections back to itself
-    WAY_ID_T conn_way_id1_; // signed way ID
-    WAY_ID_T conn_way_id2_; // signed way ID
-    int weight_;
+    ROUTING_NODE_INDEX i_from_rn_{};
+    ROUTING_NODE_INDEX i_mid_rn_{};
+    ROUTING_NODE_INDEX i_to_rn_{}; // to simplify, not including connections back to itself
+    WAY_ID_T conn_way_id1_{}; // signed way ID
+    WAY_ID_T conn_way_id2_{}; // signed way ID
+    int weight_{};
 };
 
 struct FourStepConnection
 {
-    ROUTING_NODE_INDEX i_from_rn_;
-    ROUTING_NODE_INDEX i_to_rn_;
+    ROUTING_NODE_INDEX i_from_rn_{};
+    ROUTING_NODE_INDEX i_to_rn_{};
     ROUTING_NODE_INDEX mid_rns_[3]; // nodes in the middle
     WAY_ID_T conn_way_ids_[4]; // N signed way IDs
-    int weight_;
-    uint64_t hash_three_;
+    int weight_{};
+    uint64_t hash_three_{};
 };
 
 struct SixStepConnection
 {
-    ROUTING_NODE_INDEX i_from_rn_;
-    ROUTING_NODE_INDEX i_to_rn_;
+    ROUTING_NODE_INDEX i_from_rn_{};
+    ROUTING_NODE_INDEX i_to_rn_{};
     ROUTING_NODE_INDEX mid_rns_[5]; // nodes in the middle
-    int weight_;
+    int weight_{};
     WAY_ID_T conn_way_ids_[6]; // N signed way IDs
-    uint64_t hash_five_;
+    uint64_t hash_five_{};
 };
 
 class RoutingNode
@@ -122,13 +122,8 @@ public:
         : p_node_(p_node)
     {}
 
-    NODE_ID_T NodeId() const
-    {
-        return p_node_->nd_id_;
-    }
-
 public:
-    NodePtr             p_node_;
+    NodePtr             p_node_{};
     vector<CONN_INDEX>  conn_froms_;
     vector<CONN_INDEX>  conn_tos_;
     vector<CONN2_INDEX> two_step_conn_tos_;
@@ -162,8 +157,8 @@ struct NodeData
     int heap_index; // index of the node in min bin heap
 
 #if (EASY_NODE_DEBUG == 1)
-    RoutingNode* p_rn;
-    RoutingNode* p_pre_rn;
+    RoutingNode* p_rn{};
+    RoutingNode* p_pre_rn{};
 #endif
 };
 
@@ -413,40 +408,83 @@ public:
         : way_manager_(way_manager)
     {}
 
+    void SetError(const string& err)
+    {
+        way_manager_.SetCurThreadErrStr(way_manager_.threads_err_mutex_,
+            way_manager_.threads_err_strs_, err);
+    }
+
     bool InitForRouting(bool shortest_mode)
     {
 #if WAY_MANAGER_HANA_LOG == 1
         hana::Logger logger("WayManager");
         auto start = chrono::system_clock::now();
 #endif
+        WayManagerDbg("Enters RouteManager::InitForRouting()");
 
         shortest_mode_ = shortest_mode;
-
         routing_node_pool_.Clear();
-        routing_node_pool_.Reserve(way_manager_.node_map_.size() / 4);
+
+        try {
+            routing_node_pool_.Reserve(way_manager_.node_map_.size() / 4);
+        }
+        catch (const std::bad_alloc& e) {
+            SetError(string("InitForRouting: ") + e.what());
+            return false;
+        }
         // dummy one as index zero is used as invalid index
         routing_node_pool_.AllocNewIndex(RoutingNode(nullptr));
 
         // build RoutingNodeMap object, pre-allocated all the routing node
         routing_node_map_.clear();
-        routing_node_map_.reserve(way_manager_.node_map_.size() / 4); // rough estimate
-        for (auto const it : way_manager_.node_map_) {
-            const NodePtr& p_node = it.second;
-            if (p_node->IsRoutingNode()) {
-                routing_node_map_[p_node->nd_id_] = routing_node_pool_.AllocNewIndex(
-                    RoutingNode(p_node));
+        if (!way_manager_.node_map_.empty()) {
+            try {
+                routing_node_map_.reserve(way_manager_.node_map_.size() / 4); // rough estimate
+                for (auto const it : way_manager_.node_map_) {
+                    const NodePtr& p_node = it.second;
+                    if (p_node == nullptr) {
+                        SetError("InitForRouting: invalid p_node found in way_manager_.node_map_[]");
+                        return false;
+                    }
+
+                    if (p_node->IsRoutingNode()) {
+                        routing_node_map_[p_node->nd_id_] = routing_node_pool_.AllocNewIndex(
+                            RoutingNode(p_node));
+                    }
+                }
+            }
+            catch (const std::bad_alloc& e) {
+                SetError(string("InitForRouting: ") + e.what());
+                return false;
             }
         }
+        WayManagerDbg("InitForRouting: routing_node_map_[] populated");
 
         // rough estimates for the capacities of the pools
-        conn_pool_.Reserve(routing_node_map_.size() * 5 / 2);
-        conn2_pool_.Reserve(routing_node_map_.size() * 5);
-        conn4_pool_.Reserve(routing_node_map_.size() * 15);
-        conn6_pool_.Reserve(routing_node_map_.size() * 50);
-        conn_pool_.AllocNewIndex(); // dummy one as index zero is used as invalid index
-        conn2_pool_.AllocNewIndex();
-        conn4_pool_.AllocNewIndex();
-        conn6_pool_.AllocNewIndex();
+        if (!routing_node_map_.empty()) {
+            try {
+                conn_pool_.Reserve(routing_node_map_.size() * 5 / 2);
+                conn2_pool_.Reserve(routing_node_map_.size() * 5);
+                conn4_pool_.Reserve(routing_node_map_.size() * 15);
+                conn6_pool_.Reserve(routing_node_map_.size() * 40);
+            }
+            catch (const std::bad_alloc& e) {
+                SetError(string("InitForRouting: ") + e.what());
+                return false;
+            }
+            WayManagerDbg("InitForRouting: all conn pools reserved");
+        }
+
+        try {
+            conn_pool_.AllocNewIndex(); // dummy one as index zero is used as invalid index
+            conn2_pool_.AllocNewIndex();
+            conn4_pool_.AllocNewIndex();
+            conn6_pool_.AllocNewIndex();
+        }
+        catch (const std::bad_alloc& e) {
+            SetError(string("InitForRouting: ") + e.what());
+            return false;
+        }
 
         InitConnsOneStep();
         InitRoutingNodesOutWays();
@@ -454,6 +492,7 @@ public:
         InitConnsFourSteps();
         InitConnsSixSteps();
 
+        WayManagerDbg("Exits RouteManager::InitForRouting()");
 #if WAY_MANAGER_HANA_LOG == 1
         chrono::duration<double> elapsed = chrono::system_clock::now() - start;
         HANA_SDK_DEBUG(logger) << __FUNCTION__ << ": run time "
@@ -1103,6 +1142,7 @@ private:
         hana::Logger logger("WayManager");
         auto start = chrono::system_clock::now();
 #endif
+        WayManagerDbg("Enters RouteManager::InitConnsOneStep()");
 
         for (auto const& it : routing_node_map_) {
             const ROUTING_NODE_INDEX& i_routing_node = it.second;
@@ -1199,6 +1239,7 @@ private:
             }
         }
 
+        WayManagerDbg("Exists RouteManager::InitConnsOneStep()");
 #if WAY_MANAGER_HANA_LOG == 1
         chrono::duration<double> elapsed = chrono::system_clock::now() - start;
         HANA_SDK_DEBUG(logger) << __FUNCTION__ << ": run time "
@@ -1214,6 +1255,7 @@ private:
         hana::Logger logger("WayManager");
         auto start = chrono::system_clock::now();
 #endif
+        WayManagerDbg("Enters RouteManager::InitRoutingNodesOutWays()");
 
         for (const auto& it : routing_node_map_) {
             const auto p_routing_node = routing_node_pool_.ObjPtrByIndex(it.second);
@@ -1232,6 +1274,7 @@ private:
             }
         }
 
+        WayManagerDbg("Exists RouteManager::InitRoutingNodesOutWays()");
 #if WAY_MANAGER_HANA_LOG == 1
         chrono::duration<double> elapsed = chrono::system_clock::now() - start;
         HANA_SDK_DEBUG(logger) << __FUNCTION__ << ": run time "
@@ -1246,6 +1289,7 @@ private:
         hana::Logger logger("WayManager");
         auto start = chrono::system_clock::now();
 #endif
+        WayManagerDbg("Enters RouteManager::InitConnsTwoSteps()");
 
         // init two_step_conn_tos_ in each routing node
         for (auto& it1 : routing_node_map_) {
@@ -1320,6 +1364,7 @@ private:
             }
         }
 
+        WayManagerDbg("Exits RouteManager::InitConnsTwoSteps()");
 #if WAY_MANAGER_HANA_LOG == 1
         chrono::duration<double> elapsed = chrono::system_clock::now() - start;
         HANA_SDK_DEBUG(logger) << __FUNCTION__ << ": run time "
@@ -1443,12 +1488,15 @@ private:
         hana::Logger logger("WayManager");
         auto start = chrono::system_clock::now();
 #endif
+        WayManagerDbg("Enters RouteManager::InitConnsFourSteps()");
+
         // init four_step_conn_tos_ in each routing node
         for (auto& it : routing_node_map_) {
             auto& i_routing_node1 = it.second;
             InitSingleConnFourSteps(i_routing_node1);
         }
 
+        WayManagerDbg("Exits RouteManager::InitConnsFourSteps()");
 #if WAY_MANAGER_HANA_LOG == 1
         chrono::duration<double> elapsed = chrono::system_clock::now() - start;
         HANA_SDK_DEBUG(logger) << __FUNCTION__ << ": run time "
@@ -1534,11 +1582,14 @@ private:
         hana::Logger logger("WayManager");
         auto start = chrono::system_clock::now();
 #endif
+        WayManagerDbg("Enters RouteManager::InitConnsSixSteps()");
+
         for (auto& it1 : routing_node_map_) {
             auto& i_routing_node1 = it1.second;
             InitSingleConnSixSteps(i_routing_node1);
         }
 
+        WayManagerDbg("Exits RouteManager::InitConnsSixSteps()");
 #if WAY_MANAGER_HANA_LOG == 1
         chrono::duration<double> elapsed = chrono::system_clock::now() - start;
         HANA_SDK_DEBUG(logger) << __FUNCTION__ << ": run time "

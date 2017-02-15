@@ -7,6 +7,7 @@
 
 #include "osm_parser.h"
 #include <string>
+#include <algorithm>
 #include <fstream>
 #include <sstream>      // std::istringstream
 #include "common/common_utils.h"
@@ -20,7 +21,7 @@ namespace osm {
 
 // e.g., way1, way2, way3's node refs are identical,
 //   way1.duplicate_to_id is empty, way2.duplicate_to_id and way3.duplicate_to_id are set to way1
-static bool flag_duplicate_ways(WayMap& way_map, std::string &err_str)
+static bool flag_duplicate_ways(WayMap& way_map, string &err_str)
 {
     // way map => vector
     vector<WayPtr> ways;
@@ -67,9 +68,9 @@ static bool flag_duplicate_ways(WayMap& way_map, std::string &err_str)
     return true;
 }
 
-bool parse_osm_xml(const std::string &filename, OsmData &osm_data, std::string &err_str)
+bool parse_osm_xml(const string &filename, OsmData &osm_data, string &err_str)
 {
-    std::ifstream in(filename.c_str());
+    ifstream in(filename.c_str());
     if (!in.good()) {
         err_str = "Error: cannot open xml file: " + filename;
         return false;
@@ -78,9 +79,9 @@ bool parse_osm_xml(const std::string &filename, OsmData &osm_data, std::string &
     return parse_osm_xml(in, osm_data, err_str);
 }
 
-bool parse_osm_xml_from_string(const std::string &xml_data, OsmData &osm_data, std::string &err_str)
+bool parse_osm_xml_from_string(const string &xml_data, OsmData &osm_data, string &err_str)
 {
-    std::istringstream iss(xml_data);
+    istringstream iss(xml_data);
     if (!iss.good()) {
         err_str = "Error: invalid xml data string";
         return false;
@@ -89,7 +90,7 @@ bool parse_osm_xml_from_string(const std::string &xml_data, OsmData &osm_data, s
     return parse_osm_xml(iss, osm_data, err_str);
 }
 
-bool parse_osm_xml(std::istream &stream, OsmData &osm_data, std::string &err_str)
+bool parse_osm_xml(istream &stream, OsmData &osm_data, string &err_str)
 {
     using namespace pugi;
     xml_document xml_doc;
@@ -115,7 +116,7 @@ bool parse_osm_xml(std::istream &stream, OsmData &osm_data, std::string &err_str
     }
 
     for (const auto& xml_nd : osm.children("node")) {
-        NodePtr p_node = std::make_shared<Node>();
+        NodePtr p_node = make_shared<Node>();
         p_node->id = xml_nd.attribute("id").as_string();
         p_node->version = xml_nd.attribute("version").as_string();
         p_node->timestamp = xml_nd.attribute("timestamp").as_string();
@@ -131,11 +132,11 @@ bool parse_osm_xml(std::istream &stream, OsmData &osm_data, std::string &err_str
             p_node->tag_map.insert(TagMap::value_type(k, v));
         }
 
-        osm_data.node_map.insert(std::make_pair(p_node->id, p_node));
+        osm_data.node_map.insert(make_pair(p_node->id, p_node));
     }
 
     for (const auto& xml_nd : osm.children("way")) {
-        WayPtr p_way = std::make_shared<Way>();
+        WayPtr p_way = make_shared<Way>();
         p_way->id = xml_nd.attribute("id").as_string();
         p_way->version = xml_nd.attribute("version").as_string();
         p_way->timestamp = xml_nd.attribute("timestamp").as_string();
@@ -159,11 +160,11 @@ bool parse_osm_xml(std::istream &stream, OsmData &osm_data, std::string &err_str
             p_way->tag_map.insert(TagMap::value_type(k, v));
         }
 
-        osm_data.way_map.insert(std::make_pair(p_way->id, p_way));
+        osm_data.way_map.insert(make_pair(p_way->id, p_way));
     }
 
     for (const auto& xml_nd : osm.children("relation")) {
-        RelationPtr p_relation = std::make_shared<Relation>();
+        RelationPtr p_relation = make_shared<Relation>();
 
         p_relation->id = xml_nd.attribute("id").as_string();
         p_relation->version = xml_nd.attribute("version").as_string();
@@ -186,7 +187,7 @@ bool parse_osm_xml(std::istream &stream, OsmData &osm_data, std::string &err_str
             p_relation->tag_map.insert(TagMap::value_type(k, v));
         }
 
-        osm_data.relation_map.insert(std::make_pair(p_relation->id, p_relation));
+        osm_data.relation_map.insert(make_pair(p_relation->id, p_relation));
     }
 
     if (false == flag_duplicate_ways(osm_data.way_map, err_str)) {
@@ -223,7 +224,7 @@ bool get_nodes_range(const NodeMap &node_map, double &lat_min, double &lat_max, 
     return true;
 }
 
-NodePtr get_node_by_ref(const NodeMap &node_map, const std::string &node_ref)
+NodePtr get_node_by_ref(const NodeMap &node_map, const string &node_ref)
 {
     const auto it = node_map.find(node_ref);
     if (it == node_map.cend()) {
@@ -232,8 +233,8 @@ NodePtr get_node_by_ref(const NodeMap &node_map, const std::string &node_ref)
     return it->second;
 }
 
-NodePtr get_node_by_ref(const NodeMap &node_map, const std::string& node_ref,
-    std::string &err_str)
+NodePtr get_node_by_ref(const NodeMap &node_map, const string& node_ref,
+    string &err_str)
 {
     const auto it = node_map.find(node_ref);
     if (it == node_map.cend()) {
@@ -243,8 +244,7 @@ NodePtr get_node_by_ref(const NodeMap &node_map, const std::string& node_ref,
     return it->second;
 }
 
-
-bool get_tag_from_map(const TagMap& tag_map, const std::string &key, std::string &value)
+bool get_tag_from_map(const TagMap& tag_map, const string &key, string &value)
 {
     TagMap::const_iterator tag_it = tag_map.find(key);
     if (tag_it != tag_map.cend()) {
@@ -254,41 +254,64 @@ bool get_tag_from_map(const TagMap& tag_map, const std::string &key, std::string
     return false;
 }
 
-bool get_names_from_map(const TagMap& tag_map,
-    std::vector<std::tuple<std::string, std::string> >& names)
+bool get_names_from_map(const TagMap& tag_map, char def_lang_code, vector<string>& names, string &err_str)
 {
+    string def_name;
     names.clear();
-    for (auto it = tag_map.cbegin(); it != tag_map.cend(); ++it) {
-        const std::string& k = it->first;
-        const std::string& v = it->second;
-        if (k[0] != 'n') {
+    bool already_have_def_name = false;
+
+    for (auto& it : tag_map) {
+        const string& k = it.first;
+        const string& v = it.second;
+        if (k.front() != 'n') {
             continue;
         }
-        if (k.size() > 5 && k.substr(0, 5) == "name:") {
-            names.push_back(std::make_tuple(k, v));
+
+        if (k.find("name:") == 0) { // str begin with
+            string locale = k.c_str() + 5;
+            if (locale == "eo" || // Esperanto
+                locale == "vi") { // Vietnamese
+                continue;
+            }
+
+            char lang_char{};
+            if (true == util::LocaleToLangChar(locale, lang_char)) {
+                if (lang_char == def_lang_code) {
+                    already_have_def_name = true;
+                }
+                names.push_back(string(1, lang_char) + ':' + v);
+            }
+            else {
+                err_str = "unknown locale string: \"" + k + "\"";
+                return false;
+            }
         }
         else if (k == "name") {
-            names.push_back(std::make_tuple(k, v));
+            def_name = v;
         }
     }
 
-    std::sort(names.begin(), names.end(),
-        [](const std::tuple<std::string, std::string>& i, const std::tuple<std::string, std::string>& j) {
-        return std::get<0>(i) < std::get<0>(j);
-    });
-
-    return !names.empty();
-}
-
-RelationPtr find_admin_boundry_relation(const OsmData &osm_data, const std::string& name,
-    int admin_level)
-{
-    std::string adm_level;
-    if (admin_level > 0) {
-        adm_level = std::to_string(admin_level);
+    if (!already_have_def_name && !def_name.empty()) {
+        names.push_back(string(1, def_lang_code) + ':' + def_name);
     }
 
-    std::string value;
+    sort(names.begin(), names.end());
+    if (names.empty()) {
+        err_str = "get_names_from_map: no name tags found";
+        return false;
+    }
+    return true;
+}
+
+RelationPtr find_admin_boundry_relation(const OsmData &osm_data, const string& name,
+    int admin_level)
+{
+    string adm_level;
+    if (admin_level > 0) {
+        adm_level = to_string(admin_level);
+    }
+
+    string value;
     for (const auto& it : osm_data.relation_map) {
         const RelationPtr& p_relation = it.second;
 
@@ -324,7 +347,7 @@ RelationPtr find_admin_boundry_relation(const OsmData &osm_data, const std::stri
 }
 
 bool get_relation_boundry_outer_ways(const OsmData &osm_data, const Relation& relation,
-    std::vector<WayPtr>& outer_ways, std::string &err_str)
+    vector<WayPtr>& outer_ways, string &err_str)
 {
     outer_ways.clear();
     for (const RelationMember& member : relation.members) {
@@ -353,7 +376,7 @@ struct LOCAL_WAY {
     NodePtr p_end_node;
 };
 
-typedef std::vector<LOCAL_WAY> LOCAL_WAY_VEC;
+typedef vector<LOCAL_WAY> LOCAL_WAY_VEC;
 
 static void two_ways_ends_distances(const LOCAL_WAY& lway1, const LOCAL_WAY& lway2,
     double& d11, double& d12, double& d21, double& d22)
@@ -390,7 +413,7 @@ static void node_to_wayends_distances(const NodePtr& p_nd, const LOCAL_WAY& lway
 }
 
 // make sure the outer ways are connected one by one in sequence
-static bool sort_outer_ways(LOCAL_WAY_VEC &lways, std::string &err_str)
+static bool sort_outer_ways(LOCAL_WAY_VEC &lways, string &err_str)
 {
     if (lways.size() <= 2) {
         return true;
@@ -431,14 +454,14 @@ static bool sort_outer_ways(LOCAL_WAY_VEC &lways, std::string &err_str)
             }
         }
         if (j_min > 0 && j_min != i + 1) {
-            std::swap(lways[i + 1], lways[j_min]);
+            swap(lways[i + 1], lways[j_min]);
         }
     }
     return true;
 }
 
-static bool to_local_ways(const OsmData &osm_data, const std::vector<osm::WayPtr> &ways,
-    LOCAL_WAY_VEC& lways, std::string &err_str)
+static bool to_local_ways(const OsmData &osm_data, const vector<osm::WayPtr> &ways,
+    LOCAL_WAY_VEC& lways, string &err_str)
 {
     lways.clear();
     for (const auto& p_way : ways) {
@@ -521,7 +544,7 @@ static bool check_merge_two_groups(LOCAL_WAY_VEC& src, LOCAL_WAY_VEC& dst)
         const LOCAL_WAY& dst_way1 = dst[0];
         const LOCAL_WAY& dst_way2 = dst[dst.size() - 1];
         if (two_way_connected(src_way1, dst_way1)) {
-            std::reverse(src.begin(), src.end());
+            reverse(src.begin(), src.end());
             dst.insert(dst.begin(), src.begin(), src.end());
             merged = true;
         }
@@ -534,7 +557,7 @@ static bool check_merge_two_groups(LOCAL_WAY_VEC& src, LOCAL_WAY_VEC& dst)
             merged = true;
         }
         else if (two_way_connected(src_way2, dst_way2)) {
-            std::reverse(src.begin(), src.end());
+            reverse(src.begin(), src.end());
             dst.insert(dst.end(), src.begin(), src.end());
             merged = true;
         }
@@ -580,9 +603,9 @@ static bool is_closed_way_group(const LOCAL_WAY_VEC& group)
 // the returned groups are to be orderred by number of ways desc.
 // ways in each group are also to be connected in order
 static size_t ways_to_sorted_groups(const LOCAL_WAY_VEC& lways,
-    std::vector<LOCAL_WAY_VEC>& lway_groups)
+    vector<LOCAL_WAY_VEC>& lway_groups)
 {
-    std::vector<LOCAL_WAY_VEC> groups;
+    vector<LOCAL_WAY_VEC> groups;
 
     // firstly, each way into one group
     groups.resize(lways.size());
@@ -617,7 +640,7 @@ static size_t ways_to_sorted_groups(const LOCAL_WAY_VEC& lways,
     }
 
     // put the most important groups at begining
-    std::sort(lway_groups.begin(), lway_groups.end(),
+    sort(lway_groups.begin(), lway_groups.end(),
         [](const LOCAL_WAY_VEC& i, const LOCAL_WAY_VEC& j) {
         return i.size() > j.size();
     });
@@ -626,22 +649,22 @@ static size_t ways_to_sorted_groups(const LOCAL_WAY_VEC& lways,
 }
 
 bool get_relation_boundry_outer_nodes(const OsmData &osm_data, const Relation& relation,
-    std::vector<NodePtrVec>& nodes_vec, bool& boundry_complete, std::string &err_str)
+    vector<NodePtrVec>& nodes_vec, bool& boundry_complete, string &err_str)
 {
-    std::vector<osm::WayPtr> outer_ways;
+    vector<osm::WayPtr> outer_ways;
     if (false == get_relation_boundry_outer_ways(osm_data, relation, outer_ways, err_str)) {
         return false;
     }
 
     nodes_vec.clear();
     if (outer_ways.size() == 1) {
-        std::vector<std::string> node_refs;
+        vector<string> node_refs;
         for (const auto& node_ref : outer_ways[0]->node_refs) {
             node_refs.push_back(node_ref);
         }
     }
     else {
-        std::vector<LOCAL_WAY_VEC> lway_groups;
+        vector<LOCAL_WAY_VEC> lway_groups;
         {
             LOCAL_WAY_VEC lways;
             if (false == to_local_ways(osm_data, outer_ways, lways, err_str)) {
@@ -673,9 +696,12 @@ bool get_relation_boundry_outer_nodes(const OsmData &osm_data, const Relation& r
                 continue;
             }
 
-            std::vector<std::string> node_refs;
-            boost::unordered_map<std::string, int> node_set;
-
+            vector<string> node_refs;
+#ifdef _WIN32
+            unordered_map<string, int> node_set;
+#else
+            boost::unordered_map<string, int> node_set;
+#endif
             if (lways.size() == 1) {
                 for (const auto& node_ref : lways[0].p_way->node_refs) {
                     node_refs.push_back(node_ref);
@@ -719,7 +745,7 @@ bool get_relation_boundry_outer_nodes(const OsmData &osm_data, const Relation& r
 
                     if (asc) {
                         for (size_t i = 0; i < lway1.p_way->node_refs.size(); ++i) {
-                            const std::string& node_ref = lway1.p_way->node_refs[i];
+                            const string& node_ref = lway1.p_way->node_refs[i];
                             // avoid duplicated node
                             if (node_set.find(node_ref) == node_set.end()) {
                                 node_refs.push_back(node_ref);
@@ -729,7 +755,7 @@ bool get_relation_boundry_outer_nodes(const OsmData &osm_data, const Relation& r
                     }
                     else {
                         for (int i = (int)lway1.p_way->node_refs.size() - 1; i >= 0; --i) {
-                            const std::string& node_ref = lway1.p_way->node_refs[i];
+                            const string& node_ref = lway1.p_way->node_refs[i];
                             // avoid duplicated node
                             if (node_set.find(node_ref) == node_set.end()) {
                                 node_refs.push_back(node_ref);
@@ -764,9 +790,9 @@ bool get_relation_boundry_outer_nodes(const OsmData &osm_data, const Relation& r
 }
 
 bool get_relation_outer_boundry(const OsmData &osm_data, const Relation& relation,
-    geo::MultiPolygon& boundry, bool& boundry_complete, std::string &err_str)
+    geo::MultiPolygon& boundry, bool& boundry_complete, string &err_str)
 {
-    std::vector<NodePtrVec> nodes_vec;
+    vector<NodePtrVec> nodes_vec;
     if (false == get_relation_boundry_outer_nodes(osm_data, relation, nodes_vec,
         boundry_complete, err_str)) {
         return false;
@@ -792,8 +818,8 @@ bool get_relation_outer_boundry(const OsmData &osm_data, const Relation& relatio
     return !boundry.polygons.empty();
 }
 
-bool get_relation_outer_boundry(const OsmData &osm_data, const std::string& relation_ref,
-    geo::MultiPolygon& boundry, bool& boundry_complete, std::string &err_str)
+bool get_relation_outer_boundry(const OsmData &osm_data, const string& relation_ref,
+    geo::MultiPolygon& boundry, bool& boundry_complete, string &err_str)
 {
     const auto& relation_map = osm_data.relation_map;
     auto it = relation_map.find(relation_ref);
@@ -804,18 +830,18 @@ bool get_relation_outer_boundry(const OsmData &osm_data, const std::string& rela
     return get_relation_outer_boundry(osm_data, *it->second, boundry, boundry_complete, err_str);
 }
 
-std::string get_relation_boundry_wkt(const OsmData &osm_data, const Relation& relation,
-    bool& boundry_complete, std::string &err_str)
+string get_relation_boundry_wkt(const OsmData &osm_data, const Relation& relation,
+    bool& boundry_complete, string &err_str)
 {
     geo::MultiPolygon boundry;
     if (false == get_relation_outer_boundry(osm_data, relation, boundry, boundry_complete, err_str)) {
-        return std::string();
+        return string();
     }
 
-    std::string wkt;
+    string wkt;
     if (false == geo::multi_polygon_to_wkt(boundry, wkt)) {
         err_str = "No enough boundry information in Relation: " + relation.id;
-        return std::string();
+        return string();
     }
 
     return wkt;
@@ -823,7 +849,7 @@ std::string get_relation_boundry_wkt(const OsmData &osm_data, const Relation& re
 
 
 bool get_relation_center(const OsmData &osm_data, const Relation& relation,
-    geo::GeoPoint& point, std::string &err_str)
+    geo::GeoPoint& point, string &err_str)
 {
     const RelationMember* p_member = NULL;
     for (const auto& m : relation.members) {
@@ -875,7 +901,7 @@ bool get_relation_center(const OsmData &osm_data, const Relation& relation,
 }
 
 bool get_relation_subarea_members(const OsmData &osm_data, const Relation& relation,
-    std::vector<osm::RelationMember>& subarea_members, std::string &err_str)
+    vector<osm::RelationMember>& subarea_members, string &err_str)
 {
     subarea_members.clear();
     for (const auto& m : relation.members) {

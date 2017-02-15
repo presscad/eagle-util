@@ -9,10 +9,18 @@
 
 namespace shp {
 
+struct ShpParseParams
+{
+    double lat_offset{};
+    double lng_offset{};
+    bool coordinates_to_wgs84{ true };
+
+    std::string err_str;
+};
 
 struct ShpFeature
 {
-    long long      fid{-1};     // feature ID
+    long long      fid{ -1 };   // feature ID
     geo::GeoObjPtr p_geo_obj;
 
     bool IsValid() const
@@ -57,6 +65,8 @@ struct ShpData
     }
 };
 
+bool parse_shp(const std::string &filename, ShpParseParams& parse_cfgs,
+    ShpData &shp_data);
 bool parse_shp(const std::string &filename, double lat_offset, double lng_offset,
     ShpData &shp_data, std::string &err_str);
 

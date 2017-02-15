@@ -287,14 +287,18 @@ public:
 
     struct RoutingPair
     {
+        MatchingPoint *p_from_mat_pt{}, *p_to_mat_pt{};
         SegmentPtr p_seg_from{}, p_seg_to{};
         GraphNodePtr p_gnode_from{}, p_gnode_to{};
         std::vector<SegmentPtr> seg_route;
         int route_weight{ INVALID_WEIGHT }; // weighted length
 
-        void Init(SegmentPtr p_seg_from, SegmentPtr p_seg_to,
+        void Init(MatchingPoint* p_from_mat_pt, MatchingPoint* p_to_mat_pt,
+            SegmentPtr p_seg_from, SegmentPtr p_seg_to,
             GraphNodePtr p_gnode_from, GraphNodePtr p_gnode_to)
         {
+            this->p_from_mat_pt = p_from_mat_pt;
+            this->p_to_mat_pt = p_to_mat_pt;
             this->p_seg_from = p_seg_from;
             this->p_seg_to = p_seg_to;
             this->p_gnode_from = p_gnode_from;
@@ -416,7 +420,7 @@ public:
             geo_json.AddObj(p_point);
 
             // for the direction
-            {
+            if (point.heading >= 0) {
                 auto p_line = std::make_shared<GeoObj_LineString>();
                 p_line->AddPoint(point.geo_point);
                 geo::GeoPoint to = geo::get_point_degree(point.geo_point, 12.0, point.heading);
@@ -437,22 +441,19 @@ private:
     size_t routing_pair_count_{};
     void AppendResultRouteForGroup(const MatchingPointGroup &group)
     {
-        const MatchingPoint &from_pt = matching_points_[group.from_index];
-        const MatchingPoint &to_pt = matching_points_[group.to_index];
+        MatchingPoint &from_pt = matching_points_[group.from_index];
+        MatchingPoint &to_pt = matching_points_[group.to_index];
         if (from_pt.NonMatched() || to_pt.NonMatched()) {
             return;
         }
 
-        MatchingPoint &from = matching_points_[group.from_index];
-        MatchingPoint &to = matching_points_[group.to_index];
-
         routing_pair_count_ = 0;
-        for (const auto& p_from_seg : from.p_segs) {
+        for (const auto& p_from_seg : from_pt.p_segs) {
             if (p_from_seg != nullptr) {
-                for (const auto& p_to_seg : to.p_segs) {
+                for (const auto& p_to_seg : to_pt.p_segs) {
                     if (p_to_seg != nullptr) {
-                        routing_pairs_[routing_pair_count_++].Init(p_from_seg, p_to_seg,
-                            nullptr, nullptr);
+                        routing_pairs_[routing_pair_count_++].Init(&from_pt, &to_pt,
+                            p_from_seg, p_to_seg,nullptr, nullptr);
                     }
                 }
             }
@@ -520,58 +521,211 @@ private:
         if (matching_params_.via_points.empty() || matching_params_.result_route.empty()) {
             return;
         }
+        FixBeginPoints();
+        FixEndPoints();
+    }
 
-        // e.g., if the route is starting from seg2, but should start from seg1
-        //      seg1     seg2
-        // ----------->------------->.....
-        //         o
-        //      1st via point
-        const auto &mat_point0 = matching_points_.front();
-        if (mat_point0.p_segs[0] && mat_point0.p_segs[1]) {
+    void FixBeginPoints()
+    {
+        auto seg_in_route_front = [](const vector<geo::SegmentPtr>& route, geo::SegmentPtr p_seg) {
+            for (size_t i = 0; i < 4 && i < route.size(); ++i) {
+                if (route[i] == p_seg) return true;
+            }
+            return false;
+        };
+
+        int seg_cand_count0 = 0;
+        for (auto& p_seg : matching_points_.front().p_segs) {
+            if (p_seg) {
+                ++seg_cand_count0;
+            }
+        }
+        if (seg_cand_count0 == 2) {
+            // e.g., if the route is starting from seg2, but should start from seg1
+            //      seg1     seg2
+            // ----------->------------->.....
+            //         o
+            //      1st via point
+            const auto &mat_point0 = matching_points_.front();
             SegmentPtr p_seg1 = mat_point0.p_segs[0];
             SegmentPtr p_seg2 = mat_point0.p_segs[1];
-            if (p_seg1->GetWayIdOriented() == p_seg2->GetWayIdOriented() &&
-                WayManager::GetAngle(p_seg1->heading_, p_seg2->heading_) < 25)
-            {
-                if (p_seg1->from_nd_ == p_seg2->to_nd_) {
-                    std::swap(p_seg1, p_seg2);
-                }
-                const GeoPoint& geo_point = mat_point0.p_via_point->geo_point;
-                if (p_seg2->seg_id_ == matching_params_.result_route.front()->seg_id_ &&
-                    p_seg1->DistanceSquareMeters(geo_point) < p_seg2->DistanceSquareMeters(geo_point))
-                {
-                    matching_params_.result_route.insert(matching_params_.result_route.begin(),
-                        p_seg1);
+            if (p_seg1 == matching_params_.result_route.front()) {
+                std::swap(p_seg1, p_seg2);
+            }
 
-                    for (auto &via_point : matching_params_.via_points) {
-                        if (via_point.i_seg >= 0) {
-                            ++via_point.i_seg;
+            const GeoPoint& geo_point = mat_point0.p_via_point->geo_point;
+            if (p_seg2 == matching_params_.result_route.front() &&
+                p_seg1->DistanceSquareMeters(geo_point) < p_seg2->DistanceSquareMeters(geo_point))
+            {
+                if (p_seg1->GetWayIdOriented() == p_seg2->GetWayIdOriented() || p_seg1->to_nd_ == p_seg2->from_nd_) {
+                    if (!seg_in_route_front(matching_params_.result_route, p_seg1)) {
+                        matching_params_.result_route.insert(matching_params_.result_route.begin(), p_seg1);
+                        mat_point0.p_via_point->p_seg = p_seg1;
+                    }
+                }
+                else {
+                    vector<SegmentPtr> route;
+                    way_manager_.RoutingNearby(p_seg1, p_seg2, route);
+                    if (route.size() == 3) {
+                        matching_params_.result_route.insert(matching_params_.result_route.begin(),
+                            route.begin(), route.begin() + 2);
+                        mat_point0.p_via_point->p_seg = route.front();
+                    }
+                }
+            }
+        }
+        else if (seg_cand_count0 == 3) {
+            //   seg1/seg2     seg3
+            // ------------->------------->.....
+            //            o
+            //      1st via point
+            const auto &mat_point0 = matching_points_.front();
+            SegmentPtr p_seg1 = mat_point0.p_segs[0];
+            SegmentPtr p_seg2 = mat_point0.p_segs[1];
+            SegmentPtr p_seg3 = mat_point0.p_segs[2];
+            if (p_seg1 == matching_params_.result_route.front()) {
+                std::swap(p_seg1, p_seg3);
+            }
+            else if (p_seg2 == matching_params_.result_route.front()) {
+                std::swap(p_seg2, p_seg3);
+            }
+
+            if (p_seg3 == matching_params_.result_route.front()) {
+                bool ok1 = false, ok2 = false;
+                if (p_seg1->GetWayIdOriented() == p_seg3->GetWayIdOriented() || p_seg1->to_nd_ == p_seg3->from_nd_) {
+                    ok1 = true;
+                }
+                if (p_seg2->GetWayIdOriented() == p_seg3->GetWayIdOriented() || p_seg2->to_nd_ == p_seg3->from_nd_) {
+                    ok2 = true;
+                }
+                if (ok1 || ok2) {
+                    const double dist1 = p_seg1->DistanceSquareMeters(mat_point0.p_via_point->geo_point);
+                    const double dist2 = p_seg2->DistanceSquareMeters(mat_point0.p_via_point->geo_point);
+                    const double dist3 = p_seg3->DistanceSquareMeters(mat_point0.p_via_point->geo_point);
+                    if (ok1 && !ok2 && dist1 < dist3) {
+                        if (!seg_in_route_front(matching_params_.result_route, p_seg1)) {
+                            matching_params_.result_route.insert(matching_params_.result_route.begin(), p_seg1);
+                            mat_point0.p_via_point->p_seg = p_seg1;
+                        }
+                    }
+                    else if (!ok1 && ok2 && dist2 < dist3) {
+                        if (!seg_in_route_front(matching_params_.result_route, p_seg2)) {
+                            matching_params_.result_route.insert(matching_params_.result_route.begin(), p_seg2);
+                            mat_point0.p_via_point->p_seg = p_seg2;
+                        }
+                    }
+                    else if (ok1 && ok2 && dist1 < dist3 && dist2 < dist3) {
+                        auto p_seg_new = (dist1 < dist2) ? p_seg1 : p_seg2;
+                        if (!seg_in_route_front(matching_params_.result_route, p_seg_new)) {
+                            matching_params_.result_route.insert(matching_params_.result_route.begin(), p_seg_new);
+                            mat_point0.p_via_point->p_seg = p_seg_new;
                         }
                     }
                 }
             }
         }
+    }
 
-        // e.g., if the route is ending with seg1, but should ending with seg2
-        //                    seg1     seg2
-        // ... --------->----------->------------->
-        //                              o
-        //                         last via point
-        if (matching_params_.via_points.size() > 1) {
+    void FixEndPoints()
+    {
+        auto seg_in_route_back = [](const vector<geo::SegmentPtr>& route, geo::SegmentPtr p_seg) {
+            for (size_t i = 0; i < 4 && i < route.size(); ++i) {
+                if (route[route.size() - 1 - i] == p_seg) return true;
+            }
+            return false;
+        };
+
+        int seg_cand_count_n = 0;
+        for (auto& p_seg : matching_points_.back().p_segs) {
+            if (p_seg) {
+                ++seg_cand_count_n;
+            }
+        }
+        if (seg_cand_count_n == 2) {
+            // e.g., if the route is ending with seg1, but should ending with seg2
+            //                    seg1     seg2
+            // ... --------->----------->------------->
+            //                              o
+            //                         last via point
             const auto &mat_point_n = matching_points_.back();
-            if (mat_point_n.p_segs[0] && mat_point_n.p_segs[1]) {
-                SegmentPtr p_seg1 = mat_point_n.p_segs[0];
-                SegmentPtr p_seg2 = mat_point_n.p_segs[1];
-                if (p_seg1->GetWayIdOriented() == p_seg2->GetWayIdOriented() &&
-                    WayManager::GetAngle(p_seg1->heading_, p_seg2->heading_) < 25)
-                {
-                    if (p_seg1->from_nd_ == p_seg2->to_nd_) {
-                        std::swap(p_seg1, p_seg2);
-                    }
-                    const GeoPoint& geo_point = mat_point_n.p_via_point->geo_point;
-                    if (p_seg1->seg_id_ == matching_params_.result_route.back()->seg_id_ &&
-                        p_seg2->DistanceSquareMeters(geo_point) < p_seg1->DistanceSquareMeters(geo_point)) {
+            SegmentPtr p_seg1 = mat_point_n.p_segs[0];
+            SegmentPtr p_seg2 = mat_point_n.p_segs[1];
+            if (p_seg2 == matching_params_.result_route.back()) {
+                std::swap(p_seg1, p_seg2);
+            }
+
+            const GeoPoint& geo_point = mat_point_n.p_via_point->geo_point;
+            if (p_seg1 == matching_params_.result_route.back() &&
+                p_seg2->DistanceSquareMeters(geo_point) < p_seg1->DistanceSquareMeters(geo_point))
+            {
+                if (p_seg1->GetWayIdOriented() == p_seg2->GetWayIdOriented() || p_seg1->to_nd_ == p_seg2->from_nd_) {
+                    if (!seg_in_route_back(matching_params_.result_route, p_seg2)) {
                         matching_params_.result_route.push_back(p_seg2);
+                        mat_point_n.p_via_point->p_seg = p_seg2;
+                    }
+                }
+                else {
+                    vector<SegmentPtr> route;
+                    way_manager_.RoutingNearby(p_seg1, p_seg2, route);
+                    if (route.size() == 3) {
+                        if (!seg_in_route_back(matching_params_.result_route, route[1])) {
+                            matching_params_.result_route.push_back(route[1]);
+                            mat_point_n.p_via_point->p_seg = route[1];
+                        }
+                        if (!seg_in_route_back(matching_params_.result_route, p_seg2)) {
+                            matching_params_.result_route.push_back(p_seg2);
+                            mat_point_n.p_via_point->p_seg = p_seg2;
+                        }
+                    }
+                }
+            }
+        }
+        else if (seg_cand_count_n == 3) {
+            //                   seg3     seg1/seg2
+            // ... --------->----------->------------->
+            //                              o
+            //                         last via point
+            const auto &mat_point_n = matching_points_.back();
+            SegmentPtr p_seg1 = mat_point_n.p_segs[0];
+            SegmentPtr p_seg2 = mat_point_n.p_segs[1];
+            SegmentPtr p_seg3 = mat_point_n.p_segs[2];
+            if (p_seg1 == matching_params_.result_route.back()) {
+                std::swap(p_seg1, p_seg3);
+            }
+            else if (p_seg2 == matching_params_.result_route.back()) {
+                std::swap(p_seg2, p_seg3);
+            }
+
+            if (p_seg3 == matching_params_.result_route.back()) {
+                bool ok1 = false, ok2 = false;
+                if (p_seg1->GetWayIdOriented() == p_seg3->GetWayIdOriented() || p_seg1->from_nd_ == p_seg3->to_nd_) {
+                    ok1 = true;
+                }
+                if (p_seg2->GetWayIdOriented() == p_seg3->GetWayIdOriented() || p_seg2->from_nd_ == p_seg3->to_nd_) {
+                    ok2 = true;
+                }
+                if (ok1 || ok2) {
+                    const double dist1 = p_seg1->DistanceSquareMeters(mat_point_n.p_via_point->geo_point);
+                    const double dist2 = p_seg2->DistanceSquareMeters(mat_point_n.p_via_point->geo_point);
+                    const double dist3 = p_seg3->DistanceSquareMeters(mat_point_n.p_via_point->geo_point);
+                    if (ok1 && !ok2 && dist1 < dist3) {
+                        if (!seg_in_route_back(matching_params_.result_route, p_seg1)) {
+                            matching_params_.result_route.push_back(p_seg1);
+                            mat_point_n.p_via_point->p_seg = p_seg1;
+                        }
+                    }
+                    else if (!ok1 && ok2 && dist2 < dist3) {
+                        if (!seg_in_route_back(matching_params_.result_route, p_seg2)) {
+                            matching_params_.result_route.push_back(p_seg2);
+                            mat_point_n.p_via_point->p_seg = p_seg2;
+                        }
+                    }
+                    else if (ok1 && ok2 && dist1 < dist3 && dist2 < dist3) {
+                        auto p_seg_new = (dist1 < dist2) ? p_seg1 : p_seg2;
+                        if (!seg_in_route_back(matching_params_.result_route, p_seg_new)) {
+                            matching_params_.result_route.push_back(p_seg_new);
+                            mat_point_n.p_via_point->p_seg = p_seg_new;
+                        }
                     }
                 }
             }
@@ -765,7 +919,31 @@ private:
             pair.route_weight = INVALID_WEIGHT;
             return;
         }
-        pair.route_weight = CalculateRouteWeight(pair.seg_route);
+
+        const int seg_count = (int)pair.seg_route.size();
+        pair.route_weight = 0;
+
+        // for 1st segment
+        {
+            auto p_seg = pair.seg_route.front();
+            double proj_len = geo::get_projection_distance_in_meter(pair.p_from_mat_pt->p_via_point->geo_point,
+                p_seg->from_point_, p_seg->to_point_, false);
+            pair.route_weight += WayManager::DistanceToWeight(proj_len, p_seg->way_type_);
+        }
+
+        // for last segment
+        {
+            auto p_seg = pair.seg_route.back();
+            double proj_len = geo::get_projection_distance_in_meter(pair.p_to_mat_pt->p_via_point->geo_point,
+                p_seg->from_point_, p_seg->to_point_, true);
+            pair.route_weight += WayManager::DistanceToWeight(proj_len, p_seg->way_type_);
+        }
+
+        // by default, exclude 1st and last
+        for (int i = 1; i < seg_count - 1; ++i) {
+            auto &p_seg = pair.seg_route[i];
+            pair.route_weight += WayManager::DistanceToWeight(p_seg->length_, p_seg->way_type_);
+        }
     }
 
     void VerifyResult(RouteMatchingParams &params) const
@@ -844,7 +1022,9 @@ private:
                 for (size_t i_to = 0; i_to < to.p_gnodes.size(); ++i_to) {
                     auto& p_to_gnode = to.p_gnodes[i_to];
                     if (p_to_gnode) {
-                        pairs[pair_count++].Init(from.p_segs[i_from], to.p_segs[i_to],
+                        pairs[pair_count++].Init(const_cast<MatchingPoint *>(&from),
+                            const_cast<MatchingPoint *>(&to),
+                            from.p_segs[i_from], to.p_segs[i_to],
                             p_from_gnode, p_to_gnode);
                     }
                 }

@@ -377,28 +377,40 @@ bool Segment::GetTagByName(const std::string& tag_name, std::string* p_tag_value
     return false;
 }
 
-std::string Segment::TagsToStr(const SharedTagsPtr &p_tags)
+#define TAG_DELIMETER   ','
+std::string Segment::TagsToStr(const Tags& tags)
 {
-    std::string result;
-    if (p_tags == nullptr || p_tags->empty()) {
-        return result;
+    if (tags.empty()) {
+        return std::string();
     }
 
-    const size_t tags_size = p_tags->size();
+    std::string result;
+    const size_t tags_size = tags.size();
     std::string tag_str;
     tag_str.reserve(64);
     for (size_t i = 0; i < tags_size; ++i) {
+        const auto &tag = tags[i];
+        const bool has_delimeter = (std::string::npos != tag.value.find(TAG_DELIMETER))
+            || (std::string::npos != tag.name.find(TAG_DELIMETER));
+
         if (i != 0) {
-            tag_str = ',';
+            tag_str = TAG_DELIMETER;
         }
         else {
             tag_str.clear();
         }
-        const auto &tag = (*p_tags)[i];
+        if (has_delimeter) {
+            tag_str += '\"';
+        }
+
         tag_str += tag.name;
         if (!tag.value.empty()) {
             tag_str += '=';
             tag_str += tag.value;
+        }
+
+        if (has_delimeter) {
+            tag_str += '\"';
         }
 
         result += tag_str;
@@ -410,7 +422,7 @@ std::string Segment::TagsToStr(const SharedTagsPtr &p_tags)
 SharedTagsPtr Segment::StrToTags(const std::string &tags_str)
 {
     std::vector<std::string> tags, kvs;
-    util::ParseCsvLine(tags, tags_str, ',');
+    util::ParseCsvLine(tags, tags_str, TAG_DELIMETER);
     if (tags.empty()) {
         return nullptr;
     }
@@ -423,7 +435,9 @@ SharedTagsPtr Segment::StrToTags(const std::string &tags_str)
         kvs.clear();
         util::ParseCsvLine(kvs, tag_str, '=');
         const auto kvs_size = kvs.size();
-        if (kvs_size == 0) continue;
+        if (kvs_size == 0) {
+            continue;
+        }
 
         if (kvs_size >= 1) {
             tag.name = kvs.front();
@@ -442,6 +456,7 @@ SharedTagsPtr Segment::StrToTags(const std::string &tags_str)
 
     return p_tags;
 }
+#undef TAG_DELIMETER
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // class OrientedWay
@@ -678,6 +693,51 @@ bool WayManager::SegsToJson(const std::vector<SegmentPtr>& segs,
 
     return geo_json.ToJsonFile(pathname);
 }
+
+double WayManager::ProjectionLengthOnSegRoute(const GeoPoint& p1, const GeoPoint& p2,
+    const std::vector<SegmentPtr>& seg_route,
+    double* p_first_proj_len, double* p_last_proj_len)
+{
+    if (seg_route.empty()) {
+        return 0;
+    }
+    double total_proj_length = 0;
+
+    // for the 1st segment
+    {
+        const double proj_length = get_projection_distance_in_meter(p1,
+            seg_route.front()->from_point_, seg_route.front()->to_point_, false);
+        if (p_first_proj_len) {
+            *p_first_proj_len = proj_length;
+        }
+        total_proj_length += proj_length;
+    }
+
+    // for the last segment
+    {
+        const double proj_length = get_projection_distance_in_meter(p2,
+            seg_route.back()->from_point_, seg_route.back()->to_point_, true);
+        if (p_last_proj_len) {
+            *p_last_proj_len = proj_length;
+        }
+        total_proj_length += proj_length;
+    }
+
+    // exclude the first and last segments
+    const int seg_count = (int)seg_route.size();
+    for (int i = 1; i < seg_count - 1; ++i) {
+        total_proj_length += seg_route[i]->length_;
+    }
+
+    return total_proj_length;
+}
+
+double WayManager::ProjectionLengthOnSegRoute(const GeoPoint& p1, const GeoPoint& p2,
+    const std::vector<SegmentPtr>& seg_route)
+{
+    return ProjectionLengthOnSegRoute(p1, p2, seg_route, nullptr, nullptr);
+}
+
 
 static UNORD_MAP<std::string, HIGHWAY_TYPE> gHighwayToType = {
     { "motorway", HIGHWAY_MOTORWAY },
@@ -1011,15 +1071,14 @@ void WayManager::FlagNodeInternals(util::SimpleObjPool<Node>& node_pool)
     const int size = (int)node_pool.Size();
     for (int i = 0; i < size; ++i) {
         auto& node = node_pool[i];
-        std::vector<SegmentPtr>& conn_segs = node.connected_segments_;
+        const std::vector<SegmentPtr>& conn_segs = node.connected_segments_;
 
         // init is_way_connector_
         if (node.nd_id_ > 0 && conn_segs.size() >= 2) {
             auto& p_conn_seg0 = conn_segs.front();
 
             // to init all Node::is_way_connector_
-            for (auto it_conn = conn_segs.begin() + 1; it_conn != conn_segs.end(); ++it_conn) {
-                auto&& p_conn_seg = *it_conn;
+            for (auto& p_conn_seg : conn_segs) {
                 if (p_conn_seg->way_id_ != p_conn_seg0->way_id_) {
                     node.is_way_connector_ = 1;
                     break;
@@ -1032,9 +1091,7 @@ void WayManager::FlagNodeInternals(util::SimpleObjPool<Node>& node_pool)
             node.is_dead_end_ = 1;
         }
         else if (conn_segs.size() == 2) {
-            auto&& p_conn_seg1 = conn_segs.front();
-            auto&& p_conn_seg2 = conn_segs.back();
-            if (WayManager::GetAngle(p_conn_seg1->heading_, p_conn_seg2->heading_) == 180) {
+            if (WayManager::GetAngle(conn_segs.front()->heading_, conn_segs.back()->heading_) == 180) {
                 node.is_dead_end_ = 1;
             }
         }
@@ -1051,7 +1108,8 @@ void WayManager::DoneAddNodeMap(util::SimpleObjPool<Node>& node_pool)
 #endif
 
     int n_nodes = (int)node_pool.Size();
-    const int task_count = std::min((int)std::thread::hardware_concurrency(), (int)8);
+    int task_count = std::min((int)std::thread::hardware_concurrency(), (int)8);
+    if (task_count < 2) task_count = 2;
     std::vector<std::tuple<int, int>> blocks;
     if (n_nodes > 1024) {
         blocks = util::SplitIntoSubsBlocks(task_count, n_nodes);
@@ -1135,7 +1193,7 @@ void WayManager::SetCurThreadErrStr(std::mutex& threads_err_mutex,
 }
 
 //Parser lines to segments
-static void ParserLinesToSegs(const std::vector<char *>& lines, vector<SEGMENT>& segs,
+static string ParserLinesToSegs(const std::vector<char *>& lines, vector<SEGMENT>& segs,
     const string& in_segments_csv)
 {
     //#SEG_ID, FROM_LAT, FROM_LNG, TO_LAT, TO_LNG, ONE_WAY, LENGTH, WAY_ID, WAY_SUB_SEQ, SPLIT_SEQ,
@@ -1160,6 +1218,9 @@ static void ParserLinesToSegs(const std::vector<char *>& lines, vector<SEGMENT>&
             continue;
         }
         seg.seg_id = std::atoll(subs[0]);
+        if (0 == seg.seg_id) {
+            return "Error in parsing segment ID: \"" + string(subs[0]) + '\"';
+        }
         seg.from_lat = atof(subs[1]);
         seg.to_lat = atof(subs[3]);
         seg.from_lng = atof(subs[2]);
@@ -1188,6 +1249,7 @@ static void ParserLinesToSegs(const std::vector<char *>& lines, vector<SEGMENT>&
 
         segs.push_back(seg);
     }
+    return string();
 }
 
 // multi-threaded version of LoadSegmentsCsvs()
@@ -1209,28 +1271,38 @@ static bool LoadSegmentsCsvs_Multi(const string& in_segments_csvs, vector<SEGMEN
     size_t end_index = (n_pos == std::string::npos) ? 0 : n_pos + 1;
     std::string base_dir = in_csvs.substr(0, end_index);
     if (false == util::FindFiles(in_csvs, files)){
-        err = "Error: cannot find file : " + in_segments_csvs;
+        err = "Error: cannot find file: " + in_segments_csvs;
         return false;
     }
-    size_t concurrency = files.size() > std::thread::hardware_concurrency() ?
+    size_t concurrency = (files.size() > std::thread::hardware_concurrency()) ?
         std::thread::hardware_concurrency() : files.size();
-    vector<vector<SEGMENT> > seg_blocks(concurrency);
+    if (concurrency == 0) concurrency = 2;
+
+    struct block_data {
+        vector<SEGMENT> block_segs;
+        string block_err;
+    };
+    vector<block_data> seg_blocks(concurrency);
     std::vector<std::shared_ptr<std::thread> > threads(concurrency);
     for (size_t i = 0; i < concurrency; ++i) {
         threads[i] = std::make_shared<std::thread>(
             [&files, i, &seg_blocks, base_dir, concurrency]() {
             size_t j = i;
-            vector<SEGMENT>& block_segs = seg_blocks[i];
+            block_data& bd = seg_blocks[i];
             std::string part_file;
             do { 
                 if (!util::ReadAllFromFile(base_dir + files[j], part_file)) {
+                    bd.block_err = "Error in opening " + base_dir + files[j];
                     return ;
                 }
-                block_segs.reserve(part_file.size() / 110 *
-                    ((files.size() - 1) / concurrency + 1));
+                bd.block_segs.reserve(part_file.size() / 110 * ((files.size() - 1) / concurrency + 1));
                 std::vector<char *> lines;
                 util::ParseCsvLineInPlace(lines, &part_file[0], '\n', true); // true means leave quotes alone
-                ParserLinesToSegs(lines, block_segs, base_dir + files[j]);
+                bd.block_err = ParserLinesToSegs(lines, bd.block_segs, base_dir + files[j]);
+                if (!bd.block_err.empty()) {
+                    return;
+                }
+
                 j += concurrency;
             } while (j < files.size());
         });
@@ -1242,15 +1314,19 @@ static bool LoadSegmentsCsvs_Multi(const string& in_segments_csvs, vector<SEGMEN
     // total seg cuont
     size_t seg_count = 0;
     for (const auto& seg_block : seg_blocks) {
-        seg_count += seg_block.size();
+        seg_count += seg_block.block_segs.size();
+        if (!seg_block.block_err.empty()) {
+            err = seg_block.block_err;
+            return false;
+        }
     }
     // merge all segs
-    segs = move(seg_blocks[0]);
+    segs = move(seg_blocks[0].block_segs);
     segs.reserve(seg_count);
     for (size_t i = 1; i < seg_blocks.size(); ++i) {
-        if (!seg_blocks[i].empty()) {
-            segs.insert(segs.end(), std::make_move_iterator(seg_blocks[i].begin()),
-                std::make_move_iterator(seg_blocks[i].end()));
+        if (!seg_blocks[i].block_segs.empty()) {
+            segs.insert(segs.end(), std::make_move_iterator(seg_blocks[i].block_segs.begin()),
+                std::make_move_iterator(seg_blocks[i].block_segs.end()));
         }
     }
     std::sort(segs.begin(), segs.end(), [](const SEGMENT& i, const SEGMENT& j) {
@@ -1280,27 +1356,35 @@ static bool LoadSegmentsCsv_Multi(const string& in_segments_csv, vector<SEGMENT>
     }
 
     std::vector<char *> blocks;
-    if (false == util::SplitBigData(&file_data[0], file_data.size(), '\n',
-        std::thread::hardware_concurrency(), blocks)) {
+    auto concurrency = std::thread::hardware_concurrency();
+    if (concurrency == 0) concurrency = 2;
+    if (false == util::SplitBigData(&file_data[0], file_data.size(), '\n', concurrency, blocks)) {
         err = "No rows found in segments file: " + in_segments_csv;
         return false;
     }
 
-    vector<vector<SEGMENT> > seg_blocks(blocks.size());
+    struct block_data {
+        vector<SEGMENT> block_segs;
+        string block_err;
+    };
+    vector<block_data> seg_blocks(blocks.size());
     std::vector<std::shared_ptr<std::thread> > threads(blocks.size());
     for (size_t i_block = 0; i_block < blocks.size(); ++i_block) {
         threads[i_block] = std::make_shared<std::thread>(
             [&file_data, i_block, &seg_blocks, &blocks, &in_segments_csv]() {
             char *p_block = blocks[i_block];
-            vector<SEGMENT>& block_segs = seg_blocks[i_block];
-            block_segs.reserve(file_data.size() / 110 / blocks.size()); // rough estimate
+            block_data& bd = seg_blocks[i_block];
+            bd.block_segs.reserve(file_data.size() / 110 / blocks.size()); // rough estimate
 
             std::vector<char *> lines;
             util::ParseCsvLineInPlace(lines, p_block, '\n', true); // true means leave quotes alone
             if (lines.empty()) {
                 return;
             }
-            ParserLinesToSegs(lines, block_segs, in_segments_csv);
+            bd.block_err = ParserLinesToSegs(lines, bd.block_segs, in_segments_csv);
+            if (!bd.block_err.empty()) {
+                return;
+            }
         });
     }
     // join all threads
@@ -1311,15 +1395,19 @@ static bool LoadSegmentsCsv_Multi(const string& in_segments_csv, vector<SEGMENT>
     // total seg cuont
     size_t seg_count = 0;
     for (const auto& seg_block : seg_blocks) {
-        seg_count += seg_block.size();
+        seg_count += seg_block.block_segs.size();
+        if (!seg_block.block_err.empty()) {
+            err = seg_block.block_err;
+            return false;
+        }
     }
 
     // merge all segs
-    segs = move(seg_blocks[0]);
+    segs = move(seg_blocks[0].block_segs);
     segs.reserve(seg_count);
     for (size_t i = 1; i < seg_blocks.size(); ++i) {
-        if (!seg_blocks[i].empty()) {
-            segs.insert(segs.end(), seg_blocks[i].begin(), seg_blocks[i].end());
+        if (!seg_blocks[i].block_segs.empty()) {
+            segs.insert(segs.end(), seg_blocks[i].block_segs.begin(), seg_blocks[i].block_segs.end());
         }
     }
     return true;
@@ -1954,7 +2042,7 @@ public:
             return arrSegs[aCandidatesIndexes[0]];
         }
         else {
-            int match_priority = match_priority_;
+            int match_priority = (params.match_priority == -1) ? match_priority_ : params.match_priority;
             if (params.heading < 0) {
                 match_priority = WayManager::MATCH_PRI_DISTANCE;
             }
@@ -2049,6 +2137,27 @@ public:
                 if (p_results->size() > 4) {
                     p_results->resize(4);
                 }
+
+                // normalize the scores
+                if (!p_results->empty()) {
+                    float max_score = 0;
+                    for (const auto& res : *p_results) {
+                        if (max_score < res.score) {
+                            max_score = res.score;
+                        }
+                    }
+                    if (max_score == 0) {
+                        for (auto& res : *p_results) {
+                            res.score = 1.0f;
+                        }
+                    }
+                    else {
+                        for (auto& res : *p_results) {
+                            res.score /= max_score;
+                        }
+                    }
+                }
+
                 return p_results->front().p_seg;
             }
         }
@@ -2058,7 +2167,7 @@ private:
     void FlagExclusiveAssignedSeg(const geo::GeoPoint& point,
         SegAssignResults &assign_results) const
     {
-        size_t res_size = assign_results.size();
+        const size_t res_size = assign_results.size();
         if (res_size == 0) {
             return;
         }
@@ -2144,9 +2253,9 @@ private:
 
         const int SAME_WAY_ANGLE_TOLERANCE = 25;
         {
-            std::sort(res_refs.begin(), res_refs.end(),
-                [](const ResRef &i, const ResRef &j) {
-                return i.p_res->score < j.p_res->score;
+            // order by score, desc
+            std::sort(res_refs.begin(), res_refs.end(), [](const ResRef &i, const ResRef &j) {
+                return i.p_res->score > j.p_res->score;
             });
 
             // remove duplicated temp_edge_id, firstly flag them
@@ -2160,6 +2269,7 @@ private:
                             if (ref_i.temp_edge_id == ref_j.temp_edge_id &&
                                 WayManager::GetAngle(ref_i.p_res->p_seg->heading_,
                                     ref_j.p_res->p_seg->heading_) < SAME_WAY_ANGLE_TOLERANCE) {
+                                ref_j.p_res->p_seg = nullptr; // removal flag in assign_results[*]
                                 ref_j.p_res = nullptr;
                                 ++remove_count;
                             }
@@ -2170,7 +2280,7 @@ private:
             // do the actual removal
             if (remove_count != 0) {
                 std::stable_partition(assign_results.begin(), assign_results.end(),
-                    [](SegAssignRes &res) {
+                    [](const SegAssignRes &res) {
                     return res.p_seg != nullptr;
                 });
                 assign_results.resize(assign_results.size() - remove_count);
@@ -2586,7 +2696,7 @@ private:
 
         unsigned task_count = std::thread::hardware_concurrency();
         if (task_count == 0) {
-            task_count = 1;
+            task_count = 2;
         }
         util::CreateSimpleThreadPool("WayManageer_InitNeigh", task_count,
             [&indices, this, &tile_tuples]() {

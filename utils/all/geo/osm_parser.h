@@ -6,7 +6,11 @@
 #include <vector>
 #include <fstream>
 #include <memory>
+#ifdef _WIN32
+#include <unordered_map>
+#else
 #include <boost/unordered_map.hpp>
+#endif
 #include "geo_utils.h"
 
 //#pragma optimize("", off)
@@ -26,7 +30,11 @@ typedef struct Bounds
     }
 } Bounds;
 
+#ifdef _WIN32
+typedef std::unordered_map<std::string, std::string>  TagMap;
+#else
 typedef boost::unordered_map<std::string, std::string>  TagMap;
+#endif
 
 // E.g.,
 // <node id="29055831" version="21" timestamp="2013-08-01T07:05:36Z" uid="386131" user="zhongguo" changeset="7097408" lat="31.706849" lon="119.0231171">
@@ -92,10 +100,15 @@ typedef struct Relation
 typedef std::shared_ptr<Relation> RelationPtr;
 typedef std::vector<RelationPtr> RelationPtrVec;
 
+#ifdef _WIN32
+typedef std::unordered_map<std::string, NodePtr> NodeMap;
+typedef std::unordered_map<std::string, WayPtr> WayMap;
+typedef std::unordered_map<std::string, RelationPtr> RelationMap;
+#else
 typedef boost::unordered_map<std::string, NodePtr> NodeMap;
 typedef boost::unordered_map<std::string, WayPtr> WayMap;
 typedef boost::unordered_map<std::string, RelationPtr> RelationMap;
-
+#endif
 
 typedef struct OsmData
 {
@@ -111,6 +124,11 @@ typedef struct OsmData
         way_map.clear();
         relation_map.clear();
     }
+
+    bool Empty() const
+    {
+        return node_map.empty() && way_map.empty();
+    }
 } OsmData;
 
 
@@ -125,8 +143,10 @@ NodePtr get_node_by_ref(const NodeMap &node_map, const std::string& node_ref,
     std::string& err_str);
 
 bool get_tag_from_map(const TagMap& tag_map, const std::string &key, std::string &value);
-bool get_names_from_map(const TagMap& tag_map,
-    std::vector<std::tuple<std::string, std::string> >& names);
+// def_lang_code: default language
+// names_t: entry example "E:some name in English"
+bool get_names_from_map(const TagMap& tag_map, char def_lang_code,
+    std::vector<std::string>& names_t, std::string &err_str);
 
 RelationPtr find_admin_boundry_relation(const OsmData &osm_data, const std::string& name,
     int admin_level);

@@ -34,7 +34,7 @@ class GeoJsonHelper
 public:
     static double ToPrecision6(double v)
     {
-        return static_cast<double>(static_cast<long>(v * 1000000.0 + 0.5)) / 1000000.0;
+        return static_cast<double>(static_cast<long long>(v * 1000000.0 + 0.5)) / 1000000.0;
     }
 
     template <typename Writer>
@@ -435,6 +435,41 @@ void GeoObj::AddProp(const char* name, bool value)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// class GeoObj_Point
+
+std::string GeoObj_Point::ToWKT() const
+{
+    std::string wkt("POINT(");
+    wkt.reserve(6 + 22 + 2);
+
+    char buff[40];
+    snprintf(buff, sizeof(buff), "%.6f %.6f", point_.lng, point_.lat);
+    wkt += buff;
+
+    wkt += ')';
+    return wkt;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// class GeoObj_MultiPoint
+
+std::string GeoObj_MultiPoint::ToWKT() const
+{
+    std::string wkt("MULTIPOINT(");
+    wkt.reserve(11 + 22 * this->points_.size() + 2);
+    for (size_t i = 0; i < this->points_.size(); ++i) {
+        char buff[50];
+        snprintf(buff, sizeof(buff), "%.6f %.6f", points_[i].lng, points_[i].lat);
+        wkt += buff;
+        if (i < this->points_.size() - 1) {
+            wkt += ',';
+        }
+    }
+
+    wkt += ')';
+    return wkt;
+}
+
 // class GeoObj_LineString
 
 // decode compressed route geometry.
@@ -474,12 +509,17 @@ bool GeoObj_LineString::FromCompressedGeometry(const std::string& encoded, int i
 
 bool GeoObj_LineString::FromWKT(const std::string& wkt)
 {
-    const std::string prefix("LINESTRING(");
+    const std::string prefix("LINESTRING");
     auto i1 = wkt.find(prefix);
-    if (11 == std::string::npos) {
+    if (i1 == std::string::npos) {
         return false;
     }
     i1 += prefix.length();
+    while (i1 < wkt.length() && (wkt[i1] == ' ' || wkt[i1] == '\t')) {
+        ++i1;
+    }
+    if (wkt[i1] == '(') ++i1;
+
     auto i2 = wkt.find(")", i1);
     if (12 == std::string::npos) {
         return false;
@@ -497,7 +537,7 @@ bool GeoObj_LineString::FromWKT(const std::string& wkt)
         if (2 != sscanf(sub, "%lf %lf", &lng, &lat)) {
             return false;
         }
-        this->points_.emplace_back(geo::GeoPoint(lat, lng));
+        this->points_.push_back(geo::GeoPoint(lat, lng));
     }
     return true;
 }

@@ -1071,17 +1071,30 @@ void MakeLower(string &str)
     transform(str.begin(), str.end(), str.begin(), ::tolower);
 }
 
+static inline bool not_space(char ch)
+{
+    switch (ch) {
+    case ' ':
+    case '\t':
+    case '\n':
+    case '\v':
+    case '\f':
+    case '\r':
+        return false;
+    default:
+        return true;
+    }
+}
+
 // trim from start
 static inline string &ltrim(string &s) {
-    s.erase(s.begin(), find_if(s.begin(), s.end(),
-        not1(ptr_fun<int, int>(isspace))));
+    s.erase(s.begin(), find_if(s.begin(), s.end(), not_space));
     return s;
 }
 
 // trim from end
 static inline string &rtrim(string &s) {
-    s.erase(find_if(s.rbegin(), s.rend(),
-        not1(ptr_fun<int, int>(isspace))).base(), s.end());
+    s.erase(find_if(s.rbegin(), s.rend(), not_space).base(), s.end());
     return s;
 }
 

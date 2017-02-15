@@ -8,6 +8,14 @@
 #define WAY_MANAGER_BOOST_UNORDERRED 1
 #endif
 
+
+#define WAY_MANAGER_DEBUG_LOG 0
+#if (WAY_MANAGER_DEBUG_LOG == 1)
+#define WayManagerDbg(str) std::cout << str << std::endl
+#else
+#define WayManagerDbg(str)
+#endif
+
 #include <cstdio>
 #include <vector>
 #include <string>
@@ -203,20 +211,18 @@ class Node
 {
 public:
     explicit Node(NODE_ID_T nd_id, double lat, double lng)
-        : nd_id_(nd_id), geo_point_(lat, lng), nd_type_(NDTYPE_DEFAULT),
-        is_way_connector_(0), is_dead_end_(0), is_weak_connected(0), is_visited(0)
+        : nd_id_(nd_id), geo_point_(lat, lng)
     {}
 
     explicit Node(const NODE& nd)
-        : nd_id_(nd.nd_id), geo_point_(nd.geo_point), nd_name_(nd.nd_name), nd_type_(nd.nd_type),
-        is_way_connector_(0), is_dead_end_(0), is_weak_connected(0), is_visited(0)
+        : nd_id_(nd.nd_id), geo_point_(nd.geo_point), nd_name_(nd.nd_name), nd_type_(nd.nd_type)
     {}
 
 public:
-    NODE_ID_T   nd_id_;
+    NODE_ID_T   nd_id_{};
     GeoPoint    geo_point_;
     std::string nd_name_;
-    NODE_TYPE   nd_type_;
+    NODE_TYPE   nd_type_{ NDTYPE_DEFAULT };
 
 public:
     const std::vector<SegmentPtr>& ConnectedSegments() const
@@ -306,11 +312,14 @@ public:
     }
 
 private:
-    unsigned is_way_connector_ : 1;
-    unsigned is_dead_end_ : 1;
-    unsigned is_weak_connected : 1; // weak connected to the main component
-    unsigned is_visited : 1; // for internal usage
+    // NOTE: (is_way_connector_, is_dead_end_) and (is_weak_connected, is_visited) may be changed
+    // in different threads
+    bool is_way_connector_{};
+    bool is_dead_end_{};
+    bool is_weak_connected{}; // weak connected to the main component
+    bool is_visited{}; // for internal usage
     std::vector<SegmentPtr> connected_segments_; // orderred by highway type
+
     friend class WayManager;
 };
 
@@ -495,6 +504,15 @@ public:
     // p_tag_value can be nullptr if tag value is not wanted
     bool GetTagByName(const std::string& tag_name, std::string* p_tag_value) const;
 
+    std::string GetOptTagsStr() const
+    {
+        return p_opt_tags_ ? this->TagsToStr(*p_opt_tags_) : std::string();
+    }
+    const Tags* GetOptTags() const
+    {
+        return p_opt_tags_.get();
+    }
+
     SEGMENT ToSEGMENT() const
     {
         SEGMENT segment;
@@ -514,7 +532,7 @@ public:
         segment.way_name = this->way_name_;
         segment.struct_type = this->struct_type_;
         segment.layer = this->layer_;
-        segment.opt_tags = this->TagsToStr(p_opt_tags_);
+        segment.opt_tags = this->GetOptTagsStr();
 
         segment.highway_type_str = this->highway_type_str_;
         return segment;
@@ -538,8 +556,8 @@ public:
         seg_id |= low24;
         return seg_id;
     }
-    static std::string TagsToStr(const SharedTagsPtr &tags);
-    static SharedTagsPtr StrToTags(const std::string &tags_str);
+    static std::string TagsToStr(const Tags& tags);
+    static SharedTagsPtr StrToTags(const std::string& tags_str);
 
 public:
     SEG_ID_T seg_id_;
@@ -687,6 +705,8 @@ struct SegAssignParams
     int heading{ -1 };  // [0, 359] for normal case. -1 if ignore heading.
     double radius{}; // > 0, in meters
     int angle_tollerance{};
+    // -1, use parameter passed in WayManager::InitSegServices, otherwise, mapped to WayManager::MATCH_PRI
+    int match_priority{ -1 };
 
     time_t dev_data_time{}; // if non-zero, do not assign to excluded segs (e.g., closed tunnel in the middle night)
     bool dev_data_local_time{}; // is dev_data_time local time or utc time
@@ -898,6 +918,11 @@ public:
         return it == node_map_.end() ? nullptr : it->second;
     }
 
+    const std::vector<Node>& GetAllNodes() const
+    {
+        return node_pool_.AllObjs();
+    }
+
     // To find the opposite way, set way_id to negative
     OrientedWayPtr GetWayById(WAY_ID_T signed_way_id) const
     {
@@ -932,6 +957,18 @@ public:
         return (angle > 180) ? 360 - angle : angle;
     }
 
+    // preconditon: heading1, heading2 are in range [0, 359]
+    static int GetMidAngle(int heading1, int heading2)
+    {
+        if (heading1 > heading2) {
+            if (heading1 - heading2 > 180) heading2 += 360;
+        }
+        else {
+            if (heading2 - heading1 > 180) heading1 += 360;
+        }
+        return ((heading1 + heading2) / 2) % 360;
+    }
+
     bool InBoundary(double lat, double lng) const
     {
         return (lat >= bound_.minlat && lat <= bound_.maxlat && lng >= bound_.minlng && lng <= bound_.maxlng);
@@ -957,6 +994,17 @@ public:
     {
         return drive_on_right_;
     }
+
+    // pre-condition: p1 projected on 1st segment, p2 projected on last segment
+    //
+    //                p1                                                           p2
+    // seg_route:  -------------->----------------> ..... ------------>------>--------------->
+    //    return:     |<----------------------------------------------------------->|
+    static double ProjectionLengthOnSegRoute(const GeoPoint& p1, const GeoPoint& p2,
+        const std::vector<SegmentPtr>& seg_route);
+    static double ProjectionLengthOnSegRoute(const GeoPoint& p1, const GeoPoint& p2,
+        const std::vector<SegmentPtr>& seg_route,
+        double* p_first_proj_len, double* p_last_proj_len);
 
 private:
     bool InitWayMap();

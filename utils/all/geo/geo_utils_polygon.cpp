@@ -189,7 +189,7 @@ static bool get_simple_poly_text(const SimplePolygon& poly, std::string& text)
     text.reserve(poly.VertexNumber() * 20);
 
     for (size_t i = 0; i < poly.VertexNumber(); ++i) {
-        const GeoPoint& point = poly.Vertex(i);;
+        const GeoPoint& point = poly.Vertex(i);
         char buff[32];
         snprintf(buff, sizeof(buff) - 1, "%.6f %.6f", point.lng, point.lat);
         text += buff;
@@ -198,7 +198,16 @@ static bool get_simple_poly_text(const SimplePolygon& poly, std::string& text)
         }
     }
 
-    text += ')';
+    if (geo::distance_in_meter(poly.Vertex(0), poly.Vertex(poly.VertexNumber() - 1)) > 1) {
+        const GeoPoint& point = poly.Vertex(0);
+        char buff[32];
+        snprintf(buff, sizeof(buff) - 1, ",%.6f %.6f)", point.lng, point.lat);
+        text += buff;
+    }
+    else {
+        text += ')';
+    }
+
     return true;
 }
 

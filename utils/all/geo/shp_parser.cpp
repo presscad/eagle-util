@@ -13,27 +13,41 @@ using namespace std;
 
 namespace shp {
 
-static std::string GetLayerName(const std::string &filename)
-{
-    auto i = filename.rfind('/');
-    if (i == std::string::npos) {
-        i = filename.rfind('\\');
-    }
-
-    auto name = filename.substr(i + 1);
-    return name.substr(0, name.find('.'));
-}
-
 // local threaded context
 struct LocalContext
 {
     ShpData* p_shp_data{};
-    std::string* p_err_str{};
-    double lat_offset{}, lng_offset{};
+    ShpParseParams* p_params{};
+    OGRSpatialReference wgs;
 
-    std::vector<geo::GeoPoint> geo_points_buff;
-    std::vector<OGRRawPoint> ogr_raw_points_buff;
+    OGRCoordinateTransformation* p_coord_trans{};
+    vector<geo::GeoPoint> geo_points_buff;
+    vector<OGRRawPoint> ogr_raw_points_buff;
+
+    ~LocalContext()
+    {
+        if (p_coord_trans) {
+            delete p_coord_trans;
+            p_coord_trans = nullptr;
+        }
+        p_shp_data = nullptr;
+        p_params = nullptr;
+    }
 };
+
+static void ConvertPoint(LocalContext& ctx, geo::GeoPoint& point)
+{
+    if (ctx.p_params->coordinates_to_wgs84 && ctx.p_coord_trans != nullptr) {
+        ctx.p_coord_trans->Transform(1, &point.lng, &point.lat);
+    }
+
+    if (ctx.p_params->lat_offset != 0) {
+        point.lat += ctx.p_params->lat_offset;
+    }
+    if (ctx.p_params->lng_offset != 0) {
+        point.lng += ctx.p_params->lng_offset;
+    }
+}
 
 static bool ConvertFeature(LocalContext& ctx, OGRLayer* poLayer, OGRFeature *poFeature,
     ShpFeature& feature)
@@ -42,20 +56,23 @@ static bool ConvertFeature(LocalContext& ctx, OGRLayer* poLayer, OGRFeature *poF
 
     OGRGeometry *poGeometry = poFeature->GetGeometryRef();
     if (poGeometry == nullptr) {
-        *ctx.p_err_str = "Failed calling OGRFeature::GetGeometryRef()";
+        ctx.p_params->err_str = "Failed calling OGRFeature::GetGeometryRef()";
         return false;
     }
 
     switch (wkbFlatten(poGeometry->getGeometryType())) {
     case wkbPoint:
     {
-        *(int*)0 = 1; // to crash for adding new code
+        const OGRPoint& oPoint = *(OGRPoint *)poGeometry;
+        geo::GeoPoint point(oPoint.getY(), oPoint.getX());
+        ConvertPoint(ctx, point);
+        feature.p_geo_obj = make_shared<geo::GeoObj_Point>(point);
         break;
     }
     case wkbLineString:
     {
-        std::vector<OGRRawPoint>& ogr_raw_points = ctx.ogr_raw_points_buff;
-        std::vector<geo::GeoPoint>& geo_points = ctx.geo_points_buff;
+        vector<OGRRawPoint>& ogr_raw_points = ctx.ogr_raw_points_buff;
+        vector<geo::GeoPoint>& geo_points = ctx.geo_points_buff;
 
         OGRLineString *poLineString = (OGRLineString *)poGeometry;
         ogr_raw_points.resize(poLineString->getNumPoints());
@@ -64,13 +81,14 @@ static bool ConvertFeature(LocalContext& ctx, OGRLayer* poLayer, OGRFeature *poF
         geo_points.clear();
 
         for (const auto& raw_pt : ogr_raw_points) {
-            geo::GeoPoint new_pt(raw_pt.y + ctx.lat_offset, raw_pt.x + ctx.lng_offset);
+            geo::GeoPoint new_pt(raw_pt.y, raw_pt.x);
+            ConvertPoint(ctx, new_pt);
             if (geo_points.empty() || geo_points.back() != new_pt) {
-                geo_points.push_back(std::move(new_pt));
+                geo_points.push_back(move(new_pt));
             }
         }
         if (geo_points.size() > 1) {
-            feature.p_geo_obj = std::make_shared<geo::GeoObj_LineString>(geo_points);
+            feature.p_geo_obj = make_shared<geo::GeoObj_LineString>(geo_points);
         }
         break;
     }
@@ -79,30 +97,27 @@ static bool ConvertFeature(LocalContext& ctx, OGRLayer* poLayer, OGRFeature *poF
         const OGRPolygon& ogr_poly = *(OGRPolygon *)poGeometry;
         char *p_wkt = nullptr;
         if (OGRERR_NONE != ogr_poly.exportToWkt(&p_wkt)) {
-            *ctx.p_err_str = "Error in calling OGRPolygon::exportToWkt()";
+            ctx.p_params->err_str = "Error in calling OGRPolygon::exportToWkt()";
             return false;
         }
 
         auto p_polygon = make_shared<geo::GeoObj_Polygon>();
         bool ok = p_polygon->FromWKT(p_wkt);
         if (!ok) {
-            *ctx.p_err_str = "Error in calling GeoObj_Polygon::FromWKT, wkt = " + string(p_wkt);
+            ctx.p_params->err_str = "Error in calling GeoObj_Polygon::FromWKT, wkt = " + string(p_wkt);
             OGRFree(p_wkt);
             return false;
         }
         OGRFree(p_wkt);
+        p_wkt = nullptr;
 
-        if (ctx.lat_offset != 0 && ctx.lng_offset != 0) {
-            geo::Polygon& poly = p_polygon->GetPolygon();
-            for (auto& point : poly.outer_polygon.vertexes) {
-                point.lat += ctx.lat_offset;
-                point.lng += ctx.lng_offset;
-            }
-            for (auto& inner_poly : poly.inner_polygons) {
-                for (auto& point : inner_poly.vertexes) {
-                    point.lat += ctx.lat_offset;
-                    point.lng += ctx.lng_offset;
-                }
+        geo::Polygon& poly = p_polygon->GetPolygon();
+        for (auto& point : poly.outer_polygon.vertexes) {
+            ConvertPoint(ctx, point);
+        }
+        for (auto& inner_poly : poly.inner_polygons) {
+            for (auto& point : inner_poly.vertexes) {
+                ConvertPoint(ctx, point);
             }
         }
 
@@ -120,7 +135,7 @@ static bool ConvertFeature(LocalContext& ctx, OGRLayer* poLayer, OGRFeature *poF
     // add more case branches above if needed
 
     default:
-        *ctx.p_err_str = "unknown geometry type: " + std::to_string(poGeometry->getGeometryType())
+        ctx.p_params->err_str = "unknown geometry type: " + to_string(poGeometry->getGeometryType())
             + ", fix it in " + __FUNCTION__ + "()";
         return false;
     }
@@ -149,76 +164,107 @@ static bool ConvertFeature(LocalContext& ctx, OGRLayer* poLayer, OGRFeature *poF
             break;
         }
     }
-
+    feature.p_geo_obj->AddProp("_LayerName", poLayer->GetName());
     return true;
 }
 
 static bool InitLocalContext(LocalContext& ctx, ShpData &shp_data,
-    double lat_offset, double lng_offset, std::string &err_str)
+    ShpParseParams& parse_cfgs)
 {
     ctx.p_shp_data = &shp_data;
-    ctx.lat_offset = lat_offset;
-    ctx.lng_offset = lng_offset;
-    ctx.p_err_str = &err_str;
+    ctx.p_params = &parse_cfgs;
+
+    if (ctx.p_params->coordinates_to_wgs84) {
+        ctx.wgs.SetWellKnownGeogCS("WGS84");
+    }
 
     return true;
 }
 
-bool parse_shp(const std::string &filename, double lat_offset, double lng_offset,
-    ShpData &shp_data, std::string &err_str)
+static void OnNewLayer(LocalContext& ctx, OGRLayer* p_layer)
 {
-    std::string layer_name;
+    if (ctx.p_coord_trans) {
+        delete ctx.p_coord_trans;
+        ctx.p_coord_trans = nullptr;
+    }
+
+    OGRSpatialReference *p_osrs = p_layer->GetSpatialRef();
+    if (p_osrs) {
+        ctx.p_coord_trans = OGRCreateCoordinateTransformation(p_osrs, &ctx.wgs);
+    }
+}
+
+bool parse_shp(const std::string& filename, ShpParseParams& parse_cfgs, ShpData& shp_data)
+{
     OGRFeature *poFeature = nullptr;
     GDALDataset* poDS = nullptr;
     LocalContext ctx;
 
-    err_str.clear();
+    parse_cfgs.err_str.clear();
+    shp_data.Clear();
+    shp_data.pathname = filename;
+
     AT_SCOPE_EXIT(
         if (poFeature) OGRFeature::DestroyFeature(poFeature);
         if (poDS) GDALClose(poDS);
-        if (!err_str.empty()) shp_data.Clear();
+        if (!parse_cfgs.err_str.empty()) shp_data.Clear();
     );
 
     poDS = (GDALDataset*)GDALOpenEx(filename.c_str(), GDAL_OF_VECTOR, nullptr, nullptr, nullptr);
     if (poDS == nullptr) {
-        err_str = "Open failed : " + filename;
+        parse_cfgs.err_str = "Open failed : " + filename;
+        return false;
+    }
+    if (false == InitLocalContext(ctx, shp_data, parse_cfgs)) {
         return false;
     }
 
-    if (false == InitLocalContext(ctx, shp_data, lat_offset, lng_offset, err_str)) {
-        return false;
-    }
+    int n_layer = poDS->GetLayerCount();
+    for (int i_layer = 0; i_layer < n_layer; ++i_layer) {
+        OGRLayer* poLayer = poDS->GetLayer(i_layer);
+        if (poLayer == nullptr) {
+            parse_cfgs.err_str = "Cannot get the layer index " + to_string(i_layer);
+            return false;
+        }
+        OnNewLayer(ctx, poLayer);
+        string layer_name = poLayer->GetName();
 
-    layer_name = GetLayerName(filename);
-    OGRLayer* poLayer = poDS->GetLayerByName(layer_name.c_str());
-    if (poLayer == nullptr) {
-        err_str = "Cannot get the layer " + layer_name;
-        return false;
-    }
+        shp_data.layers.push_back(ShpLayer());
+        auto& layer = shp_data.layers.front();
+        layer.Clear();
+        layer.layer_name = layer_name;
 
-    shp_data.Clear();
-    shp_data.pathname = filename;
-    shp_data.layers.push_back(ShpLayer());
-    auto& layer = shp_data.layers.front();
-    layer.Clear();
-    layer.layer_name = layer_name;
-
-    poLayer->ResetReading();
+        poLayer->ResetReading();
 
     // for the fields of the layer
     while ((poFeature = poLayer->GetNextFeature()) != nullptr) {
         ShpFeature feature;
         if (false == ConvertFeature(ctx, poLayer, poFeature, feature)) {
             return false;
-        }
-        if (feature.IsValid()) {
-            layer.features.push_back(feature);
-        }
+            }
+            if (feature.IsValid()) {
+                layer.features.push_back(feature);
+            }
 
-        OGRFeature::DestroyFeature(poFeature);
+            OGRFeature::DestroyFeature(poFeature);
+            poFeature = nullptr;
+        }
     }
 
     return true;
+}
+
+bool parse_shp(const string &filename, double lat_offset, double lng_offset,
+    ShpData &shp_data, string &err_str)
+{
+    ShpParseParams parse_cfgs;
+    parse_cfgs.lat_offset = lat_offset;
+    parse_cfgs.lng_offset = lng_offset;
+    bool r = parse_shp(filename, parse_cfgs, shp_data);
+    if (false == r) {
+        err_str = parse_cfgs.err_str;
+    }
+    return r;
 }
 
 }

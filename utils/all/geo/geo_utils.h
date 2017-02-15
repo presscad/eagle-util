@@ -16,7 +16,7 @@ GEO_BEGIN_NAMESPACE
 
 struct GeoPoint
 {
-    GeoPoint() : lat(0), lng(0)
+    GeoPoint()
     {}
 
     GeoPoint(double lat, double lng)
@@ -36,6 +36,27 @@ struct GeoPoint
     bool operator!=(const GeoPoint& src) const
     {
         return src.lat != lat || src.lng != lng;
+    }
+
+    GeoPoint& operator+=(const GeoPoint& pt)
+    {
+        lat += pt.lat;
+        lng += pt.lng;
+        return *this;
+    }
+
+    GeoPoint& operator-=(const GeoPoint& pt)
+    {
+        lat -= pt.lat;
+        lng -= pt.lng;
+        return *this;
+    }
+
+    GeoPoint& operator/=(int n)
+    {
+        lat /= n;
+        lng /= n;
+        return *this;
     }
 
     static GeoPoint GetMidPoint(const GeoPoint& pt1, const GeoPoint& pt2)
@@ -125,6 +146,8 @@ struct Bound
     Bound(double minlat, double minlng, double maxlat, double maxlng)
         : minlat(minlat), minlng(minlng), maxlat(maxlat), maxlng(maxlng)
     {}
+
+    Bound(const std::string& bbox_str);
 
     bool Empty() const
     {
@@ -648,6 +671,7 @@ public:
     }
 
     virtual bool IntersectWithBound(const Bound& bound) const = 0;
+    virtual std::string ToWKT() const = 0;
 
 protected:
     GEO_TYPE geo_type_;
@@ -687,6 +711,7 @@ public:
         return point_;
     }
 
+    virtual std::string ToWKT() const;
     virtual bool IntersectWithBound(const Bound& bound) const
     {
         return bound.Within(point_);
@@ -716,6 +741,7 @@ public:
         points_.push_back(GeoPoint(lat, lng));
     }
 
+    virtual std::string ToWKT() const;
     virtual bool IntersectWithBound(const Bound& bound) const
     {
         for (auto& point : points_) {
@@ -776,7 +802,7 @@ public:
     }
 
     bool FromWKT(const std::string& wkt);
-    std::string ToWKT() const;
+    virtual std::string ToWKT() const;
 
     void Clear()
     {
@@ -856,6 +882,10 @@ public:
         return wkt_to_polygon(wkt, polygon_);
     }
 
+    virtual std::string ToWKT() const
+    {
+        return polygon_.WKT();
+    }
     virtual bool IntersectWithBound(const Bound& bound) const
     {
         for (auto& point : polygon_.outer_polygon.Vertexes()) {
@@ -901,6 +931,11 @@ public:
     bool FromWKT(const std::string& wkt)
     {
         return wkt_to_multi_polygon(wkt, multi_polygon_);
+    }
+
+    virtual std::string ToWKT() const
+    {
+        return multi_polygon_.WKT();
     }
 
     virtual bool IntersectWithBound(const Bound& bound) const
