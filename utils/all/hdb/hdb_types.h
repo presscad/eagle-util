@@ -91,11 +91,11 @@ static inline bool StrToValue(const char *s, char &v)
     return true;
 }
 
-static inline std::string ValueToStr(char v)
+static inline void ValueToStr(char v, std::string& str)
 {
     char buff[8];
     snprintf(buff, sizeof(buff)-1, "%d", (int)v);
-    return buff;
+    str = buff;
 }
 
 // used by TINYINT
@@ -113,11 +113,11 @@ static inline bool StrToValue(const char *s, unsigned char &v)
     return true;
 };
 
-static inline std::string ValueToStr(unsigned char &v)
+static inline void ValueToStr(unsigned char &v, std::string& str)
 {
     char buff[8];
     snprintf(buff, sizeof(buff)-1, "%d", (int)v);
-    return buff;
+    str = buff;
 };
 
 static inline bool StrToValue(const std::string &s, short &v)
@@ -134,32 +134,32 @@ static inline bool StrToValue(const char *s, short &v)
     return true;
 }
 
-static inline std::string ValueToStr(short v)
+static inline void ValueToStr(short v, std::string& str)
 {
     char buff[8];
     snprintf(buff, sizeof(buff)-1, "%d", (int)v);
-    return buff;
+    str = buff;
 }
 
 bool StrToValue(const std::string &s, int &v);
 bool StrToValue(const char *s, int &v);
 
-static inline std::string ValueToStr(int v)
+static inline void ValueToStr(int v, std::string& str)
 {
     char buff[24];
     snprintf(buff, sizeof(buff)-1, "%d", v);
-    return buff;
+    str = buff;
 }
 
 bool StrToValue(const std::string &s, SQLBIGINT &v);
 bool StrToValue(const std::string &s, long long &v);
 bool StrToValue(const char *s, SQLBIGINT &v);
 
-static inline std::string ValueToStr(SQLBIGINT v)
+static inline void ValueToStr(SQLBIGINT v, std::string& str)
 {
     char buff[32];
     snprintf(buff, sizeof(buff)-1, "%lld", (long long)v);
-    return buff;
+    str = buff;
 }
 
 static inline bool StrToValue(const std::string &s, float &v)
@@ -176,11 +176,11 @@ static inline bool StrToValue(const char *s, float &v)
     return true;
 }
 
-static inline std::string ValueToStr(float v)
+static inline void ValueToStr(float v, std::string& str)
 {
     char buff[32];
     snprintf(buff, sizeof(buff)-1, "%f", v);
-    return buff;
+    str = buff;
 }
 
 static inline bool StrToValue(const std::string &s, double &v)
@@ -197,11 +197,11 @@ static inline bool StrToValue(const char *s, double &v)
     return true;
 }
 
-static inline std::string ValueToStr(double v)
+static inline void ValueToStr(double v, std::string& str)
 {
     char buff[32];
     snprintf(buff, sizeof(buff)-1, "%lf", v);
-    return buff;
+    str = buff;
 }
 
 static inline bool StrToValue(const std::string &s, SQLWCHAR &v)
@@ -224,10 +224,10 @@ static inline bool StrToValue(const char *s, SQLWCHAR &v)
     return false;
 };
 
-static inline std::string ValueToStr(SQLWCHAR &v)
+static inline void ValueToStr(SQLWCHAR &v, std::string& str)
 {
     UnImplemented(__FUNCTION__);
-    return std::string(1, static_cast<char>(v));
+    str = std::string(1, static_cast<char>(v));
 };
 
 bool StrToValue(const std::string &s, SQL_DATE_STRUCT &v);
@@ -236,9 +236,9 @@ bool StrToValue(const std::string &s, SQL_TIME_STRUCT &v);
 bool StrToValue(const char *s, SQL_TIME_STRUCT &v);
 bool StrToValue(const std::string &s, SQL_TIMESTAMP_STRUCT &v);
 bool StrToValue(const char *s, SQL_TIMESTAMP_STRUCT &v);
-std::string ValueToStr(const SQL_DATE_STRUCT& v);
-std::string ValueToStr(const SQL_TIME_STRUCT& v);
-std::string ValueToStr(const SQL_TIMESTAMP_STRUCT& v);
+void ValueToStr(const SQL_DATE_STRUCT& v, std::string& str);
+void ValueToStr(const SQL_TIME_STRUCT& v, std::string& str);
+void ValueToStr(const SQL_TIMESTAMP_STRUCT& v, std::string& str);
 
 HDB_END_NAMESPACE
 

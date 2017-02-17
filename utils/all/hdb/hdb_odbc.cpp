@@ -124,8 +124,8 @@ SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const DateCol &col)
 }
 SQLRETURN SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, DateCol &col)
 {
-    UnImplemented("SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, DateCol &col)");
-    return 0;
+    SQLLEN *ind_vec = col.NullAble() ? (SQLLEN *)col.GetStrLenOrIndVec() : nullptr;
+    return SQLBindCol(hstmt, ipar, SQL_C_TYPE_DATE, (SQLPOINTER)col.GetData(), 0, ind_vec);
 }
 
 SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const TimeCol &col)
@@ -136,8 +136,8 @@ SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const TimeCol &col)
 }
 SQLRETURN SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, TimeCol &col)
 {
-    UnImplemented("SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, TimeCol &col)");
-    return 0;
+    SQLLEN *ind_vec = col.NullAble() ? (SQLLEN *)col.GetStrLenOrIndVec() : nullptr;
+    return SQLBindCol(hstmt, ipar, SQL_C_TYPE_TIME, (SQLPOINTER)col.GetData(), 0, ind_vec);
 }
 
 SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const TimeStampCol &col)
@@ -563,45 +563,57 @@ void OdbcConn::DisConnect()
 bool InsertExecutor::GetInsStmt(const std::vector<BaseColumn_SharedPtr> &pCols,
                                 const char *table_name, std::string &stmt)
 {
-    char ins_into[1024 * 20] = "INSERT INTO ";
-    char values[1024 * 10] = "VALUES (";
+    string ins_into = "INSERT INTO ";
+    string values = "VALUES (";
+    ins_into.reserve(1000);
+    values.reserve(500);
 
-    strncat(ins_into, table_name, sizeof(ins_into) - strlen(ins_into));
-    strncat(ins_into, " (", sizeof(ins_into) - strlen(ins_into));
+    ins_into += table_name;
+    ins_into += " (";
 
     size_t size = pCols.size();
     for (size_t i = 0; i < size; i++) {
-        strncat(ins_into, pCols[i]->GetColName(), sizeof(ins_into) - strlen(ins_into));
+        if (pCols[i]->IsColNameCaseSensitive()) {
+            ins_into += '\"';
+            ins_into += pCols[i]->GetColName();
+            ins_into += '\"';
+        }
+        else {
+            ins_into += pCols[i]->GetColName();
+        }
+
         if (i == size - 1) {
-            strncat(ins_into, ") ", sizeof(ins_into) - strlen(ins_into));
-            strncat(values, "?)", sizeof(values) - strlen(values));
+            ins_into += ") ";
+            values += "?)";
         } else {
-            strncat(ins_into, ", ", sizeof(ins_into) - strlen(ins_into));
-            strncat(values, "?,", sizeof(values) - strlen(values));
+            ins_into += ", ";
+            values += "?,";
         }
     }
-    strncat(ins_into, values, sizeof(ins_into) - strlen(values));
+    ins_into += values;
     stmt = ins_into;
     return true;
 }
 
 bool InsertExecutor::GetInsStmtNoColumns(const std::vector<BaseColumn_SharedPtr> &pCols,
-                                         const char *table_name, std::string &stmt)
+    const char *table_name, std::string &stmt)
 {
-    char ins_into[1024 * 12] = "INSERT INTO ";
-    char values[1024 * 6] = " VALUES (";
+    string ins_into = "INSERT INTO ";
+    string values = " VALUES (";
+    ins_into.reserve(1000);
+    values.reserve(500);
 
-    strncat(ins_into, table_name, sizeof(ins_into) - strlen(ins_into));
+    ins_into += table_name;
+    const size_t size = pCols.size();
 
-    size_t size = pCols.size();
     for (size_t i = 0; i < size; i++) {
         if (i == size - 1) {
-            strncat(values, "?)", sizeof(values) - strlen(values));
+            values += "?)";
         } else {
-            strncat(values, "?,", sizeof(values) - strlen(values));
+            values += "?,";
         }
     }
-    strncat(ins_into, values, sizeof(ins_into) - strlen(ins_into));
+    ins_into += values;
     stmt = ins_into;
     return true;
 }

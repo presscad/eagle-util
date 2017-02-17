@@ -22,7 +22,12 @@ HDB_BEGIN_NAMESPACE
 
 bool ColRecords::AddCol(const char *col_name, const DATA_ATTR_T &attr)
 {
-    assert(col_name != NULL && col_name[0] != '\0');
+    return AddCol(col_name, false, attr);
+}
+
+bool ColRecords::AddCol(const char *col_name, bool col_name_case_sensitive, const DATA_ATTR_T &attr)
+{
+    assert(col_name != nullptr && col_name[0] != '\0');
     BaseColumn_SharedPtr pCol;
 
     switch(attr.type) {
@@ -111,6 +116,9 @@ bool ColRecords::AddCol(const char *col_name, const DATA_ATTR_T &attr)
         return false;
     };
 
+    if (col_name_case_sensitive != pCol->IsColNameCaseSensitive()) {
+        pCol->SetColName(pCol->GetColName(), col_name_case_sensitive);
+    }
     mPtrCols.push_back(pCol);
     return true;
 }
@@ -178,17 +186,18 @@ bool ColRecords::AddRow(const std::vector<char *> &strs)
     for (size_t i = 0; i < count; i++) {
         if (false == mPtrCols[i]->AddFromStr(strs[i])) {
             // generate the error string
-            char tmp[1024];
-            snprintf(tmp, sizeof(tmp) - 1, "Invalid column: \"%s\" when parsing \"", strs[i]);
-            tmp[sizeof(tmp) - 1] = '\0';
+            string tmp = "Invalid column: \"";
+            tmp.reserve(1024);
+            tmp += mPtrCols[i]->GetColName();
+            tmp += "\" when parsing \"";
 
             for (size_t k = 0; k < strs.size(); ++k) {
-                strncat(tmp, strs[i], sizeof(tmp) - strlen(tmp));
+                tmp += strs[k];
                 if (k != strs.size() - 1) {
-                    strncat(tmp, ",", sizeof(tmp) - strlen(tmp));
+                    tmp += ',';
                 }
             }
-            strncat(tmp, "\"", sizeof(tmp) - strlen(tmp));
+            tmp += '\"';
             mErrStr = tmp;
 
             // Error happens, remove previous columns for this row
@@ -210,17 +219,18 @@ bool ColRecords::AddRow(const std::vector<std::string> &strs)
     for (size_t i = 0; i < count; i++) {
         if (false == mPtrCols[i]->AddFromStr(strs[i])) {
             // generate the error string
-            char tmp[1024];
-            snprintf(tmp, sizeof(tmp) - 1, "Invalid column: \"%s\" when parsing \"", strs[i].c_str());
-            tmp[sizeof(tmp) - 1] = '\0';
+            string tmp = "Invalid column: \"";
+            tmp.reserve(1024);
+            tmp += mPtrCols[i]->GetColName();
+            tmp += "\" when parsing \"";
 
             for (size_t k = 0; k < strs.size(); ++k) {
-                strncat(tmp, strs[i].c_str(), sizeof(tmp) - strlen(tmp));
+                tmp += strs[i];
                 if (k != strs.size() - 1) {
-                    strncat(tmp, ",", sizeof(tmp) - strlen(tmp));
+                    tmp += ',';
                 }
             }
-            strncat(tmp, "\"", sizeof(tmp) - strlen(tmp));
+            tmp += '\"';
             mErrStr = tmp;
 
             // Error happens, remove previous columns for this row
@@ -255,7 +265,10 @@ bool ColRecords::AddColsFromCreateSql(const char *create_sql)
 
     ClearAllCols();
     for (size_t i = 0; i < col_count; i++) {
-        if (false == this->AddCol(parsed_table.col_names[i].c_str(), parsed_table.col_attrs[i])) {
+        if (false == this->AddCol(parsed_table.col_names[i].c_str(),
+            parsed_table.col_names_case_sensitive[i],
+            parsed_table.col_attrs[i]))
+        {
             return false;
         }
     }
@@ -273,7 +286,9 @@ bool ColRecords::AddColsFromRecords(const ColRecords &src_records)
     ClearAllCols();
     for (size_t i = 0; i < col_count; i++) {
         const auto &src_col = *src_records.GetColumn(i);
-        if (false == this->AddCol(src_col.GetColName(), src_col.GetDataAttr())) {
+        if (false == this->AddCol(src_col.GetColName(), src_col.IsColNameCaseSensitive(),
+            src_col.GetDataAttr()))
+        {
             return false;
         }
     }
@@ -356,31 +371,32 @@ int ColRecords::RowsToCsv(std::ostream &os_csv, int start_row, int row_num, char
         end_row = row_count;
     }
 
-    const size_t BUFF_SIZE = 8 * 1024;
-    std::string line;
-    line.reserve(BUFF_SIZE + 512);
+    const size_t BUFF_SIZE = 10 * 1024;
+    std::string lines, str;
+    lines.reserve(BUFF_SIZE + 512);
     int total = 0;
 
     for (int i = start_row; i < end_row; ++i) {
         int i_col = 0;
         for (auto &p_col : mPtrCols) {
             if (i_col != 0) {
-                line += delimiter;
+                lines += delimiter;
             }
-            line += p_col->GetAsStr(i);
+            p_col->GetAsStr(i, str);
+            lines += str;
             ++i_col;
         }
-        line += '\n';
+        lines += '\n';
 
-        if (line.size() > BUFF_SIZE) {
-            os_csv << line;
-            line.clear();
+        if (lines.size() > BUFF_SIZE) {
+            os_csv << lines;
+            lines.clear();
         }
         ++total;
     }
 
-    if (!line.empty()) {
-        os_csv << line;
+    if (!lines.empty()) {
+        os_csv << lines;
     }
     return total;
 }
