@@ -8,6 +8,8 @@
 #ifndef _WIN32
 #include <sys/time.h>
 #endif
+#include <algorithm>
+#include <functional>
 #include "hdb_utils.h"
 
 
@@ -274,21 +276,21 @@ bool StrToValue(const char *s, SQL_TIMESTAMP_STRUCT &v)
     return util::ParseTimestamp(s, reinterpret_cast<util::TIMESTAMP_STRUCT&>(v));
 }
 
-std::string ValueToStr(const SQL_DATE_STRUCT& v)
+void ValueToStr(const SQL_DATE_STRUCT& v, std::string& str)
 {
     char buff[64];
     snprintf(buff, sizeof(buff)-1, "%04d-%02d-%02d", v.year, v.month, v.day);
-    return buff;
+    str = buff;
 }
 
-std::string ValueToStr(const SQL_TIME_STRUCT& v)
+void ValueToStr(const SQL_TIME_STRUCT& v, std::string& str)
 {
     char buff[64];
     snprintf(buff, sizeof(buff)-1, "%02d:%02d:%02d", v.hour, v.minute, v.second);
-    return buff;
+    str = buff;
 }
 
-std::string ValueToStr(const SQL_TIMESTAMP_STRUCT& v)
+void ValueToStr(const SQL_TIMESTAMP_STRUCT& v, std::string& str)
 {
     char buff[64];
     if (v.fraction) {
@@ -299,7 +301,7 @@ std::string ValueToStr(const SQL_TIMESTAMP_STRUCT& v)
         snprintf(buff, sizeof(buff) - 1, "%04d-%02d-%02d %02d:%02d:%02d",
             v.year, v.month, v.day, v.hour, v.minute, v.second);
     }
-    return buff;
+    str = buff;
 }
 
 // "    too much\t   \tspace\t\t\t  " => "too much\t   \tspace"
@@ -359,6 +361,22 @@ static string16 utf82ws(const std::string& s)
     return ws;
 }
 
+static void utf82ws(const std::string& s, string16& ws)
+{
+    int len;
+    int slength = (int)s.length();
+    len = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), slength, 0, 0);
+    ws.clear();
+    ws.resize(len);
+    MultiByteToWideChar(CP_UTF8, 0, s.c_str(), slength, (LPWSTR)&ws[0], len);
+}
+
+static void utf82ws(const std::string& s, unsigned short* ws, int ws_len)
+{
+    int slength = (int)s.length();
+    memset(ws, '\0', sizeof(*ws) * ws_len);
+    MultiByteToWideChar(CP_UTF8, 0, s.c_str(), slength, (LPWSTR)&ws[0], ws_len);
+}
 static std::string ws2utf8(const SQLWCHAR *ws)
 {
     int len;
@@ -368,19 +386,43 @@ static std::string ws2utf8(const SQLWCHAR *ws)
     WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR)ws, slength, &r[0], len, 0, 0);
     return r;
 }
+static void ws2utf8(const SQLWCHAR *ws, std::string& s)
+{
+    int len;
+    int slength = (int)wcslen(ws);
+    len = WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR)ws, slength, 0, 0, 0, 0);
+    s.clear();
+    s.resize(len);
+    WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR)ws, slength, &s[0], len, 0, 0);
+}
+
+static void ws2utf8(const SQLWCHAR *ws, char* s, int s_len)
+{
+    int slength = (int)wcslen(ws);
+    memset(s, '\0', s_len);
+    WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR)ws, slength, &s[0], s_len, 0, 0);
+}
+
 #endif
 
-string16 StrToWStr(const std::string &str)
+string16 StrToWStr(const std::string& str)
+{
+    string16 wstr;
+    StrToWStr(str, wstr);
+    return wstr;
+}
+
+void StrToWStr(const std::string& str, hdb::string16& wstr)
 {
 #ifdef _WIN32
-    return utf82ws(str);
+    utf82ws(str, wstr);
 #else
-    string16 wstr;
+    wstr.clear();
     wstr.reserve(str.size());
     auto in = str.c_str();
-    if (in == nullptr)
-        return wstr;
-
+    if (in == nullptr) {
+        return;
+    }
     unsigned int codepoint = 0;
     while (*in != 0) {
         unsigned char ch = static_cast<unsigned char>(*in);
@@ -402,24 +444,87 @@ string16 StrToWStr(const std::string &str)
         ++in;
         if (((*in & 0xc0) != 0x80) && (codepoint <= 0x10ffff)) {
             if (codepoint > 0xffff) {
-                wstr.append(1, static_cast<wchar_t>(0xd800 + (codepoint >> 10)));
-                wstr.append(1, static_cast<wchar_t>(0xdc00 + (codepoint & 0x03ff)));
+                wstr.append(1, static_cast<char_16>(0xd800 + (codepoint >> 10)));
+                wstr.append(1, static_cast<char_16>(0xdc00 + (codepoint & 0x03ff)));
             }
             else if (codepoint < 0xd800 || codepoint >= 0xe000) {
-                wstr.append(1, static_cast<wchar_t>(codepoint));
+                wstr.append(1, static_cast<char_16>(codepoint));
             }
         }
     }
-    return wstr;
 #endif
 }
 
-std::string WStrToStr(const string16 &wstr)
+void StrToWStr(const std::string & str, char_16* wbuff, int wbuff_len)
 {
 #ifdef _WIN32
-    return ws2utf8((SQLWCHAR *)wstr.c_str());
+    utf82ws(str, wbuff, wbuff_len);
 #else
+    memset(wbuff, '\0', sizeof(*wbuff) * wbuff_len);
+
+    int i_wbuff = 0;
+    auto append_wbuff = [&wbuff, &i_wbuff, wbuff_len](char_16 wch) {
+        if (i_wbuff < wbuff_len) {
+            wbuff[i_wbuff++] = wch;
+        }
+    };
+
+    auto in = str.c_str();
+    if (in == nullptr) {
+        return;
+    }
+    unsigned int codepoint = 0;
+    while (*in != 0) {
+        unsigned char ch = static_cast<unsigned char>(*in);
+        if (ch <= 0x7f) {
+            codepoint = ch;
+        }
+        else if (ch <= 0xbf) {
+            codepoint = (codepoint << 6) | (ch & 0x3f);
+        }
+        else if (ch <= 0xdf) {
+            codepoint = ch & 0x1f;
+        }
+        else if (ch <= 0xef) {
+            codepoint = ch & 0x0f;
+        }
+        else {
+            codepoint = ch & 0x07;
+        }
+        ++in;
+        if (((*in & 0xc0) != 0x80) && (codepoint <= 0x10ffff)) {
+            if (codepoint > 0xffff) {
+                append_wbuff(static_cast<char_16>(0xd800 + (codepoint >> 10)));
+                append_wbuff(static_cast<char_16>(0xdc00 + (codepoint & 0x03ff)));
+            }
+            else if (codepoint < 0xd800 || codepoint >= 0xe000) {
+                append_wbuff(static_cast<char_16>(codepoint));
+            }
+        }
+    }
+#endif
+}
+
+std::string WStrToStr(const string16& wstr)
+{
     std::string str;
+    WStrToStr(wstr, str);
+    return str;
+}
+
+std::string WStrToStr(const SQLWCHAR* wstr)
+{
+    std::string str;
+    WStrToStr(wstr, str);
+    return str;
+}
+
+void WStrToStr(const string16& wstr, std::string& str)
+{
+#ifdef _WIN32
+    ws2utf8((SQLWCHAR *)wstr.c_str(), str);
+#else
+    str.clear();
     str.reserve(wstr.size() * 3);
     auto in = wstr.c_str();
     unsigned int codepoint = 0;
@@ -456,16 +561,15 @@ std::string WStrToStr(const string16 &wstr)
             codepoint = 0;
         }
     }
-    return str;
 #endif
 }
 
-std::string WStrToStr(const SQLWCHAR *wstr)
+void WStrToStr(const SQLWCHAR* wstr, std::string& str)
 {
 #ifdef _WIN32
-    return ws2utf8(wstr);
+    ws2utf8(wstr, str);
 #else
-    std::string str;
+    str.clear();
     str.reserve(wcslen((const wchar_t*)wstr) * 3);
     auto in = wstr;
     unsigned int codepoint = 0;
@@ -502,7 +606,6 @@ std::string WStrToStr(const SQLWCHAR *wstr)
             codepoint = 0;
         }
     }
-    return str;
 #endif
 }
 
@@ -523,10 +626,33 @@ void StringReplace(std::string &strBase, const std::string &strSrc, const std::s
     }
 }
 
-static void SplitParams(std::vector<std::string> &record, const char *params)
+static inline bool not_space(char ch)
 {
-    util::ParseCsvLine(record, params, ',');
+    switch (ch) {
+    case ' ':
+    case '\t':
+    case '\n':
+    case '\v':
+    case '\f':
+    case '\r':
+        return false;
+    default:
+        return true;
+    }
+}
 
+// trim from start
+static inline string &ltrim(string &s) {
+    s.erase(s.begin(), find_if(s.begin(), s.end(), not_space));
+    return s;
+}
+
+static bool SplitParams(std::vector<std::string> &record,
+    std::vector<bool>& col_names_case_sensitive,
+    const char *params, std::string &err_str)
+{
+    // to generate record[]
+    util::ParseCsvLine(record, params, ',');
     for (size_t i = 0; i < record.size(); i++) {
         if (record[i].find('(') != std::string::npos) {
             std::string upper(record[i]);
@@ -542,6 +668,40 @@ static void SplitParams(std::vector<std::string> &record, const char *params)
             }
         }
     }
+    vector<char*> subs;
+    string tmp_params(params);
+    util::ParseCsvLineInPlace(subs, (char *)tmp_params.c_str(), ',', true);
+    for (size_t i = 0; i < subs.size(); i++) {
+        std::string sub(subs[i]);
+        if (sub.find('(') != std::string::npos) {
+            std::string upper(sub);
+            StrToUpper(upper);
+            // if starting with "DECIMAL(", could be "DECIMAL(p,s), DECIMAL(p)"
+            if (upper.find("DECIMAL(") != std::string::npos || upper.find("DEC(") != std::string::npos) {
+                if (upper.back() != ')' && i + 1 < subs.size()) {
+                    subs[i][sub.length()] = ',';
+                    subs.erase(subs.begin() + i + 1);
+                }
+            }
+        }
+    }
+    if (record.size() != subs.size()) {
+        err_str = std::string("error in parsing \"") + params + "\"";
+        return false;
+    }
+
+    // to generate col_names_case_sensitive[]
+    for (auto s : subs) {
+        std::string str(s);
+        ltrim(str);
+        if (str.empty()) {
+            err_str = std::string("error in parsing \"") + params + "\"";
+            return false;
+        }
+        col_names_case_sensitive.push_back(str.front() == '\"');
+    }
+
+    return true;
 }
 
 static void ParseParamStr(const std::string &param, int &p1, int &p2)
@@ -659,9 +819,13 @@ bool ParseTableFromSql(const char *create_sql, PARSED_TABLE_T &table, std::strin
         StringReplace(str, " (", "(");
     }
 
-    SplitParams(parsed_table.col_strs, str.c_str());
+    if (false == SplitParams(parsed_table.col_strs, parsed_table.col_names_case_sensitive,
+        str.c_str(), err_str)) {
+        return false;
+    }
     size_t col_count = parsed_table.col_strs.size();
     if (col_count == 0) {
+        err_str = "ParseTableFromSql: too few columns";
         return false;
     }
     for (size_t i = 0; i < col_count; i++) {
@@ -722,7 +886,7 @@ bool ParseTableFromSql(const char *create_sql, PARSED_TABLE_T &table, std::strin
         }
     }
 
-    table = parsed_table;
+    table = std::move(parsed_table);
     return true;
 }
 

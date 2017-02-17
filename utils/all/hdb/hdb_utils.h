@@ -27,6 +27,7 @@ typedef struct {
     std::string table_name;
     std::vector<std::string> col_strs;
     std::vector<std::string> col_names;
+    std::vector<bool>        col_names_case_sensitive;
     std::vector<DATA_TYPE_T> col_types;
     std::vector<std::string> col_str_types;
     std::vector<DATA_ATTR_T> col_attrs;
@@ -44,6 +45,8 @@ void StrToLower(std::string& str);
 hdb::string16 StrToWStr(const std::string &str);
 std::string WStrToStr(const string16 &wstr);
 std::string WStrToStr(const SQLWCHAR *wstr);
+void WStrToStr(const string16 &wstr, std::string& str);
+void WStrToStr(const SQLWCHAR *wstr, std::string& str);
 void ReplaceCharInStr(std::string& str, char ch1, char ch2);
 void StringReplace(std::string &strBase, const std::string &strSrc, const std::string &strDes);
 

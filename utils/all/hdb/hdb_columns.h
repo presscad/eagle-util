@@ -25,14 +25,19 @@
 
 HDB_BEGIN_NAMESPACE
 
-typedef std::basic_string<unsigned short> string16;
+typedef unsigned short char_16;
+typedef std::basic_string<char_16> string16;
 
 // forward declarations of used functions
 void GetCurTimestamp(SQL_TIMESTAMP_STRUCT &st);
 void GetCurDate(SQL_DATE_STRUCT &date);
 void GetCurTime(SQL_TIME_STRUCT &time);
-hdb::string16 StrToWStr(const std::string &str);
+hdb::string16 StrToWStr(const std::string& str);
+void StrToWStr(const std::string&str, hdb::string16& wstr);
+void StrToWStr(const std::string&str, char_16* wbuff, int wbuff_len);
 std::string WStrToStr(const string16 &wstr);
+void WStrToStr(const string16 &wstr, std::string& str);
+void WStrToStr(const SQLWCHAR* wstr, std::string& str);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -42,8 +47,8 @@ typedef std::shared_ptr<BaseColumn> BaseColumn_SharedPtr;
 class BaseColumn
 {
 public:
-    BaseColumn(const char *col_name, const DATA_ATTR_T &attr) {
-        SetColName(col_name);
+    BaseColumn(const char *col_name, const DATA_ATTR_T &attr, bool col_name_case_sensitive = false) {
+        SetColName(col_name, col_name_case_sensitive);
         mDataAttr = attr;
     };
     virtual ~BaseColumn() {};
@@ -62,14 +67,20 @@ public:
     {
         return mColName.c_str();
     };
-    void SetColName(const char *name)
+    void SetColName(const char *name, bool case_sensitive = false)
     {
         mColName = (name != NULL) ? name : "";
+        mColNameCaseSensitive = case_sensitive;
     };
+    bool IsColNameCaseSensitive() const
+    {
+        return mColNameCaseSensitive;
+    }
     virtual void CopyFrom(const BaseColumn &col)
     {
         mDataAttr = col.mDataAttr;
         mColName = col.mColName;
+        mColNameCaseSensitive = col.mColNameCaseSensitive;
     };
     virtual void *GetData() = 0;
     virtual const void *GetData() const = 0;
@@ -90,6 +101,8 @@ public:
     virtual bool SetFromStr(size_t i, const char *str) = 0;
     virtual std::string GetAsStr(size_t i) const = 0;
     virtual string16 GetAsWStr(size_t i) const = 0;// for char based derived classes
+    virtual bool GetAsStr(size_t i, std::string& str) const = 0;
+    virtual bool GetAsWStr(size_t i, string16& wstr) const = 0;// for char based derived classes
     virtual void SetFromData(size_t i, const void *data) = 0;
     virtual void RemoveRow() = 0;
     virtual void RemoveAllRows() = 0;
@@ -101,6 +114,7 @@ public:
 protected:
     DATA_ATTR_T mDataAttr;
     std::string mColName;
+    bool mColNameCaseSensitive{};
 };
 
 
@@ -516,19 +530,33 @@ public:
         mDataVec[i] = value;
         return true;
     };
+    virtual bool GetAsStr(size_t i, std::string& result) const
+    {
+        result.clear();
+        if (mStrLenOrIndVec[i] != SQL_NULL_DATA) {
+            ValueToStr(mDataVec[i], result);
+        }
+        return true;
+    }
     virtual std::string GetAsStr(size_t i) const
     {
         std::string result;
-        if (mStrLenOrIndVec[i] != SQL_NULL_DATA) {
-            result = ValueToStr(mDataVec[i]);
-        }
+        GetAsStr(i, result);
         return result;
+    }
+    virtual bool GetAsWStr(size_t i, string16& wstr) const
+    {
+        UnImplemented(__FUNCTION__);
+        wstr.clear();
+        return true;
     }
     virtual string16 GetAsWStr(size_t i) const // for char based derived classes
     {
-        UnImplemented(__FUNCTION__);
-        return string16();
+        string16 result;
+        this->GetAsWStr(i, result);
+        return result;
     }
+
     virtual void SetFromData(size_t i, const void *data)
     {
         const T *p_value = (const T *)data;
@@ -683,14 +711,7 @@ public:
         ColT<T, data_type>::mStrLenOrIndVec[i] = (this->NullAble() && str.empty()) ? SQL_NULL_DATA : SQL_NTS;
         size_t len = (ColT<T, data_type>::mDataAttr.a + 1) * i;
         if (sizeof(T) == 2) {
-            string16 wstr = StrToWStr(str);
-#ifdef _WIN32
-            wcsncpy_s((SQLWCHAR *)mDataVec.data() + len, mDataAttr.a + 1, (SQLWCHAR *)wstr.c_str(), mDataAttr.a);
-#else
-            int copy_len = (wstr.length() + 1) < ((size_t)ColT<T, data_type>::mDataAttr.a + 1) ?
-                wstr.length() + 1 : ColT<T, data_type>::mDataAttr.a + 1;
-            memcpy((SQLWCHAR *)ColT<T, data_type>::mDataVec.data() + len, (SQLWCHAR *)wstr.c_str(), copy_len * 2);
-#endif
+            StrToWStr(str, (char_16*)mDataVec.data() + len, mDataAttr.a + 1);
         }
         else if (sizeof(T) == 1) {
 #ifdef _WIN32
@@ -738,14 +759,7 @@ public:
         if (str != nullptr) {
             size_t len = (ColT<T, data_type>::mDataAttr.a + 1) * i;
             if (sizeof(T) == 2) {
-                string16 wstr = StrToWStr(str);
-#ifdef _WIN32
-                wcsncpy_s((SQLWCHAR *)mDataVec.data() + len, mDataAttr.a + 1, (SQLWCHAR *)wstr.c_str(), mDataAttr.a);
-#else
-                int copy_len = (wstr.length() + 1) < ((size_t)ColT<T, data_type>::mDataAttr.a + 1) ?
-                    wstr.length() + 1 : ColT<T, data_type>::mDataAttr.a + 1;
-                memcpy((SQLWCHAR *)ColT<T, data_type>::mDataVec.data() + len, (SQLWCHAR *)wstr.c_str(), copy_len * 2);
-#endif
+                StrToWStr(str, (char_16*)mDataVec.data() + len, mDataAttr.a + 1);
             }
             else if (sizeof(T) == 1) {
 #ifdef _WIN32
@@ -764,10 +778,22 @@ public:
     virtual std::string GetAsStr(size_t i) const
     {
         std::string result;
+        GetAsStr(i, result);
+        return result;
+    }
+    virtual string16 GetAsWStr(size_t i) const
+    {
+        string16 result;
+        GetAsWStr(i, result);
+        return result;
+    }
+    bool GetAsStr(size_t i, std::string& result) const
+    {
+        result.clear();
         if (ColT<T, data_type>::mStrLenOrIndVec[i] != SQL_NULL_DATA) {
             size_t len = (ColT<T, data_type>::mDataAttr.a + 1) * i;
             if (sizeof(T) == 2) {
-                result = WStrToStr((SQLWCHAR *)ColT<T, data_type>::mDataVec.data() + len);
+                WStrToStr((SQLWCHAR *)ColT<T, data_type>::mDataVec.data() + len, result);
             }
             else {
                 result = (char *)ColT<T, data_type>::mDataVec.data() + len;
@@ -776,24 +802,24 @@ public:
                 result.resize(ColT<T, data_type>::mDataAttr.a);
             }
         }
-        return result;
+        return true;
     }
-    virtual string16 GetAsWStr(size_t i) const
+    bool GetAsWStr(size_t i, string16& result) const
     {
-        string16 result;
+        result.clear();
         if (ColT<T, data_type>::mStrLenOrIndVec[i] != SQL_NULL_DATA) {
             size_t len = (ColT<T, data_type>::mDataAttr.a + 1) * i;
             if (sizeof(T) == 2) {
                 result = (string16::value_type *)ColT<T, data_type>::mDataVec.data() + len;
             }
             else {
-                result = StrToWStr((const char *)ColT<T, data_type>::mDataVec.data() + len);
+                StrToWStr((const char *)ColT<T, data_type>::mDataVec.data() + len, result);
             }
             if ((int)result.size() > ColT<T, data_type>::mDataAttr.a) {
                 result.resize(ColT<T, data_type>::mDataAttr.a);
             }
         }
-        return result;
+        return true;
     }
     virtual void SetFromData(size_t i, const void *data)
     {
@@ -1019,25 +1045,32 @@ public:
     };
     virtual std::string GetAsStr(size_t i) const
     {
+        std::string result;
+        GetAsStr(i, result);
+        return result;
+    }
+    virtual bool GetAsStr(size_t i, std::string& result) const
+    {
+        result.clear();
         if ((SQL_NULL_DATA == ColT<T, data_type>::mStrLenOrIndVec[i]) || mLongVarVec[i].empty()) {
-            return std::string();
+            return true;
         }
         else {
             const LongVarT& lvar = mLongVarVec[i];
             if (sizeof(T) == 1) {
-                std::string str;
-                str.resize(lvar.size());
-                memcpy((void *)str.c_str(), lvar.data(), lvar.size());
-                return str;
+                result.resize(lvar.size());
+                memcpy((void *)result.c_str(), lvar.data(), lvar.size());
+                return true;
             }
             else if (sizeof(T) == 2) {
                 string16 wstr;
                 wstr.resize(lvar.size());
                 memcpy((void *)wstr.c_str(), lvar.data(), lvar.size() * 2);
-                return WStrToStr(wstr);
+                WStrToStr(wstr, result);
+                return true;
             }
         }
-        return std::string();
+        return true;
     }
     virtual void SetFromData(size_t i, const void *data)
     {
@@ -1149,6 +1182,7 @@ public:
         return AddCol(col_name, GenDataAttr(type, null_able, 0, 0));
     };
     bool AddCol(const char *col_name, const DATA_ATTR_T &attr);
+    bool AddCol(const char *col_name, bool col_name_case_sensitive, const DATA_ATTR_T &attr);
     bool AddColFixedChar(const char *col_name, DATA_TYPE_T type, unsigned char num, bool null_able = false)
     {
         assert(type == T_CHAR || type == T_NCHAR);
