@@ -42,6 +42,7 @@ _UpgradeReport_Files/
 ipch/
 *.VC.opendb
 *.VC.db
+x64/
 
 # VC build output directories
 Debug/

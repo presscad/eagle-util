@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{20e98734-32f2-4721-9257-cc05e0d0ed25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\swig">
+      <UniqueIdentifier>{b33edad6-9fe3-438c-bdf4-4df15d6398b5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\swig\run_swig_java.cmd">
+      <Filter>src\swig</Filter>
+    </None>
+    <None Include="src\swig\run_swig_java_clean.cmd">
+      <Filter>src\swig</Filter>
+    </None>
+    <None Include="src\swig\trans_matrix.i">
+      <Filter>src\swig</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\swig\trans_matrix_swig_core.cpp">
+      <Filter>src\swig</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\swig\trans_matrix_swig_core.h">
+      <Filter>src\swig</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
