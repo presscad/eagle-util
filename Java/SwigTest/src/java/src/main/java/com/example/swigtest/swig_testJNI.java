@@ -27,17 +27,17 @@ public class swig_testJNI {
   public final static native void delete_SwigCoreParams(long jarg1);
   public final static native long new_SwigCorePoint();
   public final static native void delete_SwigCorePoint(long jarg1);
-  public final static native void SwigCorePoint_SetMembers(long jarg1, SwigCorePoint jarg1_, String jarg2, double jarg3, double jarg4, float jarg5, String jarg6, short jarg7, short jarg8);
-  public final static native void SwigCorePoint_dev_id_set(long jarg1, SwigCorePoint jarg1_, String jarg2);
-  public final static native String SwigCorePoint_dev_id_get(long jarg1, SwigCorePoint jarg1_);
+  public final static native void SwigCorePoint_SetMembers(long jarg1, SwigCorePoint jarg1_, long jarg2, double jarg3, double jarg4, float jarg5, long jarg6, short jarg7, short jarg8);
+  public final static native void SwigCorePoint_dev_id_set(long jarg1, SwigCorePoint jarg1_, long jarg2);
+  public final static native long SwigCorePoint_dev_id_get(long jarg1, SwigCorePoint jarg1_);
   public final static native void SwigCorePoint_lat_set(long jarg1, SwigCorePoint jarg1_, double jarg2);
   public final static native double SwigCorePoint_lat_get(long jarg1, SwigCorePoint jarg1_);
   public final static native void SwigCorePoint_lng_set(long jarg1, SwigCorePoint jarg1_, double jarg2);
   public final static native double SwigCorePoint_lng_get(long jarg1, SwigCorePoint jarg1_);
   public final static native void SwigCorePoint_speed_set(long jarg1, SwigCorePoint jarg1_, float jarg2);
   public final static native float SwigCorePoint_speed_get(long jarg1, SwigCorePoint jarg1_);
-  public final static native void SwigCorePoint_gps_time_set(long jarg1, SwigCorePoint jarg1_, String jarg2);
-  public final static native String SwigCorePoint_gps_time_get(long jarg1, SwigCorePoint jarg1_);
+  public final static native void SwigCorePoint_gps_time_set(long jarg1, SwigCorePoint jarg1_, long jarg2);
+  public final static native long SwigCorePoint_gps_time_get(long jarg1, SwigCorePoint jarg1_);
   public final static native void SwigCorePoint_heading_set(long jarg1, SwigCorePoint jarg1_, short jarg2);
   public final static native short SwigCorePoint_heading_get(long jarg1, SwigCorePoint jarg1_);
   public final static native void SwigCorePoint_passenger_state_set(long jarg1, SwigCorePoint jarg1_, short jarg2);
@@ -53,8 +53,8 @@ public class swig_testJNI {
   public final static native long SwigCorePointVector_data(long jarg1, SwigCorePointVector jarg1_);
   public final static native long new_SwigTestCore();
   public final static native void delete_SwigTestCore(long jarg1);
-  public final static native boolean SwigTestCore_Init(long jarg1, SwigTestCore jarg1_, long jarg2, SwigCoreParams jarg2_, String jarg3, String jarg4, String jarg5);
+  public final static native boolean SwigTestCore_Init(long jarg1, SwigTestCore jarg1_, long jarg2, SwigCoreParams jarg2_, long jarg3, long jarg4, long jarg5);
   public final static native boolean SwigTestCore_OnFcdData(long jarg1, SwigTestCore jarg1_, long jarg2, SwigCorePointVector jarg2_);
-  public final static native String SwigTestCore_GetErrorStr(long jarg1, SwigTestCore jarg1_);
+  public final static native long SwigTestCore_GetErrorStr(long jarg1, SwigTestCore jarg1_);
   public final static native void SwigTestCore_Reset(long jarg1, SwigTestCore jarg1_);
 }

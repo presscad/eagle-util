@@ -39,16 +39,16 @@ public class SwigCorePoint {
     this(swig_testJNI.new_SwigCorePoint(), true);
   }
 
-  public void SetMembers(String dev_id, double lat, double lng, float speed, String gps_time, short heading, short passenger_state) {
-    swig_testJNI.SwigCorePoint_SetMembers(swigCPtr, this, dev_id, lat, lng, speed, gps_time, heading, passenger_state);
+  public void SetMembers(SWIGTYPE_p_std__string dev_id, double lat, double lng, float speed, SWIGTYPE_p_std__string gps_time, short heading, short passenger_state) {
+    swig_testJNI.SwigCorePoint_SetMembers(swigCPtr, this, SWIGTYPE_p_std__string.getCPtr(dev_id), lat, lng, speed, SWIGTYPE_p_std__string.getCPtr(gps_time), heading, passenger_state);
   }
 
-  public void setDev_id(String value) {
-    swig_testJNI.SwigCorePoint_dev_id_set(swigCPtr, this, value);
+  public void setDev_id(SWIGTYPE_p_std__string value) {
+    swig_testJNI.SwigCorePoint_dev_id_set(swigCPtr, this, SWIGTYPE_p_std__string.getCPtr(value));
   }
 
-  public String getDev_id() {
-    return swig_testJNI.SwigCorePoint_dev_id_get(swigCPtr, this);
+  public SWIGTYPE_p_std__string getDev_id() {
+    return new SWIGTYPE_p_std__string(swig_testJNI.SwigCorePoint_dev_id_get(swigCPtr, this), true);
   }
 
   public void setLat(double value) {
@@ -75,12 +75,12 @@ public class SwigCorePoint {
     return swig_testJNI.SwigCorePoint_speed_get(swigCPtr, this);
   }
 
-  public void setGps_time(String value) {
-    swig_testJNI.SwigCorePoint_gps_time_set(swigCPtr, this, value);
+  public void setGps_time(SWIGTYPE_p_std__string value) {
+    swig_testJNI.SwigCorePoint_gps_time_set(swigCPtr, this, SWIGTYPE_p_std__string.getCPtr(value));
   }
 
-  public String getGps_time() {
-    return swig_testJNI.SwigCorePoint_gps_time_get(swigCPtr, this);
+  public SWIGTYPE_p_std__string getGps_time() {
+    return new SWIGTYPE_p_std__string(swig_testJNI.SwigCorePoint_gps_time_get(swigCPtr, this), true);
   }
 
   public void setHeading(short value) {

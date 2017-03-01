@@ -230,17 +230,6 @@ static void SWIGUNUSED SWIG_JavaThrowException(JNIEnv *jenv, SWIG_JavaExceptionC
 #define SWIG_contract_assert(nullreturn, expr, msg) if (!(expr)) {SWIG_JavaThrowException(jenv, SWIG_JavaIllegalArgumentException, msg); return nullreturn; } else
 
 
-#include <string>
-
-
-#include <typeinfo>
-#include <stdexcept>
-
-
-#include <vector>
-#include <stdexcept>
-
-
 #include "swig_test_core.h"
 
 
@@ -488,7 +477,7 @@ SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_delete_1SwigCore
 }
 
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1SetMembers(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2, jdouble jarg3, jdouble jarg4, jfloat jarg5, jstring jarg6, jshort jarg7, jshort jarg8) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1SetMembers(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jdouble jarg3, jdouble jarg4, jfloat jarg5, jlong jarg6, jshort jarg7, jshort jarg8) {
   SwigCorePoint *arg1 = (SwigCorePoint *) 0 ;
   std::string *arg2 = 0 ;
   double arg3 ;
@@ -502,65 +491,55 @@ SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1S
   (void)jcls;
   (void)jarg1_;
   arg1 = *(SwigCorePoint **)&jarg1; 
-  if(!jarg2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+  arg2 = *(std::string **)&jarg2;
+  if (!arg2) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "std::string const & reference is null");
     return ;
-  }
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return ;
-  std::string arg2_str(arg2_pstr);
-  arg2 = &arg2_str;
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
+  } 
   arg3 = (double)jarg3; 
   arg4 = (double)jarg4; 
   arg5 = (float)jarg5; 
-  if(!jarg6) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+  arg6 = *(std::string **)&jarg6;
+  if (!arg6) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "std::string const & reference is null");
     return ;
-  }
-  const char *arg6_pstr = (const char *)jenv->GetStringUTFChars(jarg6, 0); 
-  if (!arg6_pstr) return ;
-  std::string arg6_str(arg6_pstr);
-  arg6 = &arg6_str;
-  jenv->ReleaseStringUTFChars(jarg6, arg6_pstr); 
+  } 
   arg7 = (short)jarg7; 
   arg8 = (unsigned char)jarg8; 
   (arg1)->SetMembers((std::string const &)*arg2,arg3,arg4,arg5,(std::string const &)*arg6,arg7,arg8);
 }
 
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1dev_1id_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1dev_1id_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
   SwigCorePoint *arg1 = (SwigCorePoint *) 0 ;
-  std::string *arg2 = 0 ;
+  std::string arg2 ;
+  std::string *argp2 ;
   
   (void)jenv;
   (void)jcls;
   (void)jarg1_;
   arg1 = *(SwigCorePoint **)&jarg1; 
-  if(!jarg2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+  argp2 = *(std::string **)&jarg2; 
+  if (!argp2) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "Attempt to dereference null std::string");
     return ;
   }
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return ;
-  std::string arg2_str(arg2_pstr);
-  arg2 = &arg2_str;
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
-  if (arg1) (arg1)->dev_id = *arg2;
+  arg2 = *argp2; 
+  if (arg1) (arg1)->dev_id = arg2;
 }
 
 
-SWIGEXPORT jstring JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1dev_1id_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
-  jstring jresult = 0 ;
+SWIGEXPORT jlong JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1dev_1id_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
   SwigCorePoint *arg1 = (SwigCorePoint *) 0 ;
-  std::string *result = 0 ;
+  std::string result;
   
   (void)jenv;
   (void)jcls;
   (void)jarg1_;
   arg1 = *(SwigCorePoint **)&jarg1; 
-  result = (std::string *) & ((arg1)->dev_id);
-  jresult = jenv->NewStringUTF(result->c_str()); 
+  result =  ((arg1)->dev_id);
+  *(std::string **)&jresult = new std::string((const std::string &)result); 
   return jresult;
 }
 
@@ -649,38 +628,36 @@ SWIGEXPORT jfloat JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_
 }
 
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1gps_1time_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1gps_1time_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
   SwigCorePoint *arg1 = (SwigCorePoint *) 0 ;
-  std::string *arg2 = 0 ;
+  std::string arg2 ;
+  std::string *argp2 ;
   
   (void)jenv;
   (void)jcls;
   (void)jarg1_;
   arg1 = *(SwigCorePoint **)&jarg1; 
-  if(!jarg2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+  argp2 = *(std::string **)&jarg2; 
+  if (!argp2) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "Attempt to dereference null std::string");
     return ;
   }
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return ;
-  std::string arg2_str(arg2_pstr);
-  arg2 = &arg2_str;
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
-  if (arg1) (arg1)->gps_time = *arg2;
+  arg2 = *argp2; 
+  if (arg1) (arg1)->gps_time = arg2;
 }
 
 
-SWIGEXPORT jstring JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1gps_1time_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
-  jstring jresult = 0 ;
+SWIGEXPORT jlong JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1gps_1time_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
   SwigCorePoint *arg1 = (SwigCorePoint *) 0 ;
-  std::string *result = 0 ;
+  std::string result;
   
   (void)jenv;
   (void)jcls;
   (void)jarg1_;
   arg1 = *(SwigCorePoint **)&jarg1; 
-  result = (std::string *) & ((arg1)->gps_time);
-  jresult = jenv->NewStringUTF(result->c_str()); 
+  result =  ((arg1)->gps_time);
+  *(std::string **)&jresult = new std::string((const std::string &)result); 
   return jresult;
 }
 
@@ -889,7 +866,7 @@ SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_delete_1SwigTest
 }
 
 
-SWIGEXPORT jboolean JNICALL Java_com_example_swigtest_swig_1testJNI_SwigTestCore_1Init(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jobject jarg2_, jstring jarg3, jstring jarg4, jstring jarg5) {
+SWIGEXPORT jboolean JNICALL Java_com_example_swigtest_swig_1testJNI_SwigTestCore_1Init(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jobject jarg2_, jlong jarg3, jlong jarg4, jlong jarg5) {
   jboolean jresult = 0 ;
   SwigTestCore *arg1 = (SwigTestCore *) 0 ;
   SwigCoreParams *arg2 = 0 ;
@@ -908,33 +885,21 @@ SWIGEXPORT jboolean JNICALL Java_com_example_swigtest_swig_1testJNI_SwigTestCore
     SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "SwigCoreParams const & reference is null");
     return 0;
   } 
-  if(!jarg3) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+  arg3 = *(std::string **)&jarg3;
+  if (!arg3) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "std::string const & reference is null");
     return 0;
-  }
-  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
-  if (!arg3_pstr) return 0;
-  std::string arg3_str(arg3_pstr);
-  arg3 = &arg3_str;
-  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
-  if(!jarg4) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+  } 
+  arg4 = *(std::string **)&jarg4;
+  if (!arg4) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "std::string const & reference is null");
     return 0;
-  }
-  const char *arg4_pstr = (const char *)jenv->GetStringUTFChars(jarg4, 0); 
-  if (!arg4_pstr) return 0;
-  std::string arg4_str(arg4_pstr);
-  arg4 = &arg4_str;
-  jenv->ReleaseStringUTFChars(jarg4, arg4_pstr); 
-  if(!jarg5) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+  } 
+  arg5 = *(std::string **)&jarg5;
+  if (!arg5) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "std::string const & reference is null");
     return 0;
-  }
-  const char *arg5_pstr = (const char *)jenv->GetStringUTFChars(jarg5, 0); 
-  if (!arg5_pstr) return 0;
-  std::string arg5_str(arg5_pstr);
-  arg5 = &arg5_str;
-  jenv->ReleaseStringUTFChars(jarg5, arg5_pstr); 
+  } 
   result = (bool)(arg1)->Init((SwigCoreParams const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5);
   jresult = (jboolean)result; 
   return jresult;
@@ -963,8 +928,8 @@ SWIGEXPORT jboolean JNICALL Java_com_example_swigtest_swig_1testJNI_SwigTestCore
 }
 
 
-SWIGEXPORT jstring JNICALL Java_com_example_swigtest_swig_1testJNI_SwigTestCore_1GetErrorStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
-  jstring jresult = 0 ;
+SWIGEXPORT jlong JNICALL Java_com_example_swigtest_swig_1testJNI_SwigTestCore_1GetErrorStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
   SwigTestCore *arg1 = (SwigTestCore *) 0 ;
   std::string result;
   
@@ -973,7 +938,7 @@ SWIGEXPORT jstring JNICALL Java_com_example_swigtest_swig_1testJNI_SwigTestCore_
   (void)jarg1_;
   arg1 = *(SwigTestCore **)&jarg1; 
   result = ((SwigTestCore const *)arg1)->GetErrorStr();
-  jresult = jenv->NewStringUTF((&result)->c_str()); 
+  *(std::string **)&jresult = new std::string((const std::string &)result); 
   return jresult;
 }
 

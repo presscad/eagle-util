@@ -15,15 +15,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\swig\run_swig_java.cmd" />
-    <None Include="src\swig\swig_test.i" />
+    <None Include="src\cpp\swig\run_swig_java.cmd" />
+    <None Include="src\cpp\swig\swig_test.i" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\swig\swig_test_core.cpp" />
-    <ClCompile Include="src\swig\swig_test_wrap.cxx" />
+    <ClCompile Include="src\cpp\swig\swig_test_core.cpp" />
+    <ClCompile Include="src\cpp\swig\swig_test_wrap.cxx" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\swig\swig_test_core.h" />
+    <ClInclude Include="src\cpp\swig\swig_test_core.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A07E7D85-522E-4557-8C2B-1984A837014A}</ProjectGuid>
@@ -94,7 +94,7 @@
     <PostBuildEvent />
     <PostBuildEvent />
     <PostBuildEvent>
-      <Command>copy /Y  $(OutDir)$(TargetName)$(TargetExt) .</Command>
+      <Command>copy /Y  $(OutDir)$(TargetName)$(TargetExt) .\src\java</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -121,7 +121,7 @@
     <CustomBuildStep />
     <CustomBuildStep />
     <PostBuildEvent>
-      <Command>copy /Y  $(OutDir)$(TargetName)$(TargetExt) .</Command>
+      <Command>copy /Y  $(OutDir)$(TargetName)$(TargetExt) .\src\java</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseOptimizeOff|x64'">
@@ -149,7 +149,7 @@
     <CustomBuildStep />
     <CustomBuildStep />
     <PostBuildEvent>
-      <Command>copy /Y  $(OutDir)$(TargetName)$(TargetExt) .</Command>
+      <Command>copy /Y  $(OutDir)$(TargetName)$(TargetExt) .\src\java</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

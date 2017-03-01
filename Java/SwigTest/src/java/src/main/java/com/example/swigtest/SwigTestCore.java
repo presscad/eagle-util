@@ -39,16 +39,16 @@ public class SwigTestCore {
     this(swig_testJNI.new_SwigTestCore(), true);
   }
 
-  public boolean Init(SwigCoreParams params, String segments_csv, String seg_edges_csv, String ex_routes_csv) {
-    return swig_testJNI.SwigTestCore_Init(swigCPtr, this, SwigCoreParams.getCPtr(params), params, segments_csv, seg_edges_csv, ex_routes_csv);
+  public boolean Init(SwigCoreParams params, SWIGTYPE_p_std__string segments_csv, SWIGTYPE_p_std__string seg_edges_csv, SWIGTYPE_p_std__string ex_routes_csv) {
+    return swig_testJNI.SwigTestCore_Init(swigCPtr, this, SwigCoreParams.getCPtr(params), params, SWIGTYPE_p_std__string.getCPtr(segments_csv), SWIGTYPE_p_std__string.getCPtr(seg_edges_csv), SWIGTYPE_p_std__string.getCPtr(ex_routes_csv));
   }
 
   public boolean OnFcdData(SwigCorePointVector fcd_points) {
     return swig_testJNI.SwigTestCore_OnFcdData(swigCPtr, this, SwigCorePointVector.getCPtr(fcd_points), fcd_points);
   }
 
-  public String GetErrorStr() {
-    return swig_testJNI.SwigTestCore_GetErrorStr(swigCPtr, this);
+  public SWIGTYPE_p_std__string GetErrorStr() {
+    return new SWIGTYPE_p_std__string(swig_testJNI.SwigTestCore_GetErrorStr(swigCPtr, this), true);
   }
 
   public void Reset() {
