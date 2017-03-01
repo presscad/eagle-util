@@ -1,3 +1,0 @@
-
-del *.java
-del *.cxx

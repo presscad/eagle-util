@@ -1,5 +1,5 @@
-/* File : trans_matrix.i */
-%module trans_matrix
+/* File : swig_test.i */
+%module swig_test
 
 %include "std_string.i"
 %include "std_vector.i"

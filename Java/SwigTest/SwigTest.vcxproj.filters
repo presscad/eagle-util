@@ -12,9 +12,6 @@
     <None Include="src\swig\run_swig_java.cmd">
       <Filter>src\swig</Filter>
     </None>
-    <None Include="src\swig\run_swig_java_clean.cmd">
-      <Filter>src\swig</Filter>
-    </None>
     <None Include="src\swig\swig_test.i">
       <Filter>src\swig</Filter>
     </None>
@@ -26,6 +23,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\swig\swig_test_core.cpp">
+      <Filter>src\swig</Filter>
+    </ClCompile>
+    <ClCompile Include="src\swig\swig_test_wrap.cxx">
       <Filter>src\swig</Filter>
     </ClCompile>
   </ItemGroup>
