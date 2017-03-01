@@ -17,13 +17,13 @@
   <ItemGroup>
     <None Include="src\swig\run_swig_java.cmd" />
     <None Include="src\swig\run_swig_java_clean.cmd" />
-    <None Include="src\swig\trans_matrix.i" />
+    <None Include="src\swig\swig_test.i" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\swig\trans_matrix_swig_core.cpp" />
+    <ClCompile Include="src\swig\swig_test_core.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\swig\trans_matrix_swig_core.h" />
+    <ClInclude Include="src\swig\swig_test_core.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A07E7D85-522E-4557-8C2B-1984A837014A}</ProjectGuid>

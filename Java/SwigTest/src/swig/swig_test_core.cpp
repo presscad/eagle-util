@@ -1,5 +1,5 @@
 
-#include "trans_matrix_swig_core.h"
+#include "swig_test_core.h"
 #include <atomic>
 #include "common/common_utils.h"
 #include "common/csv_to_tuples.hpp"
@@ -10,42 +10,41 @@
 
 using namespace std;
 
-class SwigTM_TransMatGen::SwigTM_TransMatGenImpl
+class SwigTestCore::SwigCoreImpl
 {
 public:
-    SwigTM_TransMatGenImpl()
+    SwigCoreImpl()
     {}
 
-    ~SwigTM_TransMatGenImpl()
+    ~SwigCoreImpl()
     {}
 
 public:
     string err_;
 };
 
-SwigTM_TransMatGen::SwigTM_TransMatGen()
-    : p_impl(new SwigTM_TransMatGenImpl())
+SwigTestCore::SwigTestCore()
+    : p_impl(new SwigCoreImpl())
 {
 }
 
-SwigTM_TransMatGen::~SwigTM_TransMatGen()
+SwigTestCore::~SwigTestCore()
 {
     Reset();
 }
 
-bool SwigTM_TransMatGen::Init(const SwigTM_TransMatParams & params,
+bool SwigTestCore::Init(const SwigCoreParams & params,
     const std::string & segments_csv, const std::string & seg_edges_csv,
     const std::string & excluded_routes_csv)
 {
     if (nullptr == p_impl) {
-        p_impl = new SwigTM_TransMatGenImpl();
+        p_impl = new SwigCoreImpl();
     }
-
 
     return true;
 }
 
-bool SwigTM_TransMatGen::OnFcdData(const SwigTM_FcdPointVector& points_vector)
+bool SwigTestCore::OnFcdData(const SwigCorePointVector& points_vector)
 {
     if (points_vector.empty()) {
         return true;
@@ -57,41 +56,7 @@ bool SwigTM_TransMatGen::OnFcdData(const SwigTM_FcdPointVector& points_vector)
     return true;
 }
 
-bool SwigTM_TransMatGen::OnFcdDataStart()
-{
-    return true;
-}
-
-bool SwigTM_TransMatGen::OnFcdPartialData(const SwigTM_FcdPointVector& points_vector,
-    int size)
-{
-    return true;
-}
-
-bool SwigTM_TransMatGen::OnFcdDataEnd()
-{
-    return true;
-}
-
-bool SwigTM_TransMatGen::GenerateTransMatrix(SwigTM_TransitionMat& swig_trans_mat)
-{
-    if (nullptr == p_impl) {
-        return false;
-    }
-
-    return true;
-}
-
-bool SwigTM_TransMatGen::GenerateStationaryMatrix(SwigTM_StationaryMat& swig_stationary_mat)
-{
-    if (nullptr == p_impl) {
-        return false;
-    }
-
-    return true;
-}
-
-std::string SwigTM_TransMatGen::GetErrorStr() const
+std::string SwigTestCore::GetErrorStr() const
 {
     if (nullptr == p_impl) {
         return "SwigTM_TransMatGen: cannot get impl instance";
@@ -99,7 +64,7 @@ std::string SwigTM_TransMatGen::GetErrorStr() const
     return p_impl->err_;
 }
 
-void SwigTM_TransMatGen::Reset()
+void SwigTestCore::Reset()
 {
     if (p_impl) {
         delete p_impl;
@@ -110,14 +75,14 @@ void SwigTM_TransMatGen::Reset()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // class SwigTM_FcdPoint
 
-SwigTM_FcdPoint::SwigTM_FcdPoint()
+SwigCorePoint::SwigCorePoint()
 {
 #if TRACK_OBJECTS == 1
     ++swig_fcd_point_count_allocated;
 #endif
 }
 
-SwigTM_FcdPoint::~SwigTM_FcdPoint()
+SwigCorePoint::~SwigCorePoint()
 {
 #if TRACK_OBJECTS == 1
     ++swig_fcd_point_count_released;
@@ -127,14 +92,14 @@ SwigTM_FcdPoint::~SwigTM_FcdPoint()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // class SwigTM_FcdPointVector
 
-SwigTM_FcdPointVector::SwigTM_FcdPointVector()
+SwigCorePointVector::SwigCorePointVector()
 {
 #if TRACK_OBJECTS == 1
     ++swig_fcd_vector_count_allocated;
 #endif
 }
 
-SwigTM_FcdPointVector::~SwigTM_FcdPointVector()
+SwigCorePointVector::~SwigCorePointVector()
 {
 #if TRACK_OBJECTS == 1
     ++swig_fcd_vector_count_released;

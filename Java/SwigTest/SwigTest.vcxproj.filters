@@ -15,18 +15,18 @@
     <None Include="src\swig\run_swig_java_clean.cmd">
       <Filter>src\swig</Filter>
     </None>
-    <None Include="src\swig\trans_matrix.i">
+    <None Include="src\swig\swig_test.i">
       <Filter>src\swig</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\swig\trans_matrix_swig_core.cpp">
-      <Filter>src\swig</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="src\swig\trans_matrix_swig_core.h">
+    <ClInclude Include="src\swig\swig_test_core.h">
       <Filter>src\swig</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\swig\swig_test_core.cpp">
+      <Filter>src\swig</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

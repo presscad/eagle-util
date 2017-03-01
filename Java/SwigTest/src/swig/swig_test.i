@@ -5,7 +5,7 @@
 %include "std_vector.i"
 
 %{
-#include "trans_matrix_swig_core.h"
+#include "swig_test_core.h"
 %}
 
-%include "trans_matrix_swig_core.h"
+%include "swig_test_core.h"

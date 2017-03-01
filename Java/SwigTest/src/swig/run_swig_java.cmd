@@ -1,3 +1,3 @@
 
-swig -c++ -java -package com.swigtest trans_matrix.i
+swig -c++ -java -package com.example.swigtest swig_test.i
 pause
