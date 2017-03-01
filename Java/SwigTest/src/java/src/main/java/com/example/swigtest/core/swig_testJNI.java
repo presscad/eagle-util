@@ -6,7 +6,7 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package com.example.swigtest;
+package com.example.swigtest.core;
 
 public class swig_testJNI {
   public final static native void SwigCoreParams_min_lat_set(long jarg1, SwigCoreParams jarg1_, double jarg2);

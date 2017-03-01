@@ -6,7 +6,7 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package com.example.swigtest;
+package com.example.swigtest.core;
 
 public class SWIGTYPE_p_std__vectorT_SwigCorePoint_t {
   private transient long swigCPtr;

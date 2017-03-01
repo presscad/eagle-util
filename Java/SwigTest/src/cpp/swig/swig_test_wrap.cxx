@@ -237,7 +237,7 @@ static void SWIGUNUSED SWIG_JavaThrowException(JNIEnv *jenv, SWIG_JavaExceptionC
 extern "C" {
 #endif
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParams_1min_1lat_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jdouble jarg2) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCoreParams_1min_1lat_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jdouble jarg2) {
   SwigCoreParams *arg1 = (SwigCoreParams *) 0 ;
   double arg2 ;
   
@@ -250,7 +250,7 @@ SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParams_1
 }
 
 
-SWIGEXPORT jdouble JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParams_1min_1lat_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+SWIGEXPORT jdouble JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCoreParams_1min_1lat_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jdouble jresult = 0 ;
   SwigCoreParams *arg1 = (SwigCoreParams *) 0 ;
   double result;
@@ -265,7 +265,7 @@ SWIGEXPORT jdouble JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParam
 }
 
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParams_1max_1lat_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jdouble jarg2) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCoreParams_1max_1lat_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jdouble jarg2) {
   SwigCoreParams *arg1 = (SwigCoreParams *) 0 ;
   double arg2 ;
   
@@ -278,7 +278,7 @@ SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParams_1
 }
 
 
-SWIGEXPORT jdouble JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParams_1max_1lat_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+SWIGEXPORT jdouble JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCoreParams_1max_1lat_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jdouble jresult = 0 ;
   SwigCoreParams *arg1 = (SwigCoreParams *) 0 ;
   double result;
@@ -293,7 +293,7 @@ SWIGEXPORT jdouble JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParam
 }
 
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParams_1min_1lng_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jdouble jarg2) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCoreParams_1min_1lng_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jdouble jarg2) {
   SwigCoreParams *arg1 = (SwigCoreParams *) 0 ;
   double arg2 ;
   
@@ -306,7 +306,7 @@ SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParams_1
 }
 
 
-SWIGEXPORT jdouble JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParams_1min_1lng_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+SWIGEXPORT jdouble JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCoreParams_1min_1lng_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jdouble jresult = 0 ;
   SwigCoreParams *arg1 = (SwigCoreParams *) 0 ;
   double result;
@@ -321,7 +321,7 @@ SWIGEXPORT jdouble JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParam
 }
 
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParams_1max_1lng_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jdouble jarg2) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCoreParams_1max_1lng_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jdouble jarg2) {
   SwigCoreParams *arg1 = (SwigCoreParams *) 0 ;
   double arg2 ;
   
@@ -334,7 +334,7 @@ SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParams_1
 }
 
 
-SWIGEXPORT jdouble JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParams_1max_1lng_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+SWIGEXPORT jdouble JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCoreParams_1max_1lng_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jdouble jresult = 0 ;
   SwigCoreParams *arg1 = (SwigCoreParams *) 0 ;
   double result;
@@ -349,7 +349,7 @@ SWIGEXPORT jdouble JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParam
 }
 
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParams_1time_1point_1type_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCoreParams_1time_1point_1type_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2) {
   SwigCoreParams *arg1 = (SwigCoreParams *) 0 ;
   int arg2 ;
   
@@ -362,7 +362,7 @@ SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParams_1
 }
 
 
-SWIGEXPORT jint JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParams_1time_1point_1type_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+SWIGEXPORT jint JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCoreParams_1time_1point_1type_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jint jresult = 0 ;
   SwigCoreParams *arg1 = (SwigCoreParams *) 0 ;
   int result;
@@ -377,7 +377,7 @@ SWIGEXPORT jint JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParams_1
 }
 
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParams_1passenger_1state_1filter_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCoreParams_1passenger_1state_1filter_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2) {
   SwigCoreParams *arg1 = (SwigCoreParams *) 0 ;
   int arg2 ;
   
@@ -390,7 +390,7 @@ SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParams_1
 }
 
 
-SWIGEXPORT jint JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParams_1passenger_1state_1filter_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+SWIGEXPORT jint JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCoreParams_1passenger_1state_1filter_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jint jresult = 0 ;
   SwigCoreParams *arg1 = (SwigCoreParams *) 0 ;
   int result;
@@ -405,7 +405,7 @@ SWIGEXPORT jint JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParams_1
 }
 
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParams_1fcd_1gps_1order_1by_1devid_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jboolean jarg2) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCoreParams_1fcd_1gps_1order_1by_1devid_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jboolean jarg2) {
   SwigCoreParams *arg1 = (SwigCoreParams *) 0 ;
   bool arg2 ;
   
@@ -418,7 +418,7 @@ SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParams_1
 }
 
 
-SWIGEXPORT jboolean JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCoreParams_1fcd_1gps_1order_1by_1devid_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+SWIGEXPORT jboolean JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCoreParams_1fcd_1gps_1order_1by_1devid_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jboolean jresult = 0 ;
   SwigCoreParams *arg1 = (SwigCoreParams *) 0 ;
   bool result;
@@ -433,7 +433,7 @@ SWIGEXPORT jboolean JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePara
 }
 
 
-SWIGEXPORT jlong JNICALL Java_com_example_swigtest_swig_1testJNI_new_1SwigCoreParams(JNIEnv *jenv, jclass jcls) {
+SWIGEXPORT jlong JNICALL Java_com_example_swigtest_core_swig_1testJNI_new_1SwigCoreParams(JNIEnv *jenv, jclass jcls) {
   jlong jresult = 0 ;
   SwigCoreParams *result = 0 ;
   
@@ -445,7 +445,7 @@ SWIGEXPORT jlong JNICALL Java_com_example_swigtest_swig_1testJNI_new_1SwigCorePa
 }
 
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_delete_1SwigCoreParams(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_core_swig_1testJNI_delete_1SwigCoreParams(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   SwigCoreParams *arg1 = (SwigCoreParams *) 0 ;
   
   (void)jenv;
@@ -455,7 +455,7 @@ SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_delete_1SwigCore
 }
 
 
-SWIGEXPORT jlong JNICALL Java_com_example_swigtest_swig_1testJNI_new_1SwigCorePoint(JNIEnv *jenv, jclass jcls) {
+SWIGEXPORT jlong JNICALL Java_com_example_swigtest_core_swig_1testJNI_new_1SwigCorePoint(JNIEnv *jenv, jclass jcls) {
   jlong jresult = 0 ;
   SwigCorePoint *result = 0 ;
   
@@ -467,7 +467,7 @@ SWIGEXPORT jlong JNICALL Java_com_example_swigtest_swig_1testJNI_new_1SwigCorePo
 }
 
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_delete_1SwigCorePoint(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_core_swig_1testJNI_delete_1SwigCorePoint(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   SwigCorePoint *arg1 = (SwigCorePoint *) 0 ;
   
   (void)jenv;
@@ -477,7 +477,7 @@ SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_delete_1SwigCore
 }
 
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1SetMembers(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jdouble jarg3, jdouble jarg4, jfloat jarg5, jlong jarg6, jshort jarg7, jshort jarg8) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCorePoint_1SetMembers(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jdouble jarg3, jdouble jarg4, jfloat jarg5, jlong jarg6, jshort jarg7, jshort jarg8) {
   SwigCorePoint *arg1 = (SwigCorePoint *) 0 ;
   std::string *arg2 = 0 ;
   double arg3 ;
@@ -510,7 +510,7 @@ SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1S
 }
 
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1dev_1id_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCorePoint_1dev_1id_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
   SwigCorePoint *arg1 = (SwigCorePoint *) 0 ;
   std::string arg2 ;
   std::string *argp2 ;
@@ -529,7 +529,7 @@ SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1d
 }
 
 
-SWIGEXPORT jlong JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1dev_1id_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+SWIGEXPORT jlong JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCorePoint_1dev_1id_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jlong jresult = 0 ;
   SwigCorePoint *arg1 = (SwigCorePoint *) 0 ;
   std::string result;
@@ -544,7 +544,7 @@ SWIGEXPORT jlong JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1
 }
 
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1lat_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jdouble jarg2) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCorePoint_1lat_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jdouble jarg2) {
   SwigCorePoint *arg1 = (SwigCorePoint *) 0 ;
   double arg2 ;
   
@@ -557,7 +557,7 @@ SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1l
 }
 
 
-SWIGEXPORT jdouble JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1lat_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+SWIGEXPORT jdouble JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCorePoint_1lat_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jdouble jresult = 0 ;
   SwigCorePoint *arg1 = (SwigCorePoint *) 0 ;
   double result;
@@ -572,7 +572,7 @@ SWIGEXPORT jdouble JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint
 }
 
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1lng_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jdouble jarg2) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCorePoint_1lng_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jdouble jarg2) {
   SwigCorePoint *arg1 = (SwigCorePoint *) 0 ;
   double arg2 ;
   
@@ -585,7 +585,7 @@ SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1l
 }
 
 
-SWIGEXPORT jdouble JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1lng_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+SWIGEXPORT jdouble JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCorePoint_1lng_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jdouble jresult = 0 ;
   SwigCorePoint *arg1 = (SwigCorePoint *) 0 ;
   double result;
@@ -600,7 +600,7 @@ SWIGEXPORT jdouble JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint
 }
 
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1speed_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jfloat jarg2) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCorePoint_1speed_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jfloat jarg2) {
   SwigCorePoint *arg1 = (SwigCorePoint *) 0 ;
   float arg2 ;
   
@@ -613,7 +613,7 @@ SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1s
 }
 
 
-SWIGEXPORT jfloat JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1speed_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+SWIGEXPORT jfloat JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCorePoint_1speed_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jfloat jresult = 0 ;
   SwigCorePoint *arg1 = (SwigCorePoint *) 0 ;
   float result;
@@ -628,7 +628,7 @@ SWIGEXPORT jfloat JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_
 }
 
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1gps_1time_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCorePoint_1gps_1time_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
   SwigCorePoint *arg1 = (SwigCorePoint *) 0 ;
   std::string arg2 ;
   std::string *argp2 ;
@@ -647,7 +647,7 @@ SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1g
 }
 
 
-SWIGEXPORT jlong JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1gps_1time_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+SWIGEXPORT jlong JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCorePoint_1gps_1time_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jlong jresult = 0 ;
   SwigCorePoint *arg1 = (SwigCorePoint *) 0 ;
   std::string result;
@@ -662,7 +662,7 @@ SWIGEXPORT jlong JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1
 }
 
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1heading_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jshort jarg2) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCorePoint_1heading_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jshort jarg2) {
   SwigCorePoint *arg1 = (SwigCorePoint *) 0 ;
   short arg2 ;
   
@@ -675,7 +675,7 @@ SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1h
 }
 
 
-SWIGEXPORT jshort JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1heading_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+SWIGEXPORT jshort JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCorePoint_1heading_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jshort jresult = 0 ;
   SwigCorePoint *arg1 = (SwigCorePoint *) 0 ;
   short result;
@@ -690,7 +690,7 @@ SWIGEXPORT jshort JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_
 }
 
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1passenger_1state_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jshort jarg2) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCorePoint_1passenger_1state_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jshort jarg2) {
   SwigCorePoint *arg1 = (SwigCorePoint *) 0 ;
   unsigned char arg2 ;
   
@@ -703,7 +703,7 @@ SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1p
 }
 
 
-SWIGEXPORT jshort JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_1passenger_1state_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+SWIGEXPORT jshort JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCorePoint_1passenger_1state_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jshort jresult = 0 ;
   SwigCorePoint *arg1 = (SwigCorePoint *) 0 ;
   unsigned char result;
@@ -718,7 +718,7 @@ SWIGEXPORT jshort JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoint_
 }
 
 
-SWIGEXPORT jlong JNICALL Java_com_example_swigtest_swig_1testJNI_new_1SwigCorePointVector(JNIEnv *jenv, jclass jcls) {
+SWIGEXPORT jlong JNICALL Java_com_example_swigtest_core_swig_1testJNI_new_1SwigCorePointVector(JNIEnv *jenv, jclass jcls) {
   jlong jresult = 0 ;
   SwigCorePointVector *result = 0 ;
   
@@ -730,7 +730,7 @@ SWIGEXPORT jlong JNICALL Java_com_example_swigtest_swig_1testJNI_new_1SwigCorePo
 }
 
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_delete_1SwigCorePointVector(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_core_swig_1testJNI_delete_1SwigCorePointVector(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   SwigCorePointVector *arg1 = (SwigCorePointVector *) 0 ;
   
   (void)jenv;
@@ -740,7 +740,7 @@ SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_delete_1SwigCore
 }
 
 
-SWIGEXPORT jboolean JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePointVector_1empty(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+SWIGEXPORT jboolean JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCorePointVector_1empty(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jboolean jresult = 0 ;
   SwigCorePointVector *arg1 = (SwigCorePointVector *) 0 ;
   bool result;
@@ -755,7 +755,7 @@ SWIGEXPORT jboolean JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePoin
 }
 
 
-SWIGEXPORT jint JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePointVector_1size(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+SWIGEXPORT jint JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCorePointVector_1size(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jint jresult = 0 ;
   SwigCorePointVector *arg1 = (SwigCorePointVector *) 0 ;
   int result;
@@ -770,7 +770,7 @@ SWIGEXPORT jint JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePointVec
 }
 
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePointVector_1reserve(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCorePointVector_1reserve(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2) {
   SwigCorePointVector *arg1 = (SwigCorePointVector *) 0 ;
   int arg2 ;
   
@@ -783,7 +783,7 @@ SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePointVec
 }
 
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePointVector_1clear(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCorePointVector_1clear(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   SwigCorePointVector *arg1 = (SwigCorePointVector *) 0 ;
   
   (void)jenv;
@@ -794,7 +794,7 @@ SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePointVec
 }
 
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePointVector_1add(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jobject jarg2_) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCorePointVector_1add(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jobject jarg2_) {
   SwigCorePointVector *arg1 = (SwigCorePointVector *) 0 ;
   SwigCorePoint *arg2 = 0 ;
   
@@ -812,7 +812,7 @@ SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePointVec
 }
 
 
-SWIGEXPORT jlong JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePointVector_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2) {
+SWIGEXPORT jlong JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCorePointVector_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2) {
   jlong jresult = 0 ;
   SwigCorePointVector *arg1 = (SwigCorePointVector *) 0 ;
   int arg2 ;
@@ -829,7 +829,7 @@ SWIGEXPORT jlong JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePointVe
 }
 
 
-SWIGEXPORT jlong JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePointVector_1data(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+SWIGEXPORT jlong JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigCorePointVector_1data(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jlong jresult = 0 ;
   SwigCorePointVector *arg1 = (SwigCorePointVector *) 0 ;
   std::vector< SwigCorePoint > *result = 0 ;
@@ -844,7 +844,7 @@ SWIGEXPORT jlong JNICALL Java_com_example_swigtest_swig_1testJNI_SwigCorePointVe
 }
 
 
-SWIGEXPORT jlong JNICALL Java_com_example_swigtest_swig_1testJNI_new_1SwigTestCore(JNIEnv *jenv, jclass jcls) {
+SWIGEXPORT jlong JNICALL Java_com_example_swigtest_core_swig_1testJNI_new_1SwigTestCore(JNIEnv *jenv, jclass jcls) {
   jlong jresult = 0 ;
   SwigTestCore *result = 0 ;
   
@@ -856,7 +856,7 @@ SWIGEXPORT jlong JNICALL Java_com_example_swigtest_swig_1testJNI_new_1SwigTestCo
 }
 
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_delete_1SwigTestCore(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_core_swig_1testJNI_delete_1SwigTestCore(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   SwigTestCore *arg1 = (SwigTestCore *) 0 ;
   
   (void)jenv;
@@ -866,7 +866,7 @@ SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_delete_1SwigTest
 }
 
 
-SWIGEXPORT jboolean JNICALL Java_com_example_swigtest_swig_1testJNI_SwigTestCore_1Init(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jobject jarg2_, jlong jarg3, jlong jarg4, jlong jarg5) {
+SWIGEXPORT jboolean JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigTestCore_1Init(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jobject jarg2_, jlong jarg3, jlong jarg4, jlong jarg5) {
   jboolean jresult = 0 ;
   SwigTestCore *arg1 = (SwigTestCore *) 0 ;
   SwigCoreParams *arg2 = 0 ;
@@ -906,7 +906,7 @@ SWIGEXPORT jboolean JNICALL Java_com_example_swigtest_swig_1testJNI_SwigTestCore
 }
 
 
-SWIGEXPORT jboolean JNICALL Java_com_example_swigtest_swig_1testJNI_SwigTestCore_1OnFcdData(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jobject jarg2_) {
+SWIGEXPORT jboolean JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigTestCore_1OnFcdData(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jobject jarg2_) {
   jboolean jresult = 0 ;
   SwigTestCore *arg1 = (SwigTestCore *) 0 ;
   SwigCorePointVector *arg2 = 0 ;
@@ -928,7 +928,7 @@ SWIGEXPORT jboolean JNICALL Java_com_example_swigtest_swig_1testJNI_SwigTestCore
 }
 
 
-SWIGEXPORT jlong JNICALL Java_com_example_swigtest_swig_1testJNI_SwigTestCore_1GetErrorStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+SWIGEXPORT jlong JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigTestCore_1GetErrorStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jlong jresult = 0 ;
   SwigTestCore *arg1 = (SwigTestCore *) 0 ;
   std::string result;
@@ -943,7 +943,7 @@ SWIGEXPORT jlong JNICALL Java_com_example_swigtest_swig_1testJNI_SwigTestCore_1G
 }
 
 
-SWIGEXPORT void JNICALL Java_com_example_swigtest_swig_1testJNI_SwigTestCore_1Reset(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+SWIGEXPORT void JNICALL Java_com_example_swigtest_core_swig_1testJNI_SwigTestCore_1Reset(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   SwigTestCore *arg1 = (SwigTestCore *) 0 ;
   
   (void)jenv;

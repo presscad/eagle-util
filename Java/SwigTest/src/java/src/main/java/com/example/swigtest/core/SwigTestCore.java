@@ -6,7 +6,7 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package com.example.swigtest;
+package com.example.swigtest.core;
 
 public class SwigTestCore {
   private transient long swigCPtr;
