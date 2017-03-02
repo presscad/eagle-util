@@ -711,7 +711,8 @@ public:
         ColT<T, data_type>::mStrLenOrIndVec[i] = (this->NullAble() && str.empty()) ? SQL_NULL_DATA : SQL_NTS;
         size_t len = (ColT<T, data_type>::mDataAttr.a + 1) * i;
         if (sizeof(T) == 2) {
-            StrToWStr(str, (char_16*)mDataVec.data() + len, mDataAttr.a + 1);
+            StrToWStr(str, (char_16*)ColT<T, data_type>::mDataVec.data() + len,
+                ColT<T, data_type>::mDataAttr.a + 1);
         }
         else if (sizeof(T) == 1) {
 #ifdef _WIN32
@@ -759,7 +760,8 @@ public:
         if (str != nullptr) {
             size_t len = (ColT<T, data_type>::mDataAttr.a + 1) * i;
             if (sizeof(T) == 2) {
-                StrToWStr(str, (char_16*)mDataVec.data() + len, mDataAttr.a + 1);
+                StrToWStr(str, (char_16*)ColT<T, data_type>::mDataVec.data() + len,
+                    ColT<T, data_type>::mDataAttr.a + 1);
             }
             else if (sizeof(T) == 1) {
 #ifdef _WIN32
