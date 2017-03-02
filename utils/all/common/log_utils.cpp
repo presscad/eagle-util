@@ -29,11 +29,11 @@ UTIL_BEGIN_NAMESPACE
 struct LOG_CORE
 {
     LOG_CORE()
-        : log_fp(NULL), last_log_time(0), last_log_repeat(0),
-        to_stderr(false), to_file(false), append_endl(true), is_inited(false),
-        log_level(LOG_INFO), log_level_to_be(0)
+        : log_fp_(nullptr), last_log_time_(0), last_log_repeat_(0),
+        to_stderr_(false), to_file_(false), append_endl_(true), is_inited_(false),
+        log_level_(LOG_INFO), log_level_to_be_(0)
     {
-        counts_by_level.resize(LOG_FATAL + 1);
+        counts_by_level_.resize(LOG_FATAL + 1);
 #ifdef PROJ_SIM_AFL
         to_stderr = true;
         to_file = false;
@@ -41,29 +41,22 @@ struct LOG_CORE
 #endif
     }
 
-    ~LOG_CORE()
-    {
-        if (log_fp) {
-            fclose(log_fp);
-            log_fp = NULL;
-        }
-    }
-
 public:
-    FILE *log_fp;
-    std::string last_log;
-    unsigned long long last_log_time;
-    int last_log_repeat;
+    std::shared_ptr<FILE> log_fp_{};
+    std::string last_log_;
+    unsigned long long last_log_time_;
+    int last_log_repeat_;
 
-    bool to_stderr;
-    bool to_file;
-    bool append_endl;
-    bool is_inited;
+    bool to_stderr_;
+    bool to_file_;
+    bool append_endl_;
+    bool is_inited_;
 
-    int log_level;
-    int log_level_to_be;
+    int log_level_;
+    int log_level_to_be_;
 
-    std::vector<int> counts_by_level;
+    std::vector<int> counts_by_level_;
+    std::string process_name_;
 };
 
 static LOG_CORE& GetLogCore()
@@ -132,13 +125,13 @@ static void LogCleanUp()
 std::string GetLastLog()
 {
     std::lock_guard<std::mutex> lock(GetLogMutex());
-    return GetLogCore().last_log;
+    return GetLogCore().last_log_;
 }
 
 int GetLastLogRepeatNum()
 {
     std::lock_guard<std::mutex> lock(GetLogMutex());
-    return GetLogCore().last_log_repeat;
+    return GetLogCore().last_log_repeat_;
 }
 
 int GetLogCount(int level)
@@ -147,7 +140,7 @@ int GetLogCount(int level)
         return 0;
     }
     std::lock_guard<std::mutex> lock(GetLogMutex());
-    return GetLogCore().counts_by_level[level];
+    return GetLogCore().counts_by_level_[level];
 }
 
 bool LogInit(bool to_file)
@@ -163,21 +156,24 @@ bool LogInit(bool to_stderr, bool to_file)
 bool LogInit(bool to_stderr, bool to_file, bool append_endl, int log_level)
 {
     std::lock_guard<std::mutex> lock(GetLogMutex());
+    auto& core = GetLogCore();
 
-    GetLogCore().to_stderr = to_stderr;
-    GetLogCore().to_file = to_file;
-    GetLogCore().append_endl = append_endl;
+    core.to_stderr_ = to_stderr;
+    core.to_file_ = to_file;
+    core.append_endl_ = append_endl;
     if (log_level >= LOG_DEBUG && log_level <= LOG_FATAL) {
-        GetLogCore().log_level = log_level;
+        core.log_level_ = log_level;
     }
+    core.process_name_ = util::GetCurrentProcessName();
+    util::StringReplace(core.process_name_, " ", ""); // remove spaces
 
     LogCleanUp();
 
     if (to_file) {
-        std::string sLogPath = GetCurrentPath() + "/Log";
+        std::string sLogPath = GetCurrentPath() + "/log";
         FormatPath(sLogPath);
 #ifdef _WIN32
-        if (!(::CreateDirectory(sLogPath.c_str(), NULL) ||
+        if (!(::CreateDirectory(sLogPath.c_str(), nullptr) ||
             ERROR_ALREADY_EXISTS == ::GetLastError())) {
             Log(LOG_ERROR, "cannot create log directory: %s!", sLogPath.c_str());
             return false;
@@ -186,25 +182,34 @@ bool LogInit(bool to_stderr, bool to_file, bool append_endl, int log_level)
         mkdir(sLogPath.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 #endif
 
+        sLogPath += '/';
+        if (!core.process_name_.empty()) {
+            sLogPath += core.process_name_ + '-';
+        }
+
         TIMESTAMP_STRUCT ts;
         GetCurTimestamp(ts);
         char buff[128];
-        snprintf(buff, sizeof(buff)-1, "/%04d%02u%02u-%02u.%02u.%02u.log",
+        snprintf(buff, sizeof(buff)-1, "%04d%02u%02u-%02u.%02u.%02u.log",
             ts.year, ts.month, ts.day, ts.hour, ts.minute, ts.second);
         sLogPath += buff;
         FormatPath(sLogPath);
 
-        if (GetLogCore().log_fp) {
-            fclose(GetLogCore().log_fp);
+        if (nullptr != core.log_fp_) {
+            fclose(core.log_fp_.get());
         }
-        GetLogCore().log_fp = fopen(sLogPath.c_str(), "at");
-        if (NULL == GetLogCore().log_fp) {
+        core.log_fp_ = std::shared_ptr<FILE>(fopen(sLogPath.c_str(), "at"), [=](FILE *fp) {
+            if (fp) {
+                fclose(fp);
+            }
+        });
+        if (nullptr == core.log_fp_) {
             Log(LOG_ERROR, "cannot create log file: %s!", sLogPath.c_str());
             return false;
         }
     }
 
-    GetLogCore().is_inited = true;
+    core.is_inited_ = true;
     return true;
 }
 
@@ -212,14 +217,14 @@ int LogSetLevel(int log_level)
 {
     std::lock_guard<std::mutex> lock(GetLogMutex());
 
-    auto old_level = GetLogCore().log_level;
+    auto old_level = GetLogCore().log_level_;
     if (log_level >= LOG_DEBUG && log_level <= LOG_FATAL) {
-        if (GetLogCore().is_inited) {
-            GetLogCore().log_level = log_level;
-            GetLogCore().log_level_to_be = 0;
+        if (GetLogCore().is_inited_) {
+            GetLogCore().log_level_ = log_level;
+            GetLogCore().log_level_to_be_ = 0;
         }
         else {
-            GetLogCore().log_level_to_be = log_level;
+            GetLogCore().log_level_to_be_ = log_level;
         }
     }
     return old_level;
@@ -229,21 +234,18 @@ int LogGetLevel()
 {
     std::lock_guard<std::mutex> lock(GetLogMutex());
 
-    if (GetLogCore().log_level_to_be != 0) {
-        return GetLogCore().log_level_to_be;
+    if (GetLogCore().log_level_to_be_ != 0) {
+        return GetLogCore().log_level_to_be_;
     }
     else {
-        return GetLogCore().log_level;
+        return GetLogCore().log_level_;
     }
 }
 
 void LogClose()
 {
-    if (GetLogCore().log_fp) {
-        fclose(GetLogCore().log_fp);
-        GetLogCore().log_fp = NULL;
-    }
-    GetLogCore().is_inited = false;
+    GetLogCore().log_fp_ = nullptr;
+    GetLogCore().is_inited_ = false;
 }
 
 void _Log_(const char *file, int line, int level, const char *fmt, ...)
@@ -259,13 +261,14 @@ void _Log_(const char *file, int line, int level, const char *fmt, ...)
     }
 
     std::lock_guard<std::mutex> lock(GetLogMutex());
-    if (!GetLogCore().is_inited) {
+    auto& core = GetLogCore();
+    if (!core.is_inited_) {
         return;
     }
 
     // increase the summary info
-    GetLogCore().counts_by_level[level]++;
-    GetLogCore().counts_by_level[0]++; // 0 for all levels
+    core.counts_by_level_[level]++;
+    core.counts_by_level_[0]++; // 0 for all levels
 
     GetCurTimeStr_Log(buffer, sizeof(buffer));
     cur_len = TIMESTAMP_LEN;
@@ -292,26 +295,26 @@ void _Log_(const char *file, int line, int level, const char *fmt, ...)
     }
 
    
-    if (GetLogCore().log_level_to_be != 0 && GetLogCore().is_inited) {
-        GetLogCore().log_level = GetLogCore().log_level_to_be;
-        GetLogCore().log_level_to_be = 0;
+    if (core.log_level_to_be_ != 0 && core.is_inited_) {
+        core.log_level_ = core.log_level_to_be_;
+        core.log_level_to_be_ = 0;
     }
-    if (level < GetLogCore().log_level) {
+    if (level < core.log_level_) {
         return;
     }
 
     unsigned long long now = util::GetTimeInMs64();
-    long diff = (long)(now - GetLogCore().last_log_time);
-    GetLogCore().last_log_time = now;
+    long diff = (long)(now - core.last_log_time_);
+    core.last_log_time_ = now;
 
-    if (diff <= REPEATING_LOG_CHECK_WINDOW && GetLogCore().last_log == buffer_no_time) {
-        GetLogCore().last_log_repeat++;
-        if (GetLogCore().last_log_repeat >= 10) {
+    if (diff <= REPEATING_LOG_CHECK_WINDOW && core.last_log_ == buffer_no_time) {
+        core.last_log_repeat_++;
+        if (core.last_log_repeat_ >= 10) {
             // found repeating log
-            if ((GetLogCore().last_log_repeat % 10) == 0) {
+            if ((core.last_log_repeat_ % 10) == 0) {
                 char tmp[128];
                 snprintf(tmp, sizeof(tmp) - 1, " [This log was repeated for %d times in short period]",
-                    GetLogCore().last_log_repeat);
+                    core.last_log_repeat_);
                 tmp[sizeof(tmp)-1] = '\0';
                 strncat(buffer, tmp, sizeof(buffer) - strlen(buffer));
             }
@@ -321,11 +324,11 @@ void _Log_(const char *file, int line, int level, const char *fmt, ...)
         }
     }
     else {
-        GetLogCore().last_log_repeat = 0;
-        GetLogCore().last_log = buffer_no_time;
+        core.last_log_repeat_ = 0;
+        core.last_log_ = buffer_no_time;
     }
 
-    if (GetLogCore().append_endl) {
+    if (core.append_endl_) {
         strncat(buffer, "\n", sizeof(buffer) - strlen(buffer));
     }
 
@@ -340,18 +343,27 @@ void _Log_(const char *file, int line, int level, const char *fmt, ...)
     }
 #endif
 
+    // strip out path
+    std::string str_file(file);
+    util::StringReplaceChar(str_file, '\\', '/');
+    auto n = str_file.rfind('/');
+    if (n != std::string::npos) {
+        file += n + 1;
+    }
 
-    if (GetLogCore().to_stderr) {
+    if (core.to_stderr_) {
 #ifdef _WIN32
         std::wstring wstr = utf82ws(buffer); // assume buffer could be UTF-8
-        printf("%s(%d): %s", file, line, ws2gb2312(wstr.c_str()).c_str());
+        printf("%s %s(%d): %s", core.process_name_.c_str(), file, line,
+            ws2gb2312(wstr.c_str()).c_str());
 #else
-        printf("%s(%d): %s", file, line, buffer);
+        printf("%s %s(%d): %s", core.process_name_.c_str(), file, line, buffer);
 #endif
     }
-    if (GetLogCore().to_file && GetLogCore().log_fp) {
-        fprintf(GetLogCore().log_fp, "%s(%d): %s", file, line, buffer);
-        fflush(GetLogCore().log_fp);
+    if (core.to_file_ && nullptr != core.log_fp_) {
+        fprintf(core.log_fp_.get(), "%s %s(%d): %s", core.process_name_.c_str(),
+            file, line, buffer);
+        fflush(core.log_fp_.get());
     }
 
 
@@ -364,8 +376,8 @@ void LogFlush()
 {
     std::lock_guard<std::mutex> lock(GetLogMutex());
 
-    if (GetLogCore().log_fp) {
-        fflush(GetLogCore().log_fp);
+    if (nullptr != GetLogCore().log_fp_) {
+        fflush(GetLogCore().log_fp_.get());
     }
 }
 

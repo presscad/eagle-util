@@ -53,6 +53,28 @@ string GetCurrentPath()
 #endif
 }
 
+std::string GetCurrentProcessName()
+{
+    std::string name;
+#ifdef _WIN32
+    name = __argv[0];
+    if (name.rfind(".exe") == name.length() - 4) {
+        name.resize(name.length() - 4);
+    }
+    util::StringReplaceChar(name, '\\', '/');
+#elif defined(__APPLE__) || defined(__FreeBSD__)
+    name = getprogname();
+#else
+    name = program_invocation_name;
+#endif
+
+    auto n = name.rfind('/');
+    if (n != string::npos) {
+        name = name.substr(n + 1);
+    }
+    return name;
+}
+
 bool GetFileModifyTime(const char *path, time_t& mtime)
 {
     struct stat statbuf;

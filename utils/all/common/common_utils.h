@@ -85,6 +85,7 @@ void SleepMs(long ms);
 unsigned long long GetTimeInMs64();
 bool GetFileModifyTime(const char *path, std::time_t& mtime);
 std::string GetCurrentPath();
+std::string GetCurrentProcessName();
 bool FileExists(const std::string& file_path);
 long long FileSize(const std::string& file_path);
 
