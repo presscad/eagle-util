@@ -65,20 +65,50 @@ bool ColRecords::AddCol(const char *col_name, bool col_name_case_sensitive, cons
         pCol = std::make_shared<SecondDateCol>(col_name, attr.null_able);
         break;
     case T_CHAR:
-        pCol = std::make_shared<CharCol>(col_name, attr.a, attr.null_able);
+    {
+        auto pCharCol = std::make_shared<CharCol>(col_name, attr.a, attr.null_able);
+        if (attr.a == 0) {
+            pCharCol->mStrVecInUse = true;
+        }
+        pCol = pCharCol;
         break;
+    }
     case T_NCHAR:
-        pCol = std::make_shared<NCharCol>(col_name, attr.a, attr.null_able);
+    {
+        auto pNCharCol = std::make_shared<NCharCol>(col_name, attr.a, attr.null_able);
+        if (attr.a == 0) {
+            pNCharCol->mStrVecInUse = true;
+        }
+        pCol = pNCharCol;
         break;
+    }
     case T_VARCHAR:
-        pCol = std::make_shared<VarCharCol>(col_name, attr.a, attr.null_able);
+    {
+        auto pVarCharCol = std::make_shared<VarCharCol>(col_name, attr.a, attr.null_able);
+        if (attr.a == 0) {
+            pVarCharCol->mStrVecInUse = true;
+        }
+        pCol = pVarCharCol;
         break;
+    }
     case T_NVARCHAR:
-        pCol = std::make_shared<NVarCharCol>(col_name, attr.a, attr.null_able);
+    {
+        auto pNVarCharCol = std::make_shared<NVarCharCol>(col_name, attr.a, attr.null_able);
+        if (attr.a == 0) {
+            pNVarCharCol->mStrVecInUse = true;
+        }
+        pCol = pNVarCharCol;
         break;
+    }
     case T_ALPHANUM:
-        pCol = std::make_shared<AlphaNumCol>(col_name, attr.a, attr.null_able);
+    {
+        auto pAlphaNumCol = std::make_shared<AlphaNumCol>(col_name, attr.a, attr.null_able);
+        if (attr.a == 0) {
+            pAlphaNumCol->mStrVecInUse = true;
+        }
+        pCol = pAlphaNumCol;
         break;
+    }
     case T_SMALLDECIMAL:
         pCol = std::make_shared<SmallDecimalCol>(col_name, attr.null_able);
         break;

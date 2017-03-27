@@ -627,6 +627,8 @@ protected:
     std::vector<SQLLEN> mStrLenOrIndVec;
 };
 
+class ColRecords;
+
 template<class T, DATA_TYPE_T data_type>
 class CharColT : public ColT<T, data_type>
 {
@@ -643,12 +645,19 @@ public:
     {
         ColT<T, data_type>::mDataVec.reserve(count * (ColT<T, data_type>::mDataAttr.a + 1));
         ColT<T, data_type>::mStrLenOrIndVec.reserve(count);
+        if (mStrVecInUse) {
+            mStrVec.reserve(count);
+        }
     };
     virtual void SetCount(size_t count)
     {
         ColT<T, data_type>::mDataVec.resize(count * (ColT<T, data_type>::mDataAttr.a + 1));
         size_t old_count = ColT<T, data_type>::mStrLenOrIndVec.size();
         ColT<T, data_type>::mStrLenOrIndVec.resize(count);
+        if (mStrVecInUse) {
+            mStrVec.resize(count);
+        }
+
         if (count > old_count) {
             if (this->NullAble()) {
                 for (size_t i = old_count; i < count; ++i) {
@@ -664,22 +673,42 @@ public:
     };
     virtual void *GetData()
     {
+        if (mStrVecInUse) {
+            return mStrVec.data();
+        }
         return ColT<T, data_type>::mDataVec.data();
     }
     virtual const void *GetData() const
     {
+        if (mStrVecInUse) {
+            return mStrVec.data();
+        }
         return ColT<T, data_type>::mDataVec.data();
     }
     virtual void *GetData(size_t i)
     {
+        if (mStrVecInUse) {
+            if (mStrVec[i].c_str()) {
+                return &mStrVec[i][0];
+            }
+            else {
+                return nullptr;
+            }
+        }
         return &ColT<T, data_type>::mDataVec[(ColT<T, data_type>::mDataAttr.a + 1) * i];
     }
     virtual const void *GetData(size_t i) const
     {
+        if (mStrVecInUse) {
+            return mStrVec[i].data();
+        }
         return &ColT<T, data_type>::mDataVec[(ColT<T, data_type>::mDataAttr.a + 1) * i];
     }
     virtual SQLLEN GetDataSize(size_t i) const
     {
+        if (mStrVecInUse) {
+            return mStrVec[i].length();
+        }
         return sizeof(T) * ColT<T, data_type>::mDataAttr.a;
     }
 
@@ -708,7 +737,13 @@ public:
     };
     virtual bool SetFromStr(size_t i, const std::string &str)
     {
-        ColT<T, data_type>::mStrLenOrIndVec[i] = (this->NullAble() && str.empty()) ? SQL_NULL_DATA : SQL_NTS;
+        ColT<T, data_type>::mStrLenOrIndVec[i] = SQL_NTS;
+
+        if (mStrVecInUse) {
+            mStrVec[i] = str;
+            return true;
+        }
+
         size_t len = (ColT<T, data_type>::mDataAttr.a + 1) * i;
         if (sizeof(T) == 2) {
             StrToWStr(str, (char_16*)ColT<T, data_type>::mDataVec.data() + len,
@@ -729,7 +764,13 @@ public:
     };
     virtual bool SetFromStr(size_t i, const string16 &wstr)
     {
-        ColT<T, data_type>::mStrLenOrIndVec[i] = (this->NullAble() && wstr.empty()) ? SQL_NULL_DATA : SQL_NTS;
+        ColT<T, data_type>::mStrLenOrIndVec[i] = SQL_NTS;
+
+        if (mStrVecInUse) {
+            mStrVec[i] = WStrToStr(wstr);
+            return true;
+        }
+
         size_t len = (ColT<T, data_type>::mDataAttr.a + 1) * i;
         if (sizeof(T) == 2) {
 #ifdef _WIN32
@@ -741,7 +782,7 @@ public:
 #endif
         }
         else if (sizeof(T) == 1) {
-            std::string str = WStrToStr(wstr);;
+            std::string str = WStrToStr(wstr);
 #ifdef _WIN32
             strncpy_s((char *)mDataVec.data() + len, mDataAttr.a + 1, str.c_str(), mDataAttr.a);
 #else
@@ -756,7 +797,13 @@ public:
     };
     virtual bool SetFromStr(size_t i, const char *str)
     {
-        ColT<T, data_type>::mStrLenOrIndVec[i] = (this->NullAble() && (str == nullptr || str[0] == '\0')) ? SQL_NULL_DATA : SQL_NTS;
+        ColT<T, data_type>::mStrLenOrIndVec[i] = (this->NullAble() && (str == nullptr)) ? SQL_NULL_DATA : SQL_NTS;
+
+        if (mStrVecInUse && str != nullptr) {
+            mStrVec[i] = str;
+            return true;
+        }
+
         if (str != nullptr) {
             size_t len = (ColT<T, data_type>::mDataAttr.a + 1) * i;
             if (sizeof(T) == 2) {
@@ -791,6 +838,11 @@ public:
     }
     bool GetAsStr(size_t i, std::string& result) const
     {
+        if (mStrVecInUse) {
+            result = mStrVec[i];
+            return true;
+        }
+
         result.clear();
         if (ColT<T, data_type>::mStrLenOrIndVec[i] != SQL_NULL_DATA) {
             size_t len = (ColT<T, data_type>::mDataAttr.a + 1) * i;
@@ -808,6 +860,11 @@ public:
     }
     bool GetAsWStr(size_t i, string16& result) const
     {
+        if (mStrVecInUse) {
+            StrToWStr(mStrVec[i], result);
+            return true;
+        }
+
         result.clear();
         if (ColT<T, data_type>::mStrLenOrIndVec[i] != SQL_NULL_DATA) {
             size_t len = (ColT<T, data_type>::mDataAttr.a + 1) * i;
@@ -831,9 +888,14 @@ public:
     virtual void RemoveRow()
     {
         ColT<T, data_type>::mStrLenOrIndVec.pop_back();
+
         size_t len = ColT<T, data_type>::mDataVec.size();
         if (len > 0) {
             ColT<T, data_type>::mDataVec.resize(len - (ColT<T, data_type>::mDataAttr.a + 1));
+        }
+
+        if (mStrVecInUse && !mStrVec.empty()) {
+            mStrVec.pop_back();
         }
     }
     virtual void GenerateFakeData(size_t count)
@@ -905,6 +967,13 @@ public:
             AddFromStr((const char *)str);
         }
     };
+
+protected:
+    // for CHAR(a), VARCHAR(a) ..., if a = 0, use string vector to store the data
+    std::vector<std::string> mStrVec;
+    bool mStrVecInUse{};
+
+    friend class ColRecords;
 };
 
 
