@@ -21,7 +21,7 @@
 #  include <unistd.h>
 #  include <sys/time.h>
 #  include <dirent.h>
-#  include <boost/xpressive/xpressive.hpp>
+#  include <regex.h>
 #endif
 
 using namespace std;
@@ -151,15 +151,18 @@ static bool GetSubsInDir(string directory, const string& specifier,
     class dirent *ent;
     class stat st;
 
-    boost::xpressive::sregex rex;
+    regex_t re;
     const bool with_wildcards = specifier.find('*') != string::npos ||
         specifier.find('?') != string::npos;
     if (with_wildcards) {
-        rex = boost::xpressive::sregex::compile(WildcardsToRegex(specifier));
+        if (regcomp(&re, WildcardsToRegex(specifier).c_str(), REG_EXTENDED | REG_NOSUB) != 0) {
+            return false;
+        }
     }
 
     dir = opendir(directory.c_str());
     if (NULL == dir) {
+        regfree(&re);
         return false;
     }
     string file_name, full_file_name;
@@ -176,7 +179,8 @@ static bool GetSubsInDir(string directory, const string& specifier,
         const bool is_dir = (st.st_mode & S_IFDIR) != 0;
 
         if (with_wildcards) {
-            if (boost::xpressive::regex_match(file_name, rex)) {
+            int status = regexec(&re, file_name.c_str(), (size_t)0, NULL, 0);
+            if (status == 0) {
                 items.push_back(make_tuple(file_name, is_dir));
             }
         }
@@ -186,6 +190,7 @@ static bool GetSubsInDir(string directory, const string& specifier,
             break;
         }
     }
+    regfree(&re);
     closedir(dir);
 #endif
 
@@ -200,7 +205,7 @@ bool FindFiles(const string& path_specifier, vector<tuple<string, bool>>& items)
     if (path_spec == "*" || path_spec == "*.*") {
         return GetSubsInDir(".", path_spec, items);
     }
-    if (path_spec == "." || path_spec == "..") {
+    if (path_spec == ".") {
         return GetSubsInDir(path_spec, "*.*", items);
     }
 
@@ -392,7 +397,9 @@ void SleepMs(long ms)
 unsigned long long GetTimeInMs64()
 {
 #ifdef _WIN32
-    return ::GetTickCount64();
+    SYSTEMTIME now;
+    GetLocalTime(&now);
+    return static_cast<uint64_t>(now.wSecond) * 1000 + now.wMilliseconds;
 #else
     struct timeval tv;
     gettimeofday(&tv, NULL);
