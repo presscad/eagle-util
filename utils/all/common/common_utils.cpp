@@ -1,3 +1,11 @@
+/*----------------------------------------------------------------------*
+ * Copyright(c) 2015 SAP SE. All rights reserved
+ * Description : Common utility functions
+ *----------------------------------------------------------------------*
+ * Change - History : Change history
+ * Developer  Date      Description
+ * I078212    20140806  Initial creation
+ *----------------------------------------------------------------------*/
 
 #include "common_utils.h"
 #include <ctime>
@@ -26,12 +34,8 @@
 
 using namespace std;
 
-#ifdef _WIN32
-extern "C" WINBASEAPI ULONGLONG WINAPI GetTickCount64(void);
-#endif
-
-
 UTIL_BEGIN_NAMESPACE
+
 #ifdef _WIN32
 static const char SPLASH = '\\', OTHER_SPLASH = '/';
 #else
@@ -94,10 +98,10 @@ bool FileExists(const string& file_path)
 long long FileSize(const string& file_path)
 {
     ifstream file(file_path, ios::binary | ios::ate);
-    return (long long)file.tellg();
+    return static_cast<long long>(file.tellg());
 }
 
-
+#ifndef _WIN32
 static string WildcardsToRegex(string wildcard_pattern)
 {
     // Escape all regex special chars
@@ -121,6 +125,7 @@ static string WildcardsToRegex(string wildcard_pattern)
 
     return wildcard_pattern;
 }
+#endif
 
 static bool GetSubsInDir(string directory, const string& specifier,
     vector<tuple<string, bool>>& items)
@@ -139,7 +144,7 @@ static bool GetSubsInDir(string directory, const string& specifier,
                 continue;
             }
             bool is_dir = (data.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY);
-            items.push_back(make_tuple(data.cFileName, is_dir));
+            items.emplace_back(make_tuple(data.cFileName, is_dir));
         } while (::FindNextFileA(h, &data));
         ::FindClose(h);
     }
@@ -227,40 +232,38 @@ bool FindFiles(const string& path_specifier, vector<tuple<string, bool>>& items)
 bool FindFiles(const string& path_specifier, vector<string>& filenames)
 {
     vector<tuple<string, bool>> sub_items;
-    if (false == FindFiles(path_specifier, sub_items)) {
+    if (!FindFiles(path_specifier, sub_items)) {
         return false;
     }
 
     filenames.clear();
     for (const auto& item : sub_items) {
-        if (get<1>(item) == false) {
+        if (!get<1>(item)) {
             filenames.push_back(get<0>(item));
         }
     }
     return true;
 }
 
-bool GetSubsInFolder(const string& pathname,
+bool GetSubsInFolder(const string& folder_pathname,
     vector<tuple<string, bool>>& sub_items)
 {
-    if (pathname.empty() || pathname.back() == SPLASH || pathname.back() == OTHER_SPLASH) {
-        return FindFiles(pathname + "*.*", sub_items);
+    if (folder_pathname.empty() || folder_pathname.back() == SPLASH || folder_pathname.back() == OTHER_SPLASH) {
+        return FindFiles(folder_pathname + "*.*", sub_items);
     }
-    else {
-        return FindFiles(pathname + "/*.*", sub_items);
-    }
+    return FindFiles(folder_pathname + "/*.*", sub_items);
 }
 
-bool GetFilesInFolder(const string& pathname, vector<string>& filenames)
+bool GetFilesInFolder(const string& folder_pathname, vector<string>& filenames)
 {
     vector<tuple<string, bool>> sub_items;
-    if (false == GetSubsInFolder(pathname, sub_items)) {
+    if (!GetSubsInFolder(folder_pathname, sub_items)) {
         return false;
     }
 
     filenames.clear();
     for (const auto& item : sub_items) {
-        if (get<1>(item) == false) {
+        if (!get<1>(item)) {
             filenames.push_back(get<0>(item));
         }
     }
@@ -271,7 +274,7 @@ bool GetPathnamesInFolder(const string& folder_pathname,
     vector<string>& pathnames)
 {
     vector<string> names;
-    if (false == GetFilesInFolder(folder_pathname, names)) {
+    if (!GetFilesInFolder(folder_pathname, names)) {
         return false;
     }
 
@@ -285,8 +288,8 @@ bool GetPathnamesInFolder(const string& folder_pathname,
 
         pathnames.clear();
         pathnames.reserve(names.size());
-        for (size_t i = 0; i < names.size(); ++i) {
-            pathnames.push_back(path + names[i]);
+        for (auto& name : names) {
+            pathnames.push_back(path + name);
         }
     }
     return true;
@@ -298,7 +301,7 @@ bool DirExists(const string& pathname)
     if (stat(pathname.c_str(), &info) != 0) {
         return false;
     }
-    return (info.st_mode & S_IFDIR) ? true : false;
+    return (info.st_mode & S_IFDIR) != 0;
 }
 
 bool MakeDir(const string& pathname)
@@ -314,7 +317,7 @@ bool RmDir(const string& pathname, bool recursive)
 {
     if (recursive) {
         vector<tuple<string, bool>> sub_items;
-        if (false == GetSubsInFolder(pathname, sub_items)) {
+        if (!GetSubsInFolder(pathname, sub_items)) {
             return false;
         }
 
@@ -322,7 +325,7 @@ bool RmDir(const string& pathname, bool recursive)
             string sub_name(pathname + '/');
             sub_name += get<0>(item);
 
-            if (get<1>(item) == true) {
+            if (get<1>(item)) {
                 // sub folder
                 RmDir(sub_name, true);
             }
@@ -346,7 +349,7 @@ bool RmDir(const string& pathname, bool recursive)
 bool Rm(const string& specifier, bool recursive)
 {
     vector<tuple<string, bool>> sub_items;
-    if (false == FindFiles(specifier, sub_items)) {
+    if (!FindFiles(specifier, sub_items)) {
         return false;
     }
     if (sub_items.empty()) {
@@ -371,7 +374,7 @@ bool Rm(const string& specifier, bool recursive)
         string sub_name(path);
         sub_name += get<0>(item);
 
-        if (get<1>(item) == true) {
+        if (get<1>(item)) {
             // sub folder
             RmDir(sub_name, recursive);
         }
@@ -513,13 +516,16 @@ string TimestampToStr(const TIMESTAMP_STRUCT &st, bool with_fraction)
     return TimestampToStr(st, with_fraction, str);
 }
 
-bool StrToTimestamp(const string &s, TIMESTAMP_STRUCT &v)
+bool StrToTimestamp(const string &s, TIMESTAMP_STRUCT &ts)
 {
-    if (s.empty()) return false;
+    if (s.empty()) {
+        return false;
+    }
 
     int year, month, day, hour, minute, second, fraction;
     int r = sscanf(s.c_str(), "%d-%d-%d%*[T -]%d%*[:.]%d%*[:.]%d%*[:.]%d",
         &year, &month, &day, &hour, &minute, &second, &fraction);
+
     if (r == 3 || r == 5 || r == 6 || r == 7) {
         if (r == 3) {
             hour = minute = second = 0;
@@ -532,30 +538,34 @@ bool StrToTimestamp(const string &s, TIMESTAMP_STRUCT &v)
             fraction = 0;
         }
 
-        if (year <= 0 || year > 3000) return false;
+        if (year <= 0 || year > 3000) {
+            return false;
+        }
         if (month < 0 || month > 12) {
             return false;
         }
-        else if (month == 0) {
+        if (month == 0) {
             month = 1;
         }
+
         if (day < 0 || day > 31) {
             return false;
         }
-        else if (day == 0) {
+        if (day == 0) {
             day = 1;
         }
+
         if (hour > 24 || minute > 60 || second > 60 || hour < 0 || minute < 0 || second < 0) {
             return false;
         }
 
-        v.year = year;
-        v.month = month;
-        v.day = day;
-        v.hour = hour;
-        v.minute = minute;
-        v.second = second;
-        v.fraction = fraction;
+        ts.year = year;
+        ts.month = month;
+        ts.day = day;
+        ts.hour = hour;
+        ts.minute = minute;
+        ts.second = second;
+        ts.fraction = fraction;
 
         return true;
     }
@@ -583,7 +593,7 @@ string& TimeTToStr(time_t tm, string& str)
 time_t StrToTimeT(const string &str)
 {
     TIMESTAMP_STRUCT timestamp;
-    if (false == StrToTimestamp(str, timestamp)) {
+    if (!StrToTimestamp(str, timestamp)) {
         return 0;
     }
     return TimestampToTime(timestamp);
@@ -609,7 +619,7 @@ long LocalUtcTimeDiff()
     tptr = gmtime(&secs);
 #endif
     time_t gmt_secs = mktime(tptr);
-    long diff_secs = long(local_secs - gmt_secs);
+    auto diff_secs = static_cast<long>(local_secs - gmt_secs);
     return diff_secs;
 }
 
@@ -630,7 +640,7 @@ bool ParseTimestamp(const char* s, TIMESTAMP_STRUCT& timestamp, DatePrecision& p
 {
     // for ESP, the time format could be like "2015-05-16T00:16:49" ...
     if (s[10] == 'T') {
-        ((char*)s)[10] = ' ';
+        (const_cast<char*>(s))[10] = ' ';
     }
 
     auto& dr = timestamp;
@@ -652,11 +662,13 @@ bool ParseTimestamp(const char* s, TIMESTAMP_STRUCT& timestamp, DatePrecision& p
     precision = PRECISION_YEAR;
 
     const char *p = s;
-    while (*p == ' ')
+    while (*p == ' ') {
         ++p;
+    }
     bool isNegative = *p == '-';
-    if (isNegative)
+    if (isNegative) {
         ++p;
+    }
     const char *p0 = p;
     if (*p >= '0' && *p <= '9') {
         dr.year = *p - '0';
@@ -668,20 +680,24 @@ bool ParseTimestamp(const char* s, TIMESTAMP_STRUCT& timestamp, DatePrecision& p
         precision = PRECISION_NULL;
         return true;
     }
-    else
+    else {
         return false;
-    unsigned digits = (unsigned)(p - p0);
+    }
+    auto digits = static_cast<unsigned>(p - p0);
     if (*p) {
         if (*p == '-' || *p == '/') {
-            for (const char *p1 = p0 + 1; p1 < p; ++p1)
+            for (const char *p1 = p0 + 1; p1 < p; ++p1) {
                 dr.year = 10 * dr.year + (*p1 - '0');
-            if ((unsigned)(dr.month = p[1] - '0') > 9)
+            }
+            if (static_cast<unsigned>(dr.month = p[1] - '0') > 9) {
                 return false;
+            }
             p += 2;
             if (*p >= '0' && *p <= '9') {
                 dr.month = 10 * dr.month + (*p++ - '0');
-                if (dr.month > 12)
+                if (dr.month > 12) {
                     return false;
+                }
             }
             if (dr.month == 0) {
                 if (dr.year == 0 && dr.month == 0) {
@@ -693,110 +709,137 @@ bool ParseTimestamp(const char* s, TIMESTAMP_STRUCT& timestamp, DatePrecision& p
                                 p += p[2] == '0' ? 3 : 2;
                                 if (*p == ':' && p[1] == '0') {
                                     p += p[2] == '0' ? 3 : 2;
-                                    if ((*p == '.' || *p == ',') && p[1] == '0')
-                                        for (p += 2; *p == '0'; ++p)
-                                            ;
+                                    if ((*p == '.' || *p == ',') && p[1] == '0') {
+                                        for (p += 2; *p == '0'; ++p) {
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
-                    return *p ? false : true;
+                    return (*p == '\0');
                 }
-                else
-                    return false;
+                return false;
             }
             precision = PRECISION_MONTH;
             if (*p == '-' || *p == '/') {
                 precision = PRECISION_DAY;
-                if ((unsigned)(dr.day = p[1] - '0') > 9)
+                if (static_cast<unsigned>(dr.day = p[1] - '0') > 9) {
                     return false;
+                }
                 p += 2;
-                if (*p >= '0' && *p <= '9')
+                if (*p >= '0' && *p <= '9') {
                     dr.day = 10 * dr.day + (*p++ - '0');
-                if ((unsigned char)(dr.day - 1) >= daysOfMonth[dr.month])
-                    if (dr.month != 2 || dr.day != 29 || !isLeapYearAbap(dr.year))
+                }
+                if (static_cast<unsigned char>(dr.day - 1) >= daysOfMonth[dr.month]) {
+                    if (dr.month != 2 || dr.day != 29 || !isLeapYearAbap(dr.year)) {
                         return false;
+                    }
+                }
             }
-            else if (*p)
+            else if (*p) {
                 return false;
-            else
-                goto notime;
+            }
+            goto notime;
         }
         else if (*p == '.') {
-            if (isNegative)
+            if (isNegative) {
                 return false;
-            if (digits == 14)
+            }
+            if (digits == 14) {
                 goto digitonly;
+            }
             else if (digits == 1 && dr.year == 0) {
                 if (*p == '.') {
                     ++p;
-                    while (*p == '0')
+                    while (*p == '0') {
                         ++p;
+                    }
                 }
-                if (*p)
-                    return false;
-                return true;
+                return (*p == '\0');
             }
             else {
                 precision = PRECISION_DAY;
                 dr.day = dr.year;
-                if (digits == 2)
+                if (digits == 2) {
                     dr.day = 10 * dr.day + (p0[1] - '0');
-                else if (digits != 1)
+                }
+                else if (digits != 1) {
                     return false;
-                if ((unsigned)(dr.month = p[1] - '0') > 9)
+                }
+                if (static_cast<unsigned>(dr.month = p[1] - '0') > 9) {
                     return false;
+                }
                 p += 2;
-                if (*p >= '0' && *p <= '9')
+                if (*p >= '0' && *p <= '9') {
                     dr.month = 10 * dr.month + (*p++ - '0');
-                if (dr.month < 1 || dr.month > 12 || *p++ != '.')
+                }
+                if (dr.month < 1 || dr.month > 12 || *p++ != '.') {
                     return false;
-                if ((unsigned)(dr.year = *p++ - '0') > 9)
+                }
+                if (static_cast<unsigned>(dr.year = *p++ - '0') > 9) {
                     return false;
-                while (*p >= '0' && *p <= '9')
-                    if ((dr.year = 10 * dr.year + (*p++ - '0')) > 99999)
+                }
+                while (*p >= '0' && *p <= '9') {
+                    int y = 10 * dr.year + (*p++ - '0');
+                    if (y > 99999) {
                         return false;
-                if ((unsigned char)(dr.day - 1) >= daysOfMonth[dr.month])
-                    if (dr.month != 2 || dr.day != 29 || !isLeapYearAbap(dr.year))
+                    }
+                    dr.year = static_cast<short>(y);
+                }
+                if (static_cast<unsigned char>(dr.day - 1) >= daysOfMonth[dr.month]) {
+                    if (dr.month != 2 || dr.day != 29 || !isLeapYearAbap(dr.year)) {
                         return false;
+                    }
+                }
             }
         }
-        else
+        else {
             return false;
+        }
         if (*p) {
-            if (*p == ' ' || *p == 'T' || *p == 't')
+            if (*p == ' ' || *p == 'T' || *p == 't') {
                 ++p;
+            }
             else if (*p == ',') {
                 ++p;
-                if (*p == ' ')
+                if (*p == ' ') {
                     ++p;
+                }
             }
-            else
+            else {
                 return false;
+            }
             precision = PRECISION_HOUR;
-            if ((unsigned)(dr.hour = *p++ - '0') > 9)
+            if (static_cast<unsigned>(dr.hour = *p++ - '0') > 9) {
                 return false;
-            if (*p >= '0' && *p <= '9')
+            }
+            if (*p >= '0' && *p <= '9') {
                 dr.hour = 10 * dr.hour + (*p++ - '0');
+            }
             if (*p == ':') {
                 precision = PRECISION_MINUTE;
-                if ((unsigned)(dr.minute = p[1] - '0') > 9)
+                if (static_cast<unsigned>(dr.minute = p[1] - '0') > 9) {
                     return false;
+                }
                 p += 2;
                 if (*p >= '0' && *p <= '9') {
                     dr.minute = 10 * dr.minute + (*p++ - '0');
-                    if (dr.minute > 59)
+                    if (dr.minute > 59) {
                         return false;
+                    }
                 }
                 if (*p == ':') {
                     precision = PRECISION_SECOND;
-                    if ((unsigned)(dr.second = p[1] - '0') > 9)
+                    if (static_cast<unsigned>(dr.second = p[1] - '0') > 9) {
                         return false;
+                    }
                     p += 2;
                     if (*p >= '0' && *p <= '9') {
                         dr.second = 10 * dr.second + (*p++ - '0');
-                        if (dr.second > 59)
+                        if (dr.second > 59) {
                             return false;
+                        }
                     }
                 }
             }
@@ -806,37 +849,45 @@ bool ParseTimestamp(const char* s, TIMESTAMP_STRUCT& timestamp, DatePrecision& p
     }
     else if (digits >= 6) { // year, month:
     digitonly:
-        if (digits > 14 || (digits & 1) != 0)
+        if (digits > 14 || (digits & 1) != 0) {
             return false;
+        }
         dr.year = 1000 * dr.year + 100 * (p0[1] - '0') + 10 * (p0[2] - '0') + (p0[3] - '0');
         dr.month = 10 * (p0[4] - '0') + (p0[5] - '0');
         if (dr.month == 0) {
-            for (p0 += 6; p0 < p; ++p0)
-                if (*p0 != '0')
+            for (p0 += 6; p0 < p; ++p0) {
+                if (*p0 != '0') {
                     return false;
+                }
+            }
         }
         else {
-            if (dr.month > 12)
+            if (dr.month > 12) {
                 return false;
+            }
             precision = PRECISION_MONTH;
             if (digits >= 8) {
                 precision = PRECISION_DAY;
                 dr.day = 10 * (p0[6] - '0') + (p0[7] - '0');
-                if ((unsigned char)(dr.day - 1) >= daysOfMonth[dr.month])
-                    if (dr.month != 2 || dr.day != 29 || !isLeapYearAbap(dr.year))
+                if (static_cast<unsigned char>(dr.day - 1) >= daysOfMonth[dr.month]) {
+                    if (dr.month != 2 || dr.day != 29 || !isLeapYearAbap(dr.year)) {
                         return false;
+                    }
+                }
                 if (digits >= 10) {
                     precision = PRECISION_HOUR;
                     dr.hour = 10 * (p0[8] - '0') + (p0[9] - '0');
                     if (digits >= 12) {
                         precision = PRECISION_MINUTE;
-                        if (p0[10] > '5')
+                        if (p0[10] > '5') {
                             return false;
+                        }
                         dr.minute = 10 * (p0[10] - '0') + (p0[11] - '0');
                         if (digits == 14) { //
                             precision = PRECISION_SECOND;
-                            if (p0[12] > '5')
+                            if (p0[12] > '5') {
                                 return false;
+                            }
                             dr.second = 10 * (p0[12] - '0') + (p0[13] - '0');
                         }
                     }
@@ -845,8 +896,9 @@ bool ParseTimestamp(const char* s, TIMESTAMP_STRUCT& timestamp, DatePrecision& p
         }
     }
     else {
-        for (const char *p1 = p0 + 1; p1 < p; ++p1)
+        for (const char *p1 = p0 + 1; p1 < p; ++p1) {
             dr.year = 10 * dr.year + (*p1 - '0');
+        }
         goto nomore;
     }
     if ((*p == '.' || *p == ',')
@@ -870,61 +922,80 @@ bool ParseTimestamp(const char* s, TIMESTAMP_STRUCT& timestamp, DatePrecision& p
                                     precision = PRECISION_NANO100;
                                     p += 8;
                                 }
-                                else
+                                else {
                                     p += 7;
+                                }
                             }
-                            else
+                            else {
                                 p += 6;
+                            }
                         }
-                        else
+                        else {
                             p += 5;
+                        }
                     }
-                    else
+                    else {
                         p += 4;
+                    }
                 }
-                else
+                else {
                     p += 3;
+                }
             }
-            else
+            else {
                 p += 2;
+            }
         }
-        else
+        else {
             ++p;
+        }
     }
     if (precision >= PRECISION_HOUR) {
         const char *p1 = p;
-        if (*p1 == ' ')
+        if (*p1 == ' ') {
             ++p1;
+        }
         if (*p1 == 'p' || *p1 == 'P') {
-            if (dr.hour < 1)
+            if (dr.hour < 1) {
                 return false;
-            else if (dr.hour < 12)
+            }
+            if (dr.hour < 12) {
                 dr.hour += 12;
-            else if (dr.hour > 12)
+            }
+            if (dr.hour > 12) {
                 return false;
+            }
         }
         else if (*p1 == 'a' || *p1 == 'A') {
-            if (dr.hour < 1)
+            if (dr.hour < 1) {
                 return false;
-            else if (dr.hour == 12)
+            }
+            if (dr.hour == 12) {
                 dr.hour = 0;
-            else if (dr.hour > 12)
+            }
+            if (dr.hour > 12) {
                 return false;
+            }
         }
-        else
+        else {
             goto nous;
-        if (p1[1] != 'm' && p1[1] != 'M')
+        }
+        if (p1[1] != 'm' && p1[1] != 'M') {
             return false;
+        }
         p = p1 + 2;
     nous:
         ;
     }
+
 nomore:
-    if (isNegative)
+    if (isNegative) {
         dr.year = -dr.year;
+    }
     if (dr.hour >= 24) {
-        if (dr.hour > 24 || dr.minute != 0 || dr.second != 0)
+        if (dr.hour > 24 || dr.minute != 0 || dr.second != 0) {
             return false;
+        }
         dr.hour = 0;
         // dr.addDays(1);
         time_t tt = TimestampToTime(dr);
@@ -939,15 +1010,15 @@ bool ParseTimestamp(const char *s, TIMESTAMP_STRUCT &timestamp)
     return ParseTimestamp(s, timestamp, precision);
 }
 
-bool ParseTime(const string &s, TIME_STRUCT &time_struct)
+bool ParseTime(const string &s, TIME_STRUCT &ts)
 {
-    return ParseTime(s.c_str(), time_struct);
+    return ParseTime(s.c_str(), ts);
 }
 
-bool ParseTime(const char *s, TIME_STRUCT &time_struct)
+bool ParseTime(const char *s, TIME_STRUCT &ts)
 {
     DatePrecision precision;
-    return ParseTime(s, time_struct, precision);
+    return ParseTime(s, ts, precision);
 }
 
 bool ParseTime(const char *s, TIME_STRUCT &time_struct, DatePrecision& precision)
@@ -971,11 +1042,13 @@ bool ParseTime(const char *s, TIME_STRUCT &time_struct, DatePrecision& precision
     precision = PRECISION_HOUR;
 
     const char *p = s;
-    while (*p == ' ')
+    while (*p == ' ') {
         ++p;
+    }
     bool isNegative = *p == '-';
-    if (isNegative)
+    if (isNegative) {
         ++p;
+    }
     const char *p0 = p;
     if (*p >= '0' && *p <= '9') {
         dr.hour = *p - '0';
@@ -987,96 +1060,123 @@ bool ParseTime(const char *s, TIME_STRUCT &time_struct, DatePrecision& precision
         precision = PRECISION_NULL;
         return true;
     }
-    else
+    else {
         return false;
+    }
     if (*p) {
-        if (*p != ':' || p - p0 > 6)
+        if (*p != ':' || p - p0 > 6) {
             return false;
-        for (const char *p1 = p0 + 1; p1 != p; ++p1)
+        }
+        for (const char *p1 = p0 + 1; p1 != p; ++p1) {
             dr.hour = 10 * dr.hour + (*p1 - '0');
+        }
         if (*++p) {
             precision = PRECISION_MINUTE;
-            if ((unsigned)(dr.minute = *p++ - '0') > 9)
+            if (static_cast<unsigned>(dr.minute = *p++ - '0') > 9) {
                 return false;
+            }
             if (*p >= '0' && *p <= '9') {
                 dr.minute = 10 * dr.minute + (*p++ - '0');
-                if (dr.minute > 59)
+                if (dr.minute > 59) {
                     return false;
+                }
             }
             if (*p) {
-                if (*p++ != ':')
+                if (*p++ != ':') {
                     return false;
+                }
                 precision = PRECISION_SECOND;
-                if ((unsigned)(dr.second = *p++ - '0') > 9)
+                if (static_cast<unsigned>(dr.second = *p++ - '0') > 9) {
                     return false;
+                }
                 if (*p >= '0' && *p <= '9') {
                     dr.second = 10 * dr.second + (*p++ - '0');
-                    if (dr.second > 59)
+                    if (dr.second > 59) {
                         return false;
+                    }
                 }
                 // ignore subseconds:
-                if (*p == '.' || *p == ',')
-                    for (++p; *p >= '0' && *p <= '9'; ++p)
-                        ;
+                if (*p == '.' || *p == ',') {
+                    for (++p; *p >= '0' && *p <= '9'; ++p) {
+                    }
+                }
                 // accept am and pm:
                 const char *p1 = p;
-                if (*p1 == ' ')
+                if (*p1 == ' ') {
                     ++p1;
+                }
                 if (*p1 == 'p' || *p1 == 'P') {
-                    if (dr.hour < 1)
+                    if (dr.hour < 1) {
                         return false;
-                    else if (dr.hour < 12)
+                    }
+                    if (dr.hour < 12) {
                         dr.hour += 12;
-                    else if (dr.hour > 12)
+                    }
+                    if (dr.hour > 12) {
                         return false;
+                    }
                 }
                 else if (*p1 == 'a' || *p1 == 'A') {
-                    if (dr.hour < 1)
+                    if (dr.hour < 1) {
                         return false;
-                    else if (dr.hour == 12)
+                    }
+                    if (dr.hour == 12) {
                         dr.hour = 0;
-                    else if (dr.hour > 12)
+                    }
+                    if (dr.hour > 12) {
                         return false;
+                    }
                 }
-                else
+                else {
                     goto nous;
-                if (p1[1] != 'm' && p1[1] != 'M')
+                }
+                if (p1[1] != 'm' && p1[1] != 'M') {
                     return false;
+                }
                 p = p1 + 2;
                 if (isNegative /*|| dr.hour < 0*/ ||
-                    (dr.hour > 23 && !(dr.hour == 24 && dr.minute == 0 && dr.second == 0)))
+                    (dr.hour > 23 && !(dr.hour == 24 && dr.minute == 0 && dr.second == 0))) {
                     return false;
+                }
             nous:
-                if (*p)
+                if (*p) {
                     return false;
+                }
             }
         }
     }
-    else if (!isNegative)
+    else if (!isNegative) {
         if (p - p0 == 4) {
             precision = PRECISION_MINUTE;
             dr.hour = 10 * dr.hour + (p0[1] - '0');
             dr.minute = 10 * (p0[2] - '0') + (p0[3] - '0');
-            if (dr.minute > 59)
+            if (dr.minute > 59) {
                 return false;
+            }
         }
         else if (p - p0 == 6) {
             precision = PRECISION_SECOND;
             dr.hour = 10 * dr.hour + (p0[1] - '0');
             dr.minute = 10 * (p0[2] - '0') + (p0[3] - '0');
             dr.second = 10 * (p0[4] - '0') + (p0[5] - '0');
-            if (dr.minute > 59 || dr.second > 59)
+            if (dr.minute > 59 || dr.second > 59) {
                 return false;
+            }
         }
-        else
+        else {
             goto allyear;
+        }
+    }
     else {
     allyear:
-        if (p - p0 <= 6)
-            for (const char *p1 = p0 + 1; p1 != p; ++p1)
+        if (p - p0 <= 6) {
+            for (const char *p1 = p0 + 1; p1 != p; ++p1) {
                 dr.hour = 10 * dr.hour + (*p1 - '0');
-        else
+            }
+        }
+        else {
             return false;
+        }
     }
     if (isNegative) {
         dr.hour = -dr.hour;
@@ -1168,7 +1268,7 @@ bool GetLine(istream& is, string& line)
             }
             return !line.empty(); // because of EOF
         default:
-            line += (char)c;
+            line += static_cast<char>(c);
         }
     }
     return true;
@@ -1180,49 +1280,49 @@ bool GetLine(ifstream &fs, string &line)
     return GetLine(is, line);
 }
 
-void ParseCsvLine(vector<string> &sub_strs, const string& line, char delimiter)
+void ParseCsvLine(vector<string> &strs, const string& line, char delimiter)
 {
-    ParseCsvLine(sub_strs, line.c_str(), delimiter);
+    ParseCsvLine(strs, line.c_str(), delimiter);
 }
 
 // Optimized version
-void ParseCsvLine(vector<string>& sub_strs, const char* line, char delimiter)
+void ParseCsvLine(vector<string>& strs, const char* line, char delimiter)
 {
     if (nullptr == line || '\0' == line[0]) {
-        sub_strs.clear();
+        strs.clear();
         return;
     }
 
     int linepos = 0;
     bool inquotes = false;
-    int linemax = (int)strlen(line);
+    auto linemax = static_cast<int>(strlen(line));
 
     char *curstring;
     char local_buff[4096];
-    if (linemax < (int)sizeof(local_buff)) {
+    if (linemax < static_cast<int>(sizeof(local_buff))) {
         curstring = local_buff;
     }
     else {
         curstring = new char[linemax + 4];
     }
     int cur_cur = 0;
-    int rec_num = 0, rec_size = (int)sub_strs.size();
+    int rec_num = 0, rec_size = static_cast<int>(strs.size());
 
     int i_quote_end = -1; // index of end of the quote in the curstring
-    auto trim_and_push_back = [&sub_strs, &rec_num, &rec_size, &i_quote_end](const char* s) {
+    auto trim_and_push_back = [&strs, &rec_num, &rec_size, &i_quote_end](const char* s) {
         // no need to trim the whitespace at begin, it was done outside of this function
 
         if (rec_num >= rec_size) {
-            sub_strs.push_back(s);
+            strs.emplace_back(s);
             rec_size++;
         }
         else {
-            sub_strs[rec_num] = s;
+            strs[rec_num] = s;
         }
 
-        auto& str = sub_strs[rec_num];
+        auto& str = strs[rec_num];
         if (i_quote_end >= 0) { // ending qoute found
-            while ((str.size() > (size_t)i_quote_end + 1) &&
+            while ((str.size() > static_cast<size_t>(i_quote_end + 1)) &&
                 (str.back() == ' ' || str.back() == '\t')) {
                 str.pop_back();
             }
@@ -1251,7 +1351,7 @@ void ParseCsvLine(vector<string>& sub_strs, const char* line, char delimiter)
         }
         else if (inquotes && c == '"') {
             //quotechar
-            if ((linepos + 1 < linemax) && (line[linepos + 1] == '"'))  {
+            if ((linepos + 1 < linemax) && (line[linepos + 1] == '"')) {
                 //encountered 2 double quotes in a row (resolves to 1 double quote)
                 curstring[cur_cur++] = c;
                 linepos++;
@@ -1287,12 +1387,11 @@ void ParseCsvLine(vector<string>& sub_strs, const char* line, char delimiter)
     trim_and_push_back(curstring);
 
     if (rec_size > rec_num) {
-        sub_strs.resize(rec_num);
+        strs.resize(rec_num);
     }
     if (curstring != local_buff) {
         delete[] curstring;
     }
-    return;
 }
 
 void ParseCsvLineInPlace(vector<char *> &strs, char *line, char delimiter,
@@ -1305,7 +1404,7 @@ void ParseCsvLineInPlace(vector<char *> &strs, char *line, char delimiter,
 
     int linepos = 0;
     bool inquotes = false;
-    int linemax = (int)strlen(line);
+    auto linemax = static_cast<int>(strlen(line));
     char *curstring = line;
     int curpos = 0;
 
@@ -1403,7 +1502,7 @@ vector<string> StringSplit(const string &line, char delimiter)
 vector<char*> StringSplitInPlace(string& line, char delimiter)
 {
     vector<char*> strs;
-    ParseCsvLineInPlace(strs, (char *)line.c_str(), delimiter);
+    ParseCsvLineInPlace(strs, const_cast<char *>(line.c_str()), delimiter);
     return strs;
 }
 
@@ -1451,17 +1550,17 @@ bool SplitBigData(char *data, size_t len, char delimiter, int n_blocks,
             if (p_block >= p_end) {
                 break;
             }
-            else if (p_block >= limit) {
+
+            if (p_block >= limit) {
                 continue;
             }
-            else {
-                *p_block = '\0';
-                blocks.push_back(p_block + 1);
-            }
+
+            *p_block = '\0';
+            blocks.push_back(p_block + 1);
         }
 
         // remove duplicated blocks
-        for (int i = (int)blocks.size() - 1; i >= 1; --i) {
+        for (int i = static_cast<int>(blocks.size()) - 1; i >= 1; --i) {
             if (blocks[i] == blocks[i - 1]) {
                 blocks.erase(blocks.begin() + i);
             }
@@ -1487,47 +1586,45 @@ bool ReadAllFromFile(const string& pathname, string &data)
         // for CSV text, 5-time compression rate is typical value
         auto init_buff_size = file_size * 5;
         data.resize(init_buff_size);
-        gzin.read((char *)data.data(), init_buff_size);
+        gzin.read(const_cast<char *>(data.data()), init_buff_size);
         if (gzin.eof()) {
             auto read_size = gzin.gcount();
             if (read_size <= 0) {
                 // shall not happen
-                data = move(string());
+                data = string();
                 return false;
             }
-            else {
-                data.resize(read_size);
-                return true;
-            }
-        }
-        else {
-            // read the rest of the data
-            string rest_data;
-            rest_data.reserve(file_size * 2);
 
-            const size_t BLOCK_SIZE = 32 * 1024;
-            string buff;
-            buff.resize(BLOCK_SIZE);
-
-            while (gzin.good()) {
-                gzin.read((char *)buff.data(), BLOCK_SIZE);
-                auto read_size = gzin.gcount();
-                if (read_size > 0) {
-                    auto old_size = rest_data.size();
-                    rest_data.resize(old_size + read_size);
-                    memcpy((char *)rest_data.data() + old_size, (char *)buff.data(), read_size);
-                }
-                if (gzin.eof()) {
-                    break;
-                }
-            };
-
-            auto old_size = data.size();
-            data.resize(old_size + rest_data.size());
-            memcpy((char *)data.data() + old_size, (char *)rest_data.data(), rest_data.size());
-
+            data.resize(read_size);
             return true;
         }
+
+        // read the rest of the data
+        string rest_data;
+        rest_data.reserve(file_size * 2);
+
+        const size_t BLOCK_SIZE = 32 * 1024;
+        string buff;
+        buff.resize(BLOCK_SIZE);
+
+        while (gzin.good()) {
+            gzin.read(const_cast<char *>(buff.data()), BLOCK_SIZE);
+            auto read_size = gzin.gcount();
+            if (read_size > 0) {
+                auto old_size = rest_data.size();
+                rest_data.resize(old_size + read_size);
+                memcpy(const_cast<char *>(rest_data.data()) + old_size, const_cast<char *>(buff.data()), read_size);
+            }
+            if (gzin.eof()) {
+                break;
+            }
+        };
+
+        auto old_size = data.size();
+        data.resize(old_size + rest_data.size());
+        memcpy(const_cast<char *>(data.data()) + old_size, const_cast<char *>(rest_data.data()), rest_data.size());
+
+        return true;
 #else
         printf("Error in %s(): *.gz file is not supported!\n", __FUNCTION__);
         return false;
@@ -1539,7 +1636,7 @@ bool ReadAllFromFile(const string& pathname, string &data)
         return false;
     }
     data.resize(file_size);
-    in.read((char *)data.data(), file_size);
+    in.read(const_cast<char *>(data.data()), file_size);
 
     return true;
 }
@@ -1547,7 +1644,9 @@ bool ReadAllFromFile(const string& pathname, string &data)
 bool WriteStrToFile(const string& pathname, const string &data)
 {
     ofstream out(pathname);
-    if (!out.good()) return false;
+    if (!out.good()) {
+        return false;
+    }
     out << data;
     return true;
 }
@@ -1570,16 +1669,17 @@ int StringReplaceImpl(STR& base, const STR& src, const STR& dest)
     return count;
 }
 
-int StringReplace(string &strBase, const string &strSrc, const string &strDes)
+int StringReplace(string &str_base, const string &str_src, const string &str_des)
 {
-    return StringReplaceImpl(strBase, strSrc, strDes);
+    return StringReplaceImpl(str_base, str_src, str_des);
 }
 
-int StringReplace(wstring &wstrBase, const wstring &wstrSrc,
-    const wstring &wstrDes)
+int StringReplace(wstring &wstr_base, const wstring &wstr_src,
+    const wstring &wstr_des)
 {
-    return StringReplaceImpl(wstrBase, wstrSrc, wstrDes);
+    return StringReplaceImpl(wstr_base, wstr_src, wstr_des);
 }
+
 
 template <typename STR, typename CHAR>
 int StringReplaceCharImpl(STR& base, CHAR ch_src, CHAR ch_des)
@@ -1603,20 +1703,21 @@ int StringReplaceChar(wstring& wstr_base, wchar_t ch_src, wchar_t ch_des)
 {
     return StringReplaceCharImpl(wstr_base, ch_src, ch_des);
 }
+
 #ifdef _WIN32
-wstring utf82ws(const char* src)
+wstring utf82ws(const char* s)
 {
     wstring ws;
-    return utf82ws(src, ws);
+    return utf82ws(s, ws);
 }
 
 wstring& utf82ws(const char* s, wstring& ws)
 {
-    int slength = (int)strlen(s);
-    int len = MultiByteToWideChar(CP_UTF8, 0, s, slength, 0, 0);
+    auto slength = static_cast<int>(strlen(s));
+    int len = MultiByteToWideChar(CP_UTF8, 0, s, slength, nullptr, 0);
     ws.clear();
     ws.resize(len, '\0');
-    MultiByteToWideChar(CP_UTF8, 0, s, slength, (LPWSTR)&ws[0], len);
+    MultiByteToWideChar(CP_UTF8, 0, s, slength, static_cast<LPWSTR>(&ws[0]), len);
     return ws;
 }
 
@@ -1628,31 +1729,31 @@ string ws2utf8(const wchar_t *ws)
 
 string& ws2utf8(const wchar_t* ws, string& s)
 {
-    const int slength = (int)wcslen(ws);
-    const int len = WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR)ws, slength, 0, 0, 0, 0);
+    const auto slength = static_cast<int>(wcslen(ws));
+    const int len = WideCharToMultiByte(CP_UTF8, 0, static_cast<LPCWSTR>(ws), slength, nullptr, 0, nullptr, nullptr);
     s.clear();
     s.resize(len, '\0');
-    WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR)ws, slength, &s[0], len, 0, 0);
+    WideCharToMultiByte(CP_UTF8, 0, static_cast<LPCWSTR>(ws), slength, &s[0], len, nullptr, nullptr);
     return s;
 }
 
 string ws2gb2312(const wchar_t *wstr)
 {
-    int n = WideCharToMultiByte(CP_ACP, 0, wstr, -1, 0, 0, 0, 0);
+    int n = WideCharToMultiByte(CP_ACP, 0, wstr, -1, nullptr, 0, nullptr, nullptr);
     string result(n, '\0');
-    ::WideCharToMultiByte(CP_ACP, 0, wstr, -1, &result[0], n, 0, 0);
+    ::WideCharToMultiByte(CP_ACP, 0, wstr, -1, &result[0], n, nullptr, nullptr);
     return result;
 }
 
 wstring gb2312_2_ws(const char *src)
 {
-    int n = MultiByteToWideChar(CP_ACP, 0, src, -1, NULL, 0);
+    int n = MultiByteToWideChar(CP_ACP, 0, src, -1, nullptr, 0);
     wstring result(n, '\0');
-    ::MultiByteToWideChar(CP_ACP, 0, src, -1, (LPWSTR)result.c_str(), n);
+    ::MultiByteToWideChar(CP_ACP, 0, src, -1, const_cast<LPWSTR>(result.c_str()), n);
     return result;
 }
 
-#endif
+#endif // end of _WIN32
 
 
 wstring& StrToWStr(const string& str, wstring& wstr)
@@ -1770,7 +1871,7 @@ void Base64Encode(const char* str, string& ret)
     unsigned char char_array_3[3];
     unsigned char char_array_4[4];
 
-    int in_len = (int)strlen(str);
+    auto in_len = static_cast<int>(strlen(str));
     ret.clear();
     ret.reserve(4 * (in_len / 3) + 4);
 
@@ -1809,7 +1910,7 @@ void Base64Encode(const char* str, string& ret)
 
 void Base64Decode(const char* str, string& ret)
 {
-    int in_len = (int)strlen(str);
+    auto in_len = static_cast<int>(strlen(str));
     ret.clear();
     ret.reserve(in_len * 3 / 4);
 
@@ -1825,7 +1926,7 @@ void Base64Decode(const char* str, string& ret)
         char_array_4[i++] = str[in_]; in_++;
         if (i == 4) {
             for (i = 0; i < 4; i++) {
-                char_array_4[i] = (unsigned char)base64_chars.find(char_array_4[i]);
+                char_array_4[i] = static_cast<unsigned char>(base64_chars.find(char_array_4[i]));
             }
             char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
             char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
@@ -1842,8 +1943,8 @@ void Base64Decode(const char* str, string& ret)
         for (int j = i; j < 4; j++) {
             char_array_4[j] = 0;
         }
-        for (int j = 0; j < 4; j++) {
-            char_array_4[j] = (unsigned char)base64_chars.find(char_array_4[j]);
+        for (auto& ch: char_array_4) {
+            ch = static_cast<unsigned char>(base64_chars.find(ch));
         }
 
         char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
@@ -1915,8 +2016,12 @@ bool LocaleToLangChar(const string& locale, char& lang_char)
 
 bool LocaleToLangChar(const char* locale, char& lang_char)
 {
-    if (locale == nullptr) return false;
-    if (strlen(locale) != 2) return false;
+    if (locale == nullptr) {
+        return false;
+    }
+    if (strlen(locale) != 2) {
+        return false;
+    }
     string locale_upper = locale;
     util::MakeUpper(locale_upper);
 
@@ -1934,7 +2039,7 @@ bool IsUtf8String(const string& str)
 {
     const int MAX_UTF8_CHECK_LENGTH = 20;
 
-    int length = (int)str.length();
+    auto length = static_cast<int>(str.length());
     int check_sub = 0;
     int i = 0;
 
@@ -1948,7 +2053,7 @@ bool IsUtf8String(const string& str)
             if ((char_i >> 7) == 0) { //0xxx xxxx
                 continue;
             }
-            else if ((char_i & 0xE0) == 0xC0) { //110x xxxx
+            if ((char_i & 0xE0) == 0xC0) { //110x xxxx
                 check_sub = 1;
             }
             else if ((char_i & 0xF0) == 0xE0) { //1110 xxxx
@@ -2038,7 +2143,7 @@ string Gb2312HanziToPinyin(const string& hanzi_str, bool each_first_cap)
             break;
         }
 
-        if (ch >= 0 && ch < 128) { // non hanzi
+        if (static_cast<unsigned char>(ch) < 128) { // non hanzi
             result += ch;
             j++;
             continue;
