@@ -1,4 +1,3 @@
-
 #if defined(_WIN32) && !defined(_CRT_SECURE_NO_WARNINGS)
 #define _CRT_SECURE_NO_WARNINGS
 #endif
@@ -29,9 +28,7 @@ UTIL_BEGIN_NAMESPACE
 struct LOG_CORE
 {
     LOG_CORE()
-        : log_fp_(nullptr), last_log_time_(0), last_log_repeat_(0),
-        to_stderr_(false), to_file_(false), append_endl_(true), is_inited_(false),
-        log_level_(LOG_INFO), log_level_to_be_(0)
+        : log_fp_(nullptr) 
     {
         counts_by_level_.resize(LOG_FATAL + 1);
 #ifdef PROJ_SIM_AFL
@@ -44,16 +41,16 @@ struct LOG_CORE
 public:
     std::shared_ptr<FILE> log_fp_{};
     std::string last_log_;
-    unsigned long long last_log_time_;
-    int last_log_repeat_;
+    unsigned long long last_log_time_{};
+    int last_log_repeat_{};
 
-    bool to_stderr_;
-    bool to_file_;
-    bool append_endl_;
-    bool is_inited_;
+    bool to_stderr_{};
+    bool to_file_{};
+    bool append_endl_{true};
+    bool is_inited_{};
 
-    int log_level_;
-    int log_level_to_be_;
+    int log_level_{LOG_INFO};
+    int log_level_to_be_{};
 
     std::vector<int> counts_by_level_;
     std::string process_name_;
@@ -111,10 +108,10 @@ static void LogCleanUp()
 
     std::vector<std::string> filenames;
     std::string tLogPath = sLogPath + "/20*.log";
-    if (true == util::FindFiles(FormatPath(tLogPath), filenames)) {
-        if ((int)filenames.size() > KEEP_NUM) {
+    if (util::FindFiles(FormatPath(tLogPath), filenames)) {
+        if (static_cast<int>(filenames.size()) > KEEP_NUM) {
             std::sort(filenames.begin(), filenames.end());
-            for (int i = 0; i < (int)filenames.size() - KEEP_NUM; ++i) {
+            for (int i = 0; i < static_cast<int>(filenames.size()) - KEEP_NUM; ++i) {
                 tLogPath = sLogPath + '/' + filenames[i];
                 ::remove(FormatPath(tLogPath).c_str());
             }
@@ -237,9 +234,8 @@ int LogGetLevel()
     if (GetLogCore().log_level_to_be_ != 0) {
         return GetLogCore().log_level_to_be_;
     }
-    else {
-        return GetLogCore().log_level_;
-    }
+    
+    return GetLogCore().log_level_;
 }
 
 void LogClose()
@@ -289,7 +285,7 @@ void _Log_(const char *file, int line, int level, const char *fmt, ...)
     va_start(argptr, fmt);
     int ret = vsnprintf(buffer + cur_len, sizeof(buffer) - cur_len - 1, fmt, argptr);
     va_end(argptr);
-    if (ret == -1 || ret >= (int)sizeof(buffer)-cur_len) {
+    if (ret == -1 || ret >= static_cast<int>(sizeof(buffer))-cur_len) {
         // truncated
         buffer[sizeof(buffer)-1] = '\0';
     }
@@ -304,7 +300,7 @@ void _Log_(const char *file, int line, int level, const char *fmt, ...)
     }
 
     unsigned long long now = util::GetTimeInMs64();
-    long diff = (long)(now - core.last_log_time_);
+    auto diff = static_cast<long>(now - core.last_log_time_);
     core.last_log_time_ = now;
 
     if (diff <= REPEATING_LOG_CHECK_WINDOW && core.last_log_ == buffer_no_time) {
@@ -316,7 +312,7 @@ void _Log_(const char *file, int line, int level, const char *fmt, ...)
                 snprintf(tmp, sizeof(tmp) - 1, " [This log was repeated for %d times in short period]",
                     core.last_log_repeat_);
                 tmp[sizeof(tmp)-1] = '\0';
-                strncat(buffer, tmp, sizeof(buffer) - strlen(buffer));
+                strncat(buffer, tmp, sizeof(buffer) - strlen(buffer) - 1);
             }
             else {
                 return; // ignore
@@ -329,7 +325,7 @@ void _Log_(const char *file, int line, int level, const char *fmt, ...)
     }
 
     if (core.append_endl_) {
-        strncat(buffer, "\n", sizeof(buffer) - strlen(buffer));
+        strncat(buffer, "\n", sizeof(buffer) - strlen(buffer) - 1);
     }
 
 #ifdef _WIN32
