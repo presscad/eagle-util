@@ -1,12 +1,3 @@
-/*----------------------------------------------------------------------*
- * Copyright(c) 2015 SAP SE. All rights reserved
- * Description : Common utility functions
- *----------------------------------------------------------------------*
- * Change - History : Change history
- * Developer  Date      Description
- * I078212    20140806  Initial creation
- *----------------------------------------------------------------------*/
-
 #include "common_utils.h"
 #include <ctime>
 #include <cctype>
