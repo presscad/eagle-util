@@ -629,9 +629,14 @@ bool ParseTimestamp(const string &s, TIMESTAMP_STRUCT &timestamp)
 
 bool ParseTimestamp(const char* s, TIMESTAMP_STRUCT& timestamp, DatePrecision& precision)
 {
-    // for ESP, the time format could be like "2015-05-16T00:16:49" ...
-    if (s[10] == 'T') {
-        (const_cast<char*>(s))[10] = ' ';
+    // The time format could be like "2015-05-16T00:16:49" ...
+    const char *s1 = s;
+    while (*s1) {
+        if (*s1 == 'T') {
+            *const_cast<char *>(s1) = ' ';
+            break;
+        }
+        s1++;
     }
 
     auto& dr = timestamp;
@@ -650,6 +655,7 @@ bool ParseTimestamp(const char* s, TIMESTAMP_STRUCT& timestamp, DatePrecision& p
     dr.hour = 0;
     dr.minute = 0;
     dr.second = 0;
+    dr.fraction = 0;
     precision = PRECISION_YEAR;
 
     const char *p = s;
@@ -701,14 +707,13 @@ bool ParseTimestamp(const char* s, TIMESTAMP_STRUCT& timestamp, DatePrecision& p
                                 if (*p == ':' && p[1] == '0') {
                                     p += p[2] == '0' ? 3 : 2;
                                     if ((*p == '.' || *p == ',') && p[1] == '0') {
-                                        for (p += 2; *p == '0'; ++p) {
-                                        }
+                                        for (p += 2; *p == '0'; ++p) {}
                                     }
                                 }
                             }
                         }
                     }
-                    return (*p == '\0');
+                    return !(*p);
                 }
                 return false;
             }
@@ -731,7 +736,9 @@ bool ParseTimestamp(const char* s, TIMESTAMP_STRUCT& timestamp, DatePrecision& p
             else if (*p) {
                 return false;
             }
-            goto notime;
+            else {
+                goto notime;
+            }
         }
         else if (*p == '.') {
             if (isNegative) {
@@ -740,48 +747,45 @@ bool ParseTimestamp(const char* s, TIMESTAMP_STRUCT& timestamp, DatePrecision& p
             if (digits == 14) {
                 goto digitonly;
             }
-            else if (digits == 1 && dr.year == 0) {
+            if (digits == 1 && dr.year == 0) {
                 if (*p == '.') {
                     ++p;
                     while (*p == '0') {
                         ++p;
                     }
                 }
-                return (*p == '\0');
+                return !(*p);
             }
-            else {
-                precision = PRECISION_DAY;
-                dr.day = dr.year;
-                if (digits == 2) {
-                    dr.day = 10 * dr.day + (p0[1] - '0');
-                }
-                else if (digits != 1) {
+
+            precision = PRECISION_DAY;
+            dr.day = dr.year;
+            if (digits == 2) {
+                dr.day = 10 * dr.day + (p0[1] - '0');
+            }
+            else if (digits != 1) {
+                return false;
+            }
+            if (static_cast<unsigned>(dr.month = p[1] - '0') > 9) {
+                return false;
+            }
+            p += 2;
+            if (*p >= '0' && *p <= '9') {
+                dr.month = 10 * dr.month + (*p++ - '0');
+            }
+            if (dr.month < 1 || dr.month > 12 || *p++ != '.') {
+                return false;
+            }
+            if (static_cast<unsigned>(dr.year = *p++ - '0') > 9) {
+                return false;
+            }
+            while (*p >= '0' && *p <= '9') {
+                if (static_cast<int>(dr.year = 10 * dr.year + (*p++ - '0')) > 99999) {
                     return false;
                 }
-                if (static_cast<unsigned>(dr.month = p[1] - '0') > 9) {
+            }
+            if (static_cast<unsigned char>(dr.day - 1) >= daysOfMonth[dr.month]) {
+                if (dr.month != 2 || dr.day != 29 || !isLeapYearAbap(dr.year)) {
                     return false;
-                }
-                p += 2;
-                if (*p >= '0' && *p <= '9') {
-                    dr.month = 10 * dr.month + (*p++ - '0');
-                }
-                if (dr.month < 1 || dr.month > 12 || *p++ != '.') {
-                    return false;
-                }
-                if (static_cast<unsigned>(dr.year = *p++ - '0') > 9) {
-                    return false;
-                }
-                while (*p >= '0' && *p <= '9') {
-                    int y = 10 * dr.year + (*p++ - '0');
-                    if (y > 99999) {
-                        return false;
-                    }
-                    dr.year = static_cast<short>(y);
-                }
-                if (static_cast<unsigned char>(dr.day - 1) >= daysOfMonth[dr.month]) {
-                    if (dr.month != 2 || dr.day != 29 || !isLeapYearAbap(dr.year)) {
-                        return false;
-                    }
                 }
             }
         }
@@ -953,7 +957,7 @@ bool ParseTimestamp(const char* s, TIMESTAMP_STRUCT& timestamp, DatePrecision& p
             if (dr.hour < 12) {
                 dr.hour += 12;
             }
-            if (dr.hour > 12) {
+            else if (dr.hour > 12) {
                 return false;
             }
         }
@@ -964,7 +968,7 @@ bool ParseTimestamp(const char* s, TIMESTAMP_STRUCT& timestamp, DatePrecision& p
             if (dr.hour == 12) {
                 dr.hour = 0;
             }
-            if (dr.hour > 12) {
+            else if (dr.hour > 12) {
                 return false;
             }
         }
@@ -978,7 +982,6 @@ bool ParseTimestamp(const char* s, TIMESTAMP_STRUCT& timestamp, DatePrecision& p
     nous:
         ;
     }
-
 nomore:
     if (isNegative) {
         dr.year = -dr.year;

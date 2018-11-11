@@ -1,8 +1,66 @@
 #include "net_utils.h"
 #include <cctype>
 
+#ifdef _WIN32
+#  ifndef WIN32_LEAN_AND_MEAN
+#    define WIN32_LEAN_AND_MEAN
+#  endif
+#  include <direct.h>
+#  include <WinSock2.h>
+#  pragma comment(lib, "ws2_32.lib")
+#else
+#  include <unistd.h>
+#  include <sys/time.h>
+#  include <sys/socket.h>
+#  include <netinet/in.h>
+#endif
 
 namespace net_util {
+
+bool LoadSocketLib()
+{
+#ifdef _WIN32
+    WSADATA wsaData;
+    int nResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+
+    if (NO_ERROR != nResult) {
+        printf("failed to init Winsock!\n");
+        return false;
+    }
+#endif
+    return true;
+}
+
+bool SetSendTimeOutInMs(SOCKET sockfd, long timeout)
+{
+    int ret;
+#ifdef _WIN32
+    ret = setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, (const char *)&timeout, sizeof(timeout));
+#else
+    struct timeval tv;
+    tv.tv_sec = timeout / 1000;
+    tv.tv_usec = (timeout % 1000) * 1000;
+    ret = setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO,
+        (struct timeval *)&tv, sizeof(struct timeval));
+#endif
+    return ret == 0;
+}
+
+bool SetRecvTimeOutInMs(SOCKET sockfd, long timeout)
+{
+    int ret;
+#ifdef _WIN32
+    ret = setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (const char *)&timeout, sizeof(timeout));
+#else
+    struct timeval tv;
+    tv.tv_sec = timeout / 1000;
+    tv.tv_usec = (timeout % 1000) * 1000;
+    ret = setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO,
+        (struct timeval *)&tv, sizeof(struct timeval));
+#endif
+    return ret == 0;
+}
+
 
 static inline unsigned char ToHex(unsigned char x)   
 {   

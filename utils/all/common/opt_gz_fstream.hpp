@@ -46,6 +46,6 @@ static inline std::shared_ptr<std::ostream> get_opt_gz_ostream(const std::string
     return stream;
 }
 
-}
+} // end of namespace util
 
 #endif //_OPT_GZ_STREAM_H

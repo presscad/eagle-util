@@ -1,3 +1,13 @@
+/*----------------------------------------------------------------------*
+ * Copyright(c) 2015 SAP SE. All rights reserved
+ * Author      : SAP Custom Development
+ * Description : Simple thread pool
+ *----------------------------------------------------------------------*
+ * Change - History : Change history
+ * Developer  Date      Description
+ * I078212    20140929  Initial creation
+ *----------------------------------------------------------------------*/
+
 #ifndef _SIMPLE_THREAD_POOL_H
 #define _SIMPLE_THREAD_POOL_H
 
@@ -156,9 +166,7 @@ class SimpleThreadPool
 public:
     struct ThreadInfo
     {
-        explicit ThreadInfo()
-        {}
-
+        explicit ThreadInfo() = default;
         explicit ThreadInfo(SimpleThreadPool* p_pool)
             : p_pool_(p_pool)
         {}
@@ -187,7 +195,7 @@ public:
     explicit SimpleThreadPool(size_t thread_num)
     {
         for (size_t i = 0; i < thread_num; ++i) {
-            threads_.push_back(ThreadInfo(this));
+            threads_.emplace_back(ThreadInfo(this));
         }
     }
 
@@ -213,7 +221,7 @@ public:
     explicit SimpleThreadPool(size_t thread_num, Function&& f)
     {
         for (size_t i = 0; i < thread_num; ++i) {
-            threads_.push_back(ThreadInfo(this));
+            threads_.emplace_back(ThreadInfo(this));
         }
         SetThreadFunction(std::forward<Function>(f));
     }
@@ -267,5 +275,5 @@ SimpleThreadPool CreateSimpleThreadPool(const std::string &/*task_name*/, unsign
     return SimpleThreadPool(task_count, task_fun);
 }
 
-}
+} // end of namespace util
 #endif //_SIMPLE_THREAD_POOL_H

@@ -79,7 +79,7 @@ DATA_ATTR_T GenDataAttr(DATA_TYPE_T type, bool null_able, int p, int s)
 
 const char *DataTypeToStr(DATA_TYPE_T type)
 {
-    return ((unsigned int)type > T_MAX) ? TYPE_STRS[0] : TYPE_STRS[(unsigned int)type];
+    return (static_cast<unsigned>(type) > T_MAX) ? TYPE_STRS[0] : TYPE_STRS[static_cast<unsigned>(type)];
 }
 
 DATA_TYPE_T StrToDataType(const char *type_str)
@@ -89,7 +89,7 @@ DATA_TYPE_T StrToDataType(const char *type_str)
 
     for (int i = 0; i <= T_MAX; i++) {
         if (typestr == TYPE_STRS[i]) {
-            return (DATA_TYPE_T)i;
+            return static_cast<DATA_TYPE_T>(i);
         }
     }
 
@@ -174,7 +174,9 @@ void GetCurTime(SQL_TIME_STRUCT &time) {
 
 bool StrToValue(const std::string &s, int &v)
 {
-    if (s.empty()) return false;
+    if (s.empty()) {
+        return false;
+    }
     if (s.front() == '0') {
         if (s.size() > 2 && (s[1] == 'x' || s[1] == 'X')) {
             v = std::strtol(s.c_str() + 2, nullptr, 16);
@@ -187,7 +189,9 @@ bool StrToValue(const std::string &s, int &v)
 
 bool StrToValue(const char *s, int &v)
 {
-    if (s == nullptr) return false;
+    if (s == nullptr) {
+        return false;
+    }
     if (s[0] == '0') {
         if (strlen(s) > 2 && (s[1] == 'x' || s[1] == 'X')) {
             v = std::strtol(s + 2, nullptr, 16);
@@ -200,7 +204,9 @@ bool StrToValue(const char *s, int &v)
 
 bool StrToValue(const std::string &s, SQLBIGINT &v)
 {
-    if (s.empty()) return false;
+    if (s.empty()) {
+        return false;
+    }
     if (s.front() == '0') {
         if (s.size() > 2 && (s[1] == 'x' || s[1] == 'X')) {
             v = std::strtoll(s.c_str() + 2, nullptr, 16);
@@ -228,7 +234,9 @@ bool StrToValue(const std::string &s, long long &v)
 
 bool StrToValue(const char *s, SQLBIGINT &v)
 {
-    if (s == nullptr) return false;
+    if (s == nullptr) {
+        return false;
+    }
     if (s[0] == '0') {
         if (strlen(s) > 2 && (s[1] == 'x' || s[1] == 'X')) {
             v = std::strtoll(s + 2, nullptr, 16);
@@ -247,7 +255,7 @@ bool StrToValue(const std::string &s, SQL_DATE_STRUCT &v)
 bool StrToValue(const char *s, SQL_DATE_STRUCT &v)
 {
     util::TIMESTAMP_STRUCT ts;
-    if (false == util::ParseTimestamp(s, ts)) {
+    if (!util::ParseTimestamp(s, ts)) {
         return false;
     }
     v.year = ts.year;
@@ -294,8 +302,8 @@ void ValueToStr(const SQL_TIMESTAMP_STRUCT& v, std::string& str)
 {
     char buff[64];
     if (v.fraction) {
-        snprintf(buff, sizeof(buff) - 1, "%04d-%02d-%02d %02d:%02d:%02d.%06d",
-            v.year, v.month, v.day, v.hour, v.minute, v.second, v.fraction);
+        snprintf(buff, sizeof(buff) - 1, "%04d-%02d-%02d %02d:%02d:%02d.%06ud",
+            v.year, v.month, v.day, v.hour, v.minute, v.second, static_cast<unsigned>(v.fraction));
     }
     else {
         snprintf(buff, sizeof(buff) - 1, "%04d-%02d-%02d %02d:%02d:%02d",
@@ -353,54 +361,52 @@ void StrToLower(std::string& str)
 #ifdef _WIN32
 static string16 utf82ws(const std::string& s)
 {
-    int len;
-    int slength = (int)s.length();
-    len = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), slength, 0, 0);
-    string16 ws(len, (unsigned short)0);
-    MultiByteToWideChar(CP_UTF8, 0, s.c_str(), slength, (LPWSTR)&ws[0], len);
+    auto slength = static_cast<int>(s.length());
+    int len = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), slength, nullptr, 0);
+    string16 ws(len, static_cast<unsigned short>(0));
+    MultiByteToWideChar(CP_UTF8, 0, s.c_str(), slength, reinterpret_cast<LPWSTR>(&ws[0]), len);
     return ws;
 }
 
 static void utf82ws(const std::string& s, string16& ws)
 {
-    int len;
-    int slength = (int)s.length();
-    len = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), slength, 0, 0);
+    auto slength = static_cast<int>(s.length());
+    int len = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), slength, nullptr, 0);
     ws.clear();
     ws.resize(len);
-    MultiByteToWideChar(CP_UTF8, 0, s.c_str(), slength, (LPWSTR)&ws[0], len);
+    MultiByteToWideChar(CP_UTF8, 0, s.c_str(), slength, reinterpret_cast<LPWSTR>(&ws[0]), len);
 }
 
 static void utf82ws(const std::string& s, unsigned short* ws, int ws_len)
 {
-    int slength = (int)s.length();
+    auto slength = static_cast<int>(s.length());
     memset(ws, '\0', sizeof(*ws) * ws_len);
-    MultiByteToWideChar(CP_UTF8, 0, s.c_str(), slength, (LPWSTR)&ws[0], ws_len);
+    MultiByteToWideChar(CP_UTF8, 0, s.c_str(), slength, reinterpret_cast<LPWSTR>(&ws[0]), ws_len);
 }
+
 static std::string ws2utf8(const SQLWCHAR *ws)
 {
-    int len;
-    int slength = (int)wcslen(ws);
-    len = WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR)ws, slength, 0, 0, 0, 0);
+    auto slength = static_cast<int>(wcslen(ws));
+    int len = WideCharToMultiByte(CP_UTF8, 0, static_cast<LPCWSTR>(ws), slength, nullptr, 0, nullptr, nullptr);
     std::string r(len, '\0');
-    WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR)ws, slength, &r[0], len, 0, 0);
+    WideCharToMultiByte(CP_UTF8, 0, static_cast<LPCWSTR>(ws), slength, &r[0], len, nullptr, nullptr);
     return r;
 }
+
 static void ws2utf8(const SQLWCHAR *ws, std::string& s)
 {
-    int len;
-    int slength = (int)wcslen(ws);
-    len = WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR)ws, slength, 0, 0, 0, 0);
+    auto slength = static_cast<int>(wcslen(ws));
+    int len = WideCharToMultiByte(CP_UTF8, 0, static_cast<LPCWSTR>(ws), slength, nullptr, 0, nullptr, nullptr);
     s.clear();
     s.resize(len);
-    WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR)ws, slength, &s[0], len, 0, 0);
+    WideCharToMultiByte(CP_UTF8, 0, static_cast<LPCWSTR>(ws), slength, &s[0], len, nullptr, nullptr);
 }
 
 static void ws2utf8(const SQLWCHAR *ws, char* s, int s_len)
 {
-    int slength = (int)wcslen(ws);
+    auto slength = static_cast<int>(wcslen(ws));
     memset(s, '\0', s_len);
-    WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR)ws, slength, &s[0], s_len, 0, 0);
+    WideCharToMultiByte(CP_UTF8, 0, static_cast<LPCWSTR>(ws), slength, &s[0], s_len, nullptr, nullptr);
 }
 
 #endif
@@ -522,7 +528,7 @@ std::string WStrToStr(const SQLWCHAR* wstr)
 void WStrToStr(const string16& wstr, std::string& str)
 {
 #ifdef _WIN32
-    ws2utf8((SQLWCHAR *)wstr.c_str(), str);
+    ws2utf8(reinterpret_cast<const SQLWCHAR *>(wstr.c_str()), str);
 #else
     str.clear();
     str.reserve(wstr.size() * 3);
@@ -658,7 +664,7 @@ static bool SplitParams(std::vector<std::string> &record,
             std::string upper(record[i]);
             StrToUpper(upper);
 
-            // if starting with "DECIMAL(", could be "DECIMAL(p,s), DECIMAL(p)" 
+            // if starting with "DECIMAL(", could be "DECIMAL(p,s), DECIMAL(p)"
             if (upper.find("DECIMAL(") != std::string::npos || upper.find("DEC(") != std::string::npos) {
                 if (upper.back() != ')' && i + 1 < record.size()) {
                     record[i] += ',';
@@ -668,9 +674,11 @@ static bool SplitParams(std::vector<std::string> &record,
             }
         }
     }
+
+    // prepare for col_names_case_sensitive[]
     vector<char*> subs;
     string tmp_params(params);
-    util::ParseCsvLineInPlace(subs, (char *)tmp_params.c_str(), ',', true);
+    util::ParseCsvLineInPlace(subs, const_cast<char *>(tmp_params.c_str()), ',', true);
     for (size_t i = 0; i < subs.size(); i++) {
         std::string sub(subs[i]);
         if (sub.find('(') != std::string::npos) {
@@ -742,7 +750,7 @@ static void TrimRightFromNoCase(std::string &str, const char *sub)
 
 bool ParseTableFromSql(const char *create_sql, PARSED_TABLE_T &table, std::string &err_str)
 {
-    if (create_sql == NULL) {
+    if (create_sql == nullptr) {
         err_str = "Null pointer for passed in SQL!";
         return false;
     }
@@ -752,7 +760,7 @@ bool ParseTableFromSql(const char *create_sql, PARSED_TABLE_T &table, std::strin
     parsed_table.column = false;
 
     const char *s_begin = strchr(create_sql, '(');
-    if (s_begin == NULL) {
+    if (s_begin == nullptr) {
         err_str = "Not found '(' in SQL passed in.";
         return false;
     }
@@ -783,10 +791,10 @@ bool ParseTableFromSql(const char *create_sql, PARSED_TABLE_T &table, std::strin
                 parsed_table.schema = strs[0];
                 parsed_table.table_name = strs[1];
             } else {
-                if (strs.size() == 0) {
-                    err_str = "Too few items in \"" + subs[sub_count - 1] + '\"';
+                if (strs.empty()) {
+                    err_str = R"(Too few items in ")" + subs[sub_count - 1] + '\"';
                 } else {
-                    err_str = "Too many items in \"" + subs[sub_count - 1] + "\". Try \"\" for scehma or table name";
+                    err_str = R"(Too many items in ")" + subs[sub_count - 1] + R"(". Try "" for scehma or table name)";
                 }
                 return false;
             }
@@ -819,7 +827,7 @@ bool ParseTableFromSql(const char *create_sql, PARSED_TABLE_T &table, std::strin
         StringReplace(str, " (", "(");
     }
 
-    if (false == SplitParams(parsed_table.col_strs, parsed_table.col_names_case_sensitive,
+    if (!SplitParams(parsed_table.col_strs, parsed_table.col_names_case_sensitive,
         str.c_str(), err_str)) {
         return false;
     }
@@ -869,7 +877,7 @@ bool ParseTableFromSql(const char *create_sql, PARSED_TABLE_T &table, std::strin
                 rest += ' ';
             }
             StrToUpper(rest);
-            if (NULL != strstr(rest.c_str(), "NOT NULL ")) {
+            if (nullptr != strstr(rest.c_str(), "NOT NULL ")) {
                 null_able = false;
             }
         }
@@ -898,7 +906,8 @@ void UnImplemented(const char *desc)
         std::cout << ElapsedTimeStr() << ": Unimplemented feature" << std::endl;
     }
     std::cout << ElapsedTimeStr() << ": THIS APP IS CRASHING!" << std::endl;
-    *(int *)0 = 0; // to crash!
+
+    *reinterpret_cast<int *>(0) = 0; // to crash! NOLINT
 }
 
 std::string FormatTimeStr(unsigned long uTimeMs)
@@ -912,10 +921,10 @@ std::string FormatTimeStr(unsigned long uTimeMs)
 static long get_time_in_ms()
 {
 #ifdef _WIN32
-    return (long)GetTickCount();
+    return static_cast<long>(GetTickCount());
 #else
     struct timeval tv;
-    gettimeofday(&tv, NULL);
+    gettimeofday(&tv, nullptr);
     return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
 #endif
 }

@@ -149,7 +149,7 @@ template<class Iter, class Pr>
 void ParSort(Iter begin, Iter end, Pr pred, int TASK_COUNT = 0)
 {
     if (TASK_COUNT == 0) {
-        TASK_COUNT = (decltype(TASK_COUNT))std::thread::hardware_concurrency();
+        TASK_COUNT = static_cast<decltype(TASK_COUNT)>(std::thread::hardware_concurrency());
     }
     if (TASK_COUNT <= 1) {
         std::sort(begin, end, pred);
@@ -159,5 +159,5 @@ void ParSort(Iter begin, Iter end, Pr pred, int TASK_COUNT = 0)
     ParSortImpl1(begin, end, pred, TASK_COUNT);
 }
 
-}
+} // end of namespace util
 #endif //_SIMPLE_PAR_ALGORITHM_H

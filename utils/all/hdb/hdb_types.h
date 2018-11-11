@@ -1,3 +1,12 @@
+/*----------------------------------------------------------------------*
+ * Copyright(c) 2015 SAP SE. All rights reserved
+ * Description : HDB utility related to data types
+ *----------------------------------------------------------------------*
+ * Change - History : Change history
+ * Developer  Date      Description
+ * I078212    20140806  Initial creation
+ *----------------------------------------------------------------------*/
+
 #ifndef _HDB_TYPES_H
 #define _HDB_TYPES_H
 
@@ -13,21 +22,9 @@
 #   define USING_HDB_NAMESPACE using namespace hdb;
 #endif
 
-#ifdef PROJ_SIM_AFL
-namespace sim_afl {
-namespace util {
-    void ParseCsvLine(std::vector<std::string> &record, const std::string &line, char delimiter);
-}
-}
-#else
-namespace util {
-    void ParseCsvLine(std::vector<std::string> &record, const std::string &line, char delimiter);
-}
-#endif
-
 HDB_BEGIN_NAMESPACE
 
-typedef enum {
+enum DATA_TYPE_T {
     T_UNKNOWN = 0,
     T_TINYINT = 1,
     T_SMALLINT,
@@ -56,14 +53,14 @@ typedef enum {
     T_TEXT,
     T_ST_GEOMETRY,
     T_MAX = T_ST_GEOMETRY
-} DATA_TYPE_T;
+};
 
-typedef struct DATA_ATTR_T {
+struct DATA_ATTR_T {
     DATA_TYPE_T type{};
     int a{}; // for CHAR(a), VARCHAR(a), NCHAR(a), etc.
     int p{}, s{}; // for DECIMAL(p,s)
     bool null_able{};
-} DATA_ATTR_T;
+};
 
 
 void UnImplemented(const char *desc);
@@ -79,65 +76,77 @@ static inline bool StrToValue(const std::string &s, std::string& v)
 
 static inline bool StrToValue(const std::string &s, char &v)
 {
-    if (s.empty()) return false;
-    v = (char)atoi(s.c_str());
+    if (s.empty()) {
+        return false;
+    }
+    v = static_cast<char>(atoi(s.c_str()));
     return true;
 }
 
 static inline bool StrToValue(const char *s, char &v)
 {
-    if (s == nullptr) return false;
-    v = (char)atoi(s);
+    if (s == nullptr) {
+        return false;
+    }
+    v = static_cast<char>(atoi(s));
     return true;
 }
 
 static inline void ValueToStr(char v, std::string& str)
 {
     char buff[8];
-    snprintf(buff, sizeof(buff)-1, "%d", (int)v);
+    snprintf(buff, sizeof(buff)-1, "%d", static_cast<int>(v));
     str = buff;
 }
 
 // used by TINYINT
 static inline bool StrToValue(const std::string &s, unsigned char &v)
 {
-    if (s.empty()) return false;
-    v = (unsigned char)atoi(s.c_str());
+    if (s.empty()) {
+        return false;
+    }
+    v = static_cast<unsigned char>(atoi(s.c_str()));
     return true;
 };
 
 static inline bool StrToValue(const char *s, unsigned char &v)
 {
-    if (s == nullptr) return false;
-    v = (unsigned char)atoi(s);
+    if (s == nullptr) {
+        return false;
+    }
+    v = static_cast<unsigned char>(atoi(s));
     return true;
 };
 
 static inline void ValueToStr(unsigned char &v, std::string& str)
 {
     char buff[8];
-    snprintf(buff, sizeof(buff)-1, "%d", (int)v);
+    snprintf(buff, sizeof(buff)-1, "%d", static_cast<int>(v));
     str = buff;
 };
 
 static inline bool StrToValue(const std::string &s, short &v)
 {
-    if (s.empty()) return false;
-    v = (short)atoi(s.c_str());
+    if (s.empty()) {
+        return false;
+    }
+    v = static_cast<short>(atoi(s.c_str()));
     return true;
 }
 
 static inline bool StrToValue(const char *s, short &v)
 {
-    if (s == nullptr) return false;
-    v = (short)atoi(s);
+    if (s == nullptr) {
+        return false;
+    }
+    v = static_cast<short>(atoi(s));
     return true;
 }
 
 static inline void ValueToStr(short v, std::string& str)
 {
     char buff[8];
-    snprintf(buff, sizeof(buff)-1, "%d", (int)v);
+    snprintf(buff, sizeof(buff)-1, "%d", static_cast<int>(v));
     str = buff;
 }
 
@@ -152,27 +161,30 @@ static inline void ValueToStr(int v, std::string& str)
 }
 
 bool StrToValue(const std::string &s, SQLBIGINT &v);
-bool StrToValue(const std::string &s, long long &v);
 bool StrToValue(const char *s, SQLBIGINT &v);
 
 static inline void ValueToStr(SQLBIGINT v, std::string& str)
 {
     char buff[32];
-    snprintf(buff, sizeof(buff)-1, "%lld", (long long)v);
+    snprintf(buff, sizeof(buff)-1, "%lld", static_cast<long long>(v));
     str = buff;
 }
 
 static inline bool StrToValue(const std::string &s, float &v)
 {
-    if (s.empty()) return false;
-    v = (float)atof(s.c_str());
+    if (s.empty()) {
+        return false;
+    }
+    v = static_cast<float>(atof(s.c_str()));
     return true;
 }
 
 static inline bool StrToValue(const char *s, float &v)
 {
-    if (s == nullptr) return false;
-    v = (float)atof(s);
+    if (s == nullptr) {
+        return false;
+    }
+    v = static_cast<float>(atof(s));
     return true;
 }
 
@@ -185,14 +197,18 @@ static inline void ValueToStr(float v, std::string& str)
 
 static inline bool StrToValue(const std::string &s, double &v)
 {
-    if (s.empty()) return false;
+    if (s.empty()) {
+        return false;
+    }
     v = atof(s.c_str());
     return true;
 }
 
 static inline bool StrToValue(const char *s, double &v)
 {
-    if (s == nullptr) return false;
+    if (s == nullptr) {
+        return false;
+    }
     v = atof(s);
     return true;
 }
@@ -208,7 +224,7 @@ static inline bool StrToValue(const std::string &s, SQLWCHAR &v)
 {
     UnImplemented(__FUNCTION__);
     if (!s.empty()) {
-        v = (SQLWCHAR)atoi(s.c_str());
+        v = static_cast<SQLWCHAR>(atoi(s.c_str()));
         return true;
     }
     return false;
@@ -218,7 +234,7 @@ static inline bool StrToValue(const char *s, SQLWCHAR &v)
 {
     UnImplemented(__FUNCTION__);
     if (s != nullptr) {
-        v = (SQLWCHAR)atoi(s);
+        v = static_cast<SQLWCHAR>(atoi(s));
         return true;
     }
     return false;

@@ -1,3 +1,12 @@
+/*----------------------------------------------------------------------*
+ * Copyright(c) 2015 SAP SE. All rights reserved
+ * Author      : SAP Custom Development
+ * Description : Simple object pool
+ *----------------------------------------------------------------------*
+ * Change - History : Change history
+ * Developer  Date      Description
+ * I078212    20150217  Initial creation
+ *----------------------------------------------------------------------*/
 
 #ifndef _SIMPLE_OBJ_POOL_HPP_
 #define _SIMPLE_OBJ_POOL_HPP_

@@ -1,3 +1,14 @@
+/*----------------------------------------------------------------------*
+ * Copyright(c) 2015 SAP SE. All rights reserved
+ * Author      : SAP Custom Development
+ * Description : Utility for data read/write between CSV and C++ tuple
+ *----------------------------------------------------------------------*
+ * Change - History : Change history
+ * Developer  Date      Description
+ * I078212    20140929  Initial creation
+ * I078212    20151022  NJSMARTTRAFFIC-206: multiple CSV files support
+ *----------------------------------------------------------------------*/
+
 #ifndef _CSV_TO_TUPLES_H
 #define _CSV_TO_TUPLES_H
 
@@ -12,6 +23,7 @@
 #include <memory>
 #include "common/common_utils.h"
 #include "common/csv_reader.hpp"
+
 
 namespace util {
 namespace csv_tuple {
@@ -990,7 +1002,7 @@ bool CsvToTuplesLimited(std::istream& in, char delimiter, std::vector<std::tuple
     std::tuple<Args...> tp;
     while (util::GetLine(in, line)) {
         util::TrimString(line);
-        if (line.empty() || line[0] == '#') { // ignore comment
+        if (line.empty() /*|| line[0] == '#'*/) { // ignore comment
             continue;
         }
 
@@ -1023,6 +1035,7 @@ bool CsvToTuples(std::istream& in, char delimiter, std::vector<std::tuple<Args..
 {
     return CsvToTuplesLimited(in, delimiter, tuples, 0, err);
 }
+
 
 template<typename... Args>
 bool CsvToTuples(const std::string& csv_pathname, char delimiter,
@@ -1058,7 +1071,7 @@ bool CsvToTuplesSelectedCols(std::istream& in, char delimiter,
     std::tuple<Args...> tp;
     while (util::GetLine(in, line)) {
         util::TrimString(line);
-        if (line.empty() || line[0] == '#') { // ignore comment
+        if (line.empty() /*|| line[0] == '#'*/) { // ignore comment
             continue;
         }
 

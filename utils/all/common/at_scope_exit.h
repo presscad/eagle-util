@@ -1,3 +1,12 @@
+/*----------------------------------------------------------------------*
+ * Copyright(c) 2015 SAP SE. All rights reserved
+ * Author      : SAP Custom Development
+ * Description : Utility for auto clean-up at scope exit
+ *----------------------------------------------------------------------*
+ * Change - History : Change history
+ * Developer  Date      Description
+ * I078212    20150227  Initial creation
+ *----------------------------------------------------------------------*/
 
 #ifndef __AT_SCOPE_EXIT_H__
 #define __AT_SCOPE_EXIT_H__

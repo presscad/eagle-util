@@ -1,3 +1,12 @@
+/*----------------------------------------------------------------------*
+ * Copyright(c) 2015 SAP SE. All rights reserved
+ * Author      : SAP Custom Development
+ * Description : Simple matrix class
+ *----------------------------------------------------------------------*
+ * Change - History : Change history
+ * Developer  Date      Description
+ * I078212    20140806  Initial creation
+ *----------------------------------------------------------------------*/
 
 #ifndef _SIMPLE_MATRIX_HPP_
 #define _SIMPLE_MATRIX_HPP_

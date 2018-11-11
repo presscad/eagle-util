@@ -4,13 +4,16 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <utility>
 #include <vector>
 #include <memory>
 #if (COMM_UTIL_WITH_ZLIB == 1)
 #include "zfstream.h"
 #endif
 #include "common/common_utils.h"
+#if (COMMON_UTIL_HAS_BOOST == 1)
 #include "common/small_string.hpp"
+#endif
 
 namespace util {
 
@@ -22,8 +25,8 @@ public:
         istream_(std::make_shared<std::ifstream>(csv_path_name.c_str()))
     {}
 
-    explicit csv_reader(const std::string &csv_path_name, const std::shared_ptr<std::istream>& p_is)
-        : csv_path_name_(csv_path_name), istream_(p_is)
+    explicit csv_reader(std::string csv_path_name, std::shared_ptr<std::istream>  p_is)
+        : csv_path_name_(std::move(csv_path_name)), istream_(std::move(p_is))
     {}
 
     bool good() const
@@ -41,6 +44,7 @@ public:
         return *istream_;
     }
 
+#if (COMMON_UTIL_HAS_BOOST == 1)
     template <std::size_t N>
     std::size_t get_lines(std::vector<util::SmallString<N>>& lines, std::size_t num)
     {
@@ -55,13 +59,15 @@ public:
         }
         return lines.size();
     }
+#endif // COMMON_UTIL_HAS_BOOST == 1
+
     std::size_t get_lines(std::vector<std::string>& lines, std::size_t num)
     {
         std::string line;
         lines.clear();
         lines.reserve(num);
         for (std::size_t i = 0; i < num; i++) {
-            if (get_line(line) == false) {
+            if (!get_line(line)) {
                 break;
             }
             lines.push_back(line);
@@ -82,34 +88,33 @@ public:
                     continue;
                 }
                 return true;
-            } else {
-                return false;
             }
+            return false;
         } while (true);
 
         return false;
     }
 
-    // batch read lines using by getting a block
+    // batch read lines by getting a block
     size_t batch_read_lines(std::vector<char *> &lines, size_t block_size)
     {
         lines.clear();
         batch_buff_.resize(block_size + 1024);
 
-        istream_->read((char *)batch_buff_.data(), block_size);
+        istream_->read(const_cast<char *>(batch_buff_.data()), block_size);
         batch_buff_.resize(istream_->gcount());
 
-        if (batch_buff_.size() > 0) {
+        if (!batch_buff_.empty()) {
             auto v = istream_->peek();
             if (v != '\n' && v != EOF) {
-                // if not ending with "\n", so get additional line to make sure it
+                // if not ending with "\n", so get additional line to ensure it ending with "\n"
                 std::string line;
-                if (true == get_line(line)) {
+                if (get_line(line)) {
                     batch_buff_.append(line);
                 }
             }
 
-            util::ParseCsvLineInPlace(lines, (char *)batch_buff_.data(), '\n', true);
+            util::ParseCsvLineInPlace(lines, const_cast<char *>(batch_buff_.data()), '\n', true);
         }
 
         return lines.size();
@@ -143,6 +148,6 @@ static inline csv_reader* get_csv_reader(const std::string &csv)
     return new csv_reader(csv);
 }
 
-}
+} // end of namespace util
 
 #endif //_CSV_READER_H

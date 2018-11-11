@@ -1,3 +1,13 @@
+/*----------------------------------------------------------------------*
+ * Copyright(c) 2015 SAP SE. All rights reserved
+ * Author      : SAP Custom Development
+ * Description : Utility for CSV reader
+ *----------------------------------------------------------------------*
+ * Change - History : Change history
+ * Developer  Date      Description
+ * I078212    20161205  Initial creation
+ *----------------------------------------------------------------------*/
+
 #ifndef _SMALL_STRING_H
 #define _SMALL_STRING_H
 

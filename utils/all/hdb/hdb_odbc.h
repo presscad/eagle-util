@@ -1,3 +1,12 @@
+/*----------------------------------------------------------------------*
+ * Copyright(c) 2015 SAP SE. All rights reserved
+ * Description : HDB utility related to ODBC
+ *----------------------------------------------------------------------*
+ * Change - History : Change history
+ * Developer  Date      Description
+ * I078212    20140806  Initial creation
+ *----------------------------------------------------------------------*/
+
 #ifndef _HDB_ODBC_H
 #define _HDB_ODBC_H
 
@@ -122,9 +131,14 @@ public:
     explicit OdbcConn(const char* dsn, const char* user, const char* password)
         : mDsn(dsn), mUser(user), mPassword(password)
     {}
-    explicit OdbcConn(const std::string& dsn, const std::string& user, const std::string& password)
-        : mDsn(dsn), mUser(user), mPassword(password)
+    explicit OdbcConn(std::string dsn, std::string user, std::string password)
+        : mDsn(std::move(dsn)), mUser(std::move(user)), mPassword(std::move(password))
     {}
+    explicit OdbcConn(std::string connection_string)
+        : mConnectionStr(std::move(connection_string))
+    {}
+
+
     ~OdbcConn()
     {
         DisConnect();
@@ -154,16 +168,18 @@ public:
     };
 
 protected:
-    std::string mDsn;
+    std::string mDsn; // for using DSN, including user and password
     std::string mUser;
     std::string mPassword;
+    std::string mConnectionStr; // for using connection string. Should be valid when mDsn is empty
+
     SQLHENV mHenv{};
     SQLHDBC mHdbc{};
     bool mConnected{};
 };
 
 class BaseColumn;
-typedef std::shared_ptr<BaseColumn> BaseColumn_SharedPtr;
+using BaseColumn_SharedPtr = std::shared_ptr<BaseColumn>;
 class ColRecords;
 class InsertExecutor
 {

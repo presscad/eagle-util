@@ -1,3 +1,13 @@
+/*----------------------------------------------------------------------*
+ * Copyright(c) 2015 SAP SE. All rights reserved
+ * Author      : SAP Custom Development
+ * Description : Common utility functions
+ *----------------------------------------------------------------------*
+ * Change - History : Change history
+ * Developer  Date      Description
+ * I078212    20161206  Initial creation
+ *----------------------------------------------------------------------*/
+
 #include "uni_to_pinyin.h"
 #include <vector>
 #include <algorithm>

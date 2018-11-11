@@ -1,3 +1,12 @@
+/*----------------------------------------------------------------------*
+ * Copyright(c) 2015 SAP SE. All rights reserved
+ * Description : HDB utility for columns
+ *----------------------------------------------------------------------*
+ * Change - History : Change history
+ * Developer  Date      Description
+ * I078212    20140806  Initial creation
+ *----------------------------------------------------------------------*/
+
 #ifndef _HDB_COLUMNS_H
 #define _HDB_COLUMNS_H
 
@@ -25,13 +34,14 @@
 
 HDB_BEGIN_NAMESPACE
 
-typedef unsigned short char_16;
-typedef std::basic_string<char_16> string16;
+using char_16 = unsigned short;
+using  string16 = std::basic_string<char_16>;
 
 // forward declarations of used functions
 void GetCurTimestamp(SQL_TIMESTAMP_STRUCT &st);
 void GetCurDate(SQL_DATE_STRUCT &date);
 void GetCurTime(SQL_TIME_STRUCT &time);
+
 hdb::string16 StrToWStr(const std::string& str);
 void StrToWStr(const std::string&str, hdb::string16& wstr);
 void StrToWStr(const std::string&str, char_16* wbuff, int wbuff_len);
@@ -42,7 +52,7 @@ void WStrToStr(const SQLWCHAR* wstr, std::string& str);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class BaseColumn;
-typedef std::shared_ptr<BaseColumn> BaseColumn_SharedPtr;
+using BaseColumn_SharedPtr = std::shared_ptr<BaseColumn>;
 
 class BaseColumn
 {
@@ -51,7 +61,7 @@ public:
         SetColName(col_name, col_name_case_sensitive);
         mDataAttr = attr;
     };
-    virtual ~BaseColumn() {};
+    virtual ~BaseColumn() = default;
 
     const DATA_ATTR_T &GetDataAttr() const {
         return mDataAttr;
@@ -69,7 +79,7 @@ public:
     };
     void SetColName(const char *name, bool case_sensitive = false)
     {
-        mColName = (name != NULL) ? name : "";
+        mColName = (name != nullptr) ? name : "";
         mColNameCaseSensitive = case_sensitive;
     };
     bool IsColNameCaseSensitive() const
@@ -123,43 +133,43 @@ template<class T, DATA_TYPE_T data_type> class ColT;
 template<class T, DATA_TYPE_T data_type> class CharColT;
 template<class T, DATA_TYPE_T data_type> class LongVarColT;
 
-typedef ColT<unsigned char, T_TINYINT> TinyIntCol;
-typedef ColT<short, T_SMALLINT> SmallIntCol;
-typedef ColT<int, T_INTEGER> IntCol;
-typedef ColT<SQLBIGINT, T_BIGINT> BigIntCol;
-typedef ColT<float, T_REAL> RealCol;
-typedef ColT<double, T_DOUBLE> DoubleCol;
-typedef ColT<double, T_FLOAT> FloatCol;
-typedef ColT<SQL_DATE_STRUCT, T_DATE> DateCol;
-typedef ColT<SQL_TIME_STRUCT, T_TIME> TimeCol;
-typedef ColT<SQL_TIMESTAMP_STRUCT, T_TIMESTAMP> TimeStampCol;
-typedef ColT<SQL_TIMESTAMP_STRUCT, T_SECONDDATE> SecondDateCol;
+using TinyIntCol = ColT<unsigned char, T_TINYINT>;
+using SmallIntCol = ColT<short, T_SMALLINT>;
+using IntCol = ColT<int, T_INTEGER>;
+using BigIntCol = ColT<SQLBIGINT, T_BIGINT>;
+using RealCol = ColT<float, T_REAL>;
+using DoubleCol = ColT<double, T_DOUBLE>;
+using FloatCol = ColT<double, T_FLOAT>;
+using DateCol = ColT<SQL_DATE_STRUCT, T_DATE>;
+using TimeCol = ColT<SQL_TIME_STRUCT, T_TIME>;
+using TimeStampCol = ColT<SQL_TIMESTAMP_STRUCT, T_TIMESTAMP>;
+using SecondDateCol = ColT<SQL_TIMESTAMP_STRUCT, T_SECONDDATE>;
 #ifdef HDB_INTERNAL_NO_WCHAR
-typedef CharColT<SQLCHAR, T_CHAR> CharCol;
-typedef CharColT<SQLCHAR, T_VARCHAR> VarCharCol;
+using CharCol = CharColT<SQLCHAR, T_CHAR>;
+using VarCharCol = CharColT<SQLCHAR, T_VARCHAR>;
 #else
 // To support unicode, CHAR and VARCHAR are mapped to SQLWCHAR instead of SQLCHAR
-typedef CharColT<SQLWCHAR, T_CHAR> CharCol;
-typedef CharColT<SQLWCHAR, T_VARCHAR> VarCharCol;
+using CharCol = CharColT<SQLWCHAR, T_CHAR>;
+using VarCharCol = CharColT<SQLWCHAR, T_VARCHAR>;
 #endif
-typedef CharColT<SQLWCHAR, T_NCHAR > NCharCol;
-typedef CharColT<SQLWCHAR, T_NVARCHAR> NVarCharCol;
-typedef CharColT<SQLCHAR, T_ALPHANUM> AlphaNumCol;
-typedef CharColT<SQLCHAR, T_DECIMAL_PS> DecimalPsCol; // NOTE: map chars to to decimal instead of cumbersome SQL_NUMERIC_STRUCT
+using NCharCol = CharColT<SQLWCHAR, T_NCHAR >;
+using NVarCharCol = CharColT<SQLWCHAR, T_NVARCHAR>;
+using AlphaNumCol = CharColT<SQLCHAR, T_ALPHANUM>;
+using DecimalPsCol = CharColT<SQLCHAR, T_DECIMAL_PS>; // NOTE: map chars to to decimal instead of cumbersome SQL_NUMERIC_STRUCT
 
-typedef ColT<double, T_DECIMAL> DecimalCol;
-typedef ColT<double, T_SMALLDECIMAL> SmallDecimalCol;
+using DecimalCol = ColT<double, T_DECIMAL>;
+using SmallDecimalCol = ColT<double, T_SMALLDECIMAL>;
 
 // T_BINARY ?
 // T_VARBINARY ?
 
-typedef LongVarColT<unsigned char, T_BLOB> BlobCol;
-typedef LongVarColT<unsigned char, T_CLOB> ClobCol;
-typedef LongVarColT<SQLWCHAR, T_NCLOB> NClobCol;
-typedef LongVarColT<SQLCHAR, T_TEXT> TextCol;
+using BlobCol = LongVarColT<unsigned char, T_BLOB>;
+using ClobCol = LongVarColT<unsigned char, T_CLOB>;
+using NClobCol = LongVarColT<SQLWCHAR, T_NCLOB>;
+using TextCol = LongVarColT<SQLCHAR, T_TEXT>;
 
 // HANA GIS related
-typedef LongVarColT<unsigned char, T_ST_GEOMETRY> StGeometryCol;
+using StGeometryCol = LongVarColT<unsigned char, T_ST_GEOMETRY>;
 
 
 static inline bool operator<(const DATE_STRUCT& d1, const DATE_STRUCT& d2)
@@ -255,7 +265,7 @@ template<class T, DATA_TYPE_T data_type>
 class ColT : public BaseColumn
 {
 public:
-    ColT(const char *col_name = NULL, bool null_able = true)
+    ColT(const char *col_name = nullptr, bool null_able = true)
         : BaseColumn(col_name, GenDataAttr(data_type, null_able, 0, 0))
     {};
     ColT(const char *col_name, const DATA_ATTR_T& attr)
@@ -263,22 +273,22 @@ public:
     {
         mDataAttr.type = data_type;
     };
-    virtual ~ColT() {};
+    ~ColT() override {};
 
-    virtual void Reserve(size_t count)
+    void Reserve(size_t count) override
     {
         mDataVec.reserve(count);
         mStrLenOrIndVec.reserve(count);
     };
-    virtual size_t Capacity() const
+    size_t Capacity() const override
     {
         return mStrLenOrIndVec.capacity();
     }
-    virtual size_t GetCount() const
+    size_t GetCount() const override
     {
         return mStrLenOrIndVec.size();
     };
-    virtual void SetCount(size_t count)
+    void SetCount(size_t count) override
     {
         mDataVec.resize(count);
         size_t old_count = mStrLenOrIndVec.size();
@@ -296,37 +306,38 @@ public:
             }
         }
     };
-    virtual void *GetData()
+    void *GetData() override
     {
         return mDataVec.data();
     };
-    virtual const void *GetData() const
+    const void *GetData() const override
     {
         return mDataVec.data();
     };
-    virtual void *GetStrLenOrIndVec()
+    void *GetStrLenOrIndVec() override
     {
         return mStrLenOrIndVec.data();
     };
-    virtual const void *GetStrLenOrIndVec() const
+    const void *GetStrLenOrIndVec() const override
     {
         return mStrLenOrIndVec.data();
     };
 
-    virtual void *GetData(size_t i)
+    void *GetData(size_t i) override
     {
         return &mDataVec[i];
     }
-    virtual const void *GetData(size_t i) const
+    const void *GetData(size_t i) const override
     {
         return &mDataVec[i];
     }
-    virtual SQLLEN GetDataSize(size_t i) const
+    SQLLEN GetDataSize(size_t i) const override
     {
         return sizeof(T);
     }
 
-    virtual void GenerateFakeData(size_t count) {
+    void GenerateFakeData(size_t count) override
+    {
         RemoveAllRows();
         Reserve(count);
         // Based on OO design, it is not recommended to use switch-case here. The recommended way is
@@ -452,16 +463,16 @@ public:
         };
     };
 
-    virtual SQLRETURN BindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar) const
+    SQLRETURN BindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar) const override
     {
         return SqlBindInParam(hstmt, ipar, *this);
     };
-    virtual SQLRETURN BindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar)
+    SQLRETURN BindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar) override
     {
         return SQLBindOutCol(hstmt, ipar, *this);
     };
 
-    virtual bool AddFromStr(const std::string &str)
+    bool AddFromStr(const std::string &str) override
     {
         T value;
         bool is_null = str.empty();
@@ -477,7 +488,7 @@ public:
         mDataVec.push_back(value);
         return true;
     };
-    virtual bool AddFromStr(const char *str)
+    bool AddFromStr(const char *str) override
     {
         T value;
         bool is_null = (str == nullptr) || (str[0] == '\0');
@@ -493,7 +504,7 @@ public:
         mDataVec.push_back(value);
         return true;
     };
-    virtual bool SetFromStr(size_t i, const std::string &str)
+    bool SetFromStr(size_t i, const std::string &str) override
     {
         T value;
         bool is_null = str.empty();
@@ -509,12 +520,12 @@ public:
         mDataVec[i] = value;
         return true;
     };
-    virtual bool SetFromStr(size_t i, const string16 &wstr) // for char based derived classes
+    bool SetFromStr(size_t i, const string16 &wstr) override // for char based derived classes
     {
         UnImplemented(__FUNCTION__);
         return false;
     }
-    virtual bool SetFromStr(size_t i, const char *str)
+    bool SetFromStr(size_t i, const char *str) override
     {
         T value;
         bool is_null = (str == nullptr) || (str[0] == '\0');
@@ -530,7 +541,7 @@ public:
         mDataVec[i] = value;
         return true;
     };
-    virtual bool GetAsStr(size_t i, std::string& result) const
+    bool GetAsStr(size_t i, std::string& result) const override
     {
         result.clear();
         if (mStrLenOrIndVec[i] != SQL_NULL_DATA) {
@@ -538,26 +549,26 @@ public:
         }
         return true;
     }
-    virtual std::string GetAsStr(size_t i) const
+    std::string GetAsStr(size_t i) const override
     {
         std::string result;
         GetAsStr(i, result);
         return result;
     }
-    virtual bool GetAsWStr(size_t i, string16& wstr) const
+    bool GetAsWStr(size_t i, string16& wstr) const override
     {
         UnImplemented(__FUNCTION__);
         wstr.clear();
         return true;
     }
-    virtual string16 GetAsWStr(size_t i) const // for char based derived classes
+    string16 GetAsWStr(size_t i) const override // for char based derived classes
     {
         string16 result;
         this->GetAsWStr(i, result);
         return result;
     }
 
-    virtual void SetFromData(size_t i, const void *data)
+    void SetFromData(size_t i, const void *data) override
     {
         const T *p_value = (const T *)data;
         mStrLenOrIndVec[i] = (p_value == NULL) ? SQL_NULL_DATA : SQL_NTS;
@@ -568,19 +579,19 @@ public:
             memset(&mDataVec[i], 0, sizeof(T));
         }
     };
-    virtual void RemoveRow()
+    void RemoveRow() override
     {
         mDataVec.pop_back();
         if (mStrLenOrIndVec.size() > 0) {
             mStrLenOrIndVec.pop_back();
         }
     }
-    virtual void RemoveAllRows()
+    void RemoveAllRows() override
     {
         mDataVec.clear();
         mStrLenOrIndVec.clear();
     };
-    virtual bool Append(const BaseColumn_SharedPtr& pCol)
+    bool Append(const BaseColumn_SharedPtr& pCol) override
     {
         const ColT<T, data_type> &col = *(const ColT<T, data_type> *)pCol.get();
         assert(mDataAttr.type == col.mDataAttr.type);
@@ -588,7 +599,7 @@ public:
         mStrLenOrIndVec.insert(mStrLenOrIndVec.end(), col.mStrLenOrIndVec.begin(), col.mStrLenOrIndVec.end());
         return true;
     };
-    virtual int Compare(size_t i, size_t j) const
+    int Compare(size_t i, size_t j) const override
     {
         if (mDataVec[i] < mDataVec[j]) {
             return -1;
@@ -600,16 +611,17 @@ public:
             return 0;
         }
     };
-    virtual bool LessThan(size_t i, size_t j) const
+    bool LessThan(size_t i, size_t j) const override
     {
         return mDataVec[i] < mDataVec[j];
     };
-    virtual bool GreaterThan(size_t i, size_t j) const
+    bool GreaterThan(size_t i, size_t j) const override
     {
         return mDataVec[i] > mDataVec[j];
     };
 public:
-    virtual void CopyFrom(const BaseColumn &col) {
+    void CopyFrom(const BaseColumn &col) override
+    {
         BaseColumn::CopyFrom(col);
         mDataVec = ((ColT&)col).mDataVec;
         mStrLenOrIndVec = ((ColT&)col).mStrLenOrIndVec;
@@ -745,6 +757,9 @@ public:
         }
 
         size_t len = (ColT<T, data_type>::mDataAttr.a + 1) * i;
+        if (str.empty()) {
+            ColT<T, data_type>::mDataVec[len] = '\0';
+        }
         if (sizeof(T) == 2) {
             StrToWStr(str, (char_16*)ColT<T, data_type>::mDataVec.data() + len,
                 ColT<T, data_type>::mDataAttr.a + 1);
@@ -772,6 +787,9 @@ public:
         }
 
         size_t len = (ColT<T, data_type>::mDataAttr.a + 1) * i;
+        if (wstr.empty()) {
+            ColT<T, data_type>::mDataVec[len] = '\0';
+        }
         if (sizeof(T) == 2) {
 #ifdef _WIN32
             wcsncpy_s((SQLWCHAR *)mDataVec.data() + len, mDataAttr.a + 1, (SQLWCHAR *)wstr.c_str(), mDataAttr.a);
@@ -806,6 +824,9 @@ public:
 
         if (str != nullptr) {
             size_t len = (ColT<T, data_type>::mDataAttr.a + 1) * i;
+            if (str[0] == '\0') {
+                ColT<T, data_type>::mDataVec[len] = '\0';
+            }
             if (sizeof(T) == 2) {
                 StrToWStr(str, (char_16*)ColT<T, data_type>::mDataVec.data() + len,
                     ColT<T, data_type>::mDataAttr.a + 1);
@@ -824,6 +845,7 @@ public:
         }
         return true;
     };
+
     virtual std::string GetAsStr(size_t i) const
     {
         std::string result;
@@ -880,6 +902,7 @@ public:
         }
         return true;
     }
+
     virtual void SetFromData(size_t i, const void *data)
     {
         const char *str = (data != nullptr) ? (const char *)data : nullptr;
@@ -969,7 +992,7 @@ public:
     };
 
 protected:
-    // for CHAR(a), VARCHAR(a) ..., if a = 0, use string vector to store the data
+    // for CHAR(a), VARCHAR(a) ..., if a = 0, use string vector to store the data. In this case, mStrVecInUse = true
     std::vector<std::string> mStrVec;
     bool mStrVecInUse{};
 
@@ -981,7 +1004,7 @@ template<class T, DATA_TYPE_T data_type>
 class LongVarColT : public ColT<T, data_type>
 {
 public:
-    typedef std::vector<T> LongVarT;
+    using LongVarT = std::vector<T>;
 public:
     LongVarColT(const char *col_name, bool null_able = true)
         : ColT<T, data_type>(col_name, GenDataAttr(data_type, null_able, 0, 0))
@@ -1049,10 +1072,12 @@ public:
 
     virtual SQLRETURN BindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar) const
     {
+        // How to bind for this long data type?
         return SqlBindInParam(hstmt, ipar, *this);
     };
     virtual SQLRETURN BindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar)
     {
+        // How to bind for this long data type?
         return SQLBindOutCol(hstmt, ipar, *this);
     };
 
@@ -1182,8 +1207,7 @@ protected:
 class ColRecords
 {
 public:
-    ColRecords() : mRowCount(0)
-    {};
+    ColRecords() = default;
     virtual ~ColRecords()
     {
         ClearAllCols();
@@ -1240,6 +1264,22 @@ public:
     {
         return mPtrCols[index];
     };
+    BaseColumn_SharedPtr GetColumnByName(const std::string& col_name) {
+        for (auto p_col : mPtrCols) {
+            if (p_col->GetColName() == col_name) {
+                return p_col;
+            }
+        }
+        return nullptr;
+    }
+    const BaseColumn_SharedPtr GetColumnByName(const std::string& col_name) const {
+        for (auto p_col : mPtrCols) {
+            if (p_col->GetColName() == col_name) {
+                return p_col;
+            }
+        }
+        return nullptr;
+    }
     const std::vector<BaseColumn_SharedPtr>& GetColumns() const
     {
         return mPtrCols;
@@ -1267,6 +1307,7 @@ public:
     // Re-create column structures
     bool AddColsFromCreateSql(const char *create_sql);
     bool AddColsFromRecords(const ColRecords &records);
+    bool AddColsFromSelectedRecords(const ColRecords &records, const std::vector<std::string>& columns);
 
     SQLRETURN BindAllInColumns(SQLHSTMT hstmt) const;
     SQLRETURN BindAllOutColumns(SQLHSTMT hstmt) const;
@@ -1280,10 +1321,11 @@ public:
     void Swap(ColRecords &records);
     void GenerateFakeData(size_t row_count);
 
+    std::string& RowToStr(std::string& line, int row, char delimiter = ',') const;
     int RowsToCsv(std::ostream &os_csv, int start_row, int row_num, char delimiter = ',') const;
 
 protected:
-    size_t mRowCount;
+    size_t mRowCount{};
     std::vector<BaseColumn_SharedPtr> mPtrCols;
     std::string mErrStr;
 

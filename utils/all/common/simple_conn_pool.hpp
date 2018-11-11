@@ -13,7 +13,7 @@ template <typename CONNECTION>
 class ConnectionWrapper
 {
 public:
-    typedef SimpleConnPool<CONNECTION> ConnPoolType;
+    using ConnPoolType = SimpleConnPool<CONNECTION>;
 
     explicit ConnectionWrapper(ConnPoolType* p_pool)
         : p_pool_(p_pool)
@@ -72,7 +72,7 @@ template <typename CONNECTION>
 class SimpleConnPool
 {
 public:
-    typedef CONNECTION* (*ConnCreateFun)();
+    using ConnCreateFun = CONNECTION* (*)();
 
     explicit SimpleConnPool(int max_conn, ConnCreateFun fun)
         : max_conn_(max_conn), create_fun_(fun)
@@ -97,7 +97,7 @@ public:
             InternalConn iconn;
             iconn.p_raw_conn = create_fun_();
             if (nullptr == iconn.p_raw_conn) {
-                return false;
+                return nullptr;
             }
             iconn.use_flag = true;
 
@@ -106,7 +106,8 @@ public:
             p_conn_wrapper->p_raw_conn_ = iconn.p_raw_conn;
             return p_conn_wrapper;
         }
-        else {
+
+        {
             std::lock_guard<std::mutex> lguard(queue_mutex_);
             for (auto& iconn : internal_conns_) {
                 if (iconn.use_flag == false) {
@@ -118,11 +119,11 @@ public:
             }
         }
 
-        if ((int)internal_conns_.size() < max_conn_) {
+        if (static_cast<int>(internal_conns_.size()) < max_conn_) {
             InternalConn iconn;
             iconn.p_raw_conn = create_fun_();
             if (nullptr == iconn.p_raw_conn) {
-                return false;
+                return nullptr;
             }
             iconn.use_flag = true;
 
@@ -178,5 +179,5 @@ private:
     template<typename CONN> friend class ConnectionWrapper;
 };
 
-} // end of namespace
+} // end of namespace util
 #endif //_SIMPLE_CONN_POOL_H

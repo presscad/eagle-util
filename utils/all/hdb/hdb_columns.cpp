@@ -30,7 +30,7 @@ bool ColRecords::AddCol(const char *col_name, bool col_name_case_sensitive, cons
     assert(col_name != nullptr && col_name[0] != '\0');
     BaseColumn_SharedPtr pCol;
 
-    switch(attr.type) {
+    switch (attr.type) {
     case T_TINYINT:
         pCol = std::make_shared<TinyIntCol>(col_name, attr.null_able);
         break;
@@ -157,7 +157,7 @@ SQLRETURN ColRecords::BindAllInColumns(SQLHSTMT hstmt) const
 {
     SQLRETURN rc = SQL_SUCCESS;
     for (size_t i = 0; i < mPtrCols.size(); i++) {
-        rc = mPtrCols[i]->BindInParam(hstmt, (SQLUSMALLINT)(i+1));
+        rc = mPtrCols[i]->BindInParam(hstmt, (SQLUSMALLINT)(i + 1));
         if (!SQL_SUCCEEDED(rc)) {
             return rc;
         }
@@ -185,7 +185,7 @@ bool ColRecords::AddRow(const std::string &line, char delimiter)
     util::ParseCsvLine(mTmpStrs, line, delimiter);
     if (mTmpStrs.size() < count) {
         char tmp[1024];
-        snprintf(tmp, sizeof(tmp)-1, "No enough columns. Required column #%d, actual column #%d, when parsing \"%s\"",
+        snprintf(tmp, sizeof(tmp) - 1, "No enough columns. Required column #%d, actual column #%d, when parsing \"%s\"",
             (int)count, (int)mTmpStrs.size(), line.c_str());
         mErrStr = tmp;
         return false;
@@ -282,7 +282,8 @@ bool ColRecords::AddColsFromCreateSql(const char *create_sql)
     if (!ParseTableFromSql(create_sql, parsed_table, err)) {
         if (!err.empty()) {
             mErrStr = err;
-        } else {
+        }
+        else {
             mErrStr = std::string("Error in parsing: ") + create_sql;
         }
         return false;
@@ -319,6 +320,32 @@ bool ColRecords::AddColsFromRecords(const ColRecords &src_records)
         if (false == this->AddCol(src_col.GetColName(), src_col.IsColNameCaseSensitive(),
             src_col.GetDataAttr()))
         {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool ColRecords::AddColsFromSelectedRecords(const ColRecords &src_records, const std::vector<std::string>& sel_columns)
+{
+    size_t col_count = src_records.GetColCount();
+    if (col_count == 0) {
+        mErrStr = __FUNCTION__ + string(": source records have no column");
+        return false;
+    }
+    if (sel_columns.empty()) {
+        mErrStr = __FUNCTION__ + string(": selected columns are empty");
+        return false;
+    }
+
+    ClearAllCols();
+    for (const std::string &col_name : sel_columns) {
+        const auto p_col = src_records.GetColumnByName(col_name);
+        if (!p_col) {
+            mErrStr = __FUNCTION__ + string(": not found selected column named " + col_name);
+            return false;
+        }
+        if (false == this->AddCol(p_col->GetColName(), p_col->IsColNameCaseSensitive(), p_col->GetDataAttr())) {
             return false;
         }
     }
@@ -372,7 +399,7 @@ int ColRecords::AddRows(std::istream &is_csv, int num, char delimiter)
         }
 #if 0
         // Special handling: replace 0x0 with 0x20 (space)
-        for (int k = (int)line.size() - 1; k >=0; k--) {
+        for (int k = (int)line.size() - 1; k >= 0; k--) {
             if (line[k] == '\0') {
                 line[k] = 0x20;
             }
@@ -380,12 +407,35 @@ int ColRecords::AddRows(std::istream &is_csv, int num, char delimiter)
 #endif
         if (AddRow(line, delimiter)) {
             total++;
-        } else {
+        }
+        else {
             printf("%s\n", this->GetErrStr());
         }
     }
     mRowCount = total;
     return total;
+}
+
+std::string& ColRecords::RowToStr(std::string &line, int row, char delimiter) const
+{
+    const auto& p_cols = this->GetColumns();
+    const size_t n_cols = p_cols.size();
+    line.clear();
+
+    for (size_t j = 0; j < n_cols; ++j) {
+        auto& col = *p_cols[j];
+        auto str = col.GetAsStr(row);
+        if (str.find(delimiter) != std::string::npos) {
+            str = '"' + str + '"';
+        }
+        line += str;
+        line += delimiter;
+    }
+    if (!line.empty()) {
+        line.pop_back();
+    }
+
+    return line;
 }
 
 // return the number of lines actually into CSV

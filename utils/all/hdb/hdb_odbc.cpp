@@ -268,8 +268,9 @@ SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const CharColT<SQLWC
 }
 SQLRETURN SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, CharColT<SQLWCHAR, T_NCHAR> &col)
 {
-    UnImplemented("SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, CharColT<SQLWCHAR, T_NCHAR> &col)");
-    return 0;
+    SQLLEN BufferLength = col.GetDataAttr().a + 1;
+    SQLLEN *IndVec = col.NullAble() ? (SQLLEN *)col.GetStrLenOrIndVec() : nullptr;
+    return ::SQLBindCol(hstmt, ipar, SQL_C_WCHAR, (SQLPOINTER)col.GetData(), BufferLength, IndVec);
 }
 
 SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const CharColT<SQLWCHAR, T_NVARCHAR> &col)
@@ -281,8 +282,9 @@ SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const CharColT<SQLWC
 }
 SQLRETURN SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, CharColT<SQLWCHAR, T_NVARCHAR> &col)
 {
-    UnImplemented("SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, CharColT<SQLWCHAR, T_NVARCHAR> &col)");
-    return 0;
+    SQLLEN BufferLength = col.GetDataAttr().a + 1;
+    SQLLEN *IndVec = col.NullAble() ? (SQLLEN *)col.GetStrLenOrIndVec() : nullptr;
+    return ::SQLBindCol(hstmt, ipar, SQL_C_WCHAR, (SQLPOINTER)col.GetData(), BufferLength, IndVec);
 }
 
 SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const CharColT<SQLCHAR, T_ALPHANUM> &col)
@@ -327,12 +329,16 @@ SQLRETURN SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, LongVarColT<unsigned 
 SQLRETURN SqlBindInParam(SQLHSTMT hstmt, SQLUSMALLINT ipar, const LongVarColT<SQLWCHAR, T_NCLOB> &col)
 {
     SQLULEN ColumnSize = SQL_MAX_LENGTH_DEFAULT;
-    return SQLBindParameter(hstmt, ipar, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_LONGVARCHAR,
+    return SQLBindParameter(hstmt, ipar, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WLONGVARCHAR,
         ColumnSize, 0, reinterpret_cast<SQLPOINTER>(ipar), 0, (SQLLEN *)col.GetStrLenOrIndVec());
 }
 SQLRETURN SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, LongVarColT<SQLWCHAR, T_NCLOB> &col)
 {
-    UnImplemented("SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, LongVarColT<SQLWCHAR, T_NCLOB> &col)");
+    SQLLEN BufferLength = SQL_MAX_LENGTH_DEFAULT;
+    SQLLEN *IndVec = col.NullAble() ? (SQLLEN *)col.GetStrLenOrIndVec() : nullptr;
+    return ::SQLBindCol(hstmt, ipar, SQL_C_WCHAR, nullptr, BufferLength, IndVec);
+
+    //UnImplemented("SQLBindOutCol(SQLHSTMT hstmt, SQLUSMALLINT ipar, LongVarColT<SQLWCHAR, T_NCLOB> &col)");
     return 0;
 }
 
@@ -530,9 +536,19 @@ bool OdbcConn::Connect()
 #ifndef FAKE_DB_CONN
     /* Connect to the database */
     if (SQL_SUCCEEDED(rc)) {
-        rc = SQLConnect(mHdbc, (SQLCHAR*)mDsn.c_str(), SQL_NTS,
-            (SQLCHAR*)mUser.c_str(), SQL_NTS,
-            (SQLCHAR*)mPassword.c_str(), SQL_NTS);
+        if (!mDsn.empty()) {
+            // connect using DSN
+            rc = SQLConnect(mHdbc, (SQLCHAR*)mDsn.c_str(), SQL_NTS,
+                (SQLCHAR*)mUser.c_str(), SQL_NTS,
+                (SQLCHAR*)mPassword.c_str(), SQL_NTS);
+        }
+        else {
+            // connect using connection string
+            SQLCHAR outString[1024];
+            SQLSMALLINT outLength;
+            rc = SQLDriverConnect(mHdbc, nullptr, (SQLCHAR *)mConnectionStr.c_str(),
+                SQL_NTS, outString, sizeof(outString), &outLength, SQL_DRIVER_NOPROMPT);
+        }
     }
 #endif //FAKE_DB_CONN
     mConnected = SQL_SUCCEEDED(rc);
@@ -561,7 +577,7 @@ void OdbcConn::DisConnect()
 // class InsertExecutor
 
 bool InsertExecutor::GetInsStmt(const std::vector<BaseColumn_SharedPtr> &pCols,
-                                const char *table_name, std::string &stmt)
+    const char *table_name, std::string &stmt)
 {
     string ins_into = "INSERT INTO ";
     string values = "VALUES (";
@@ -744,6 +760,9 @@ static DATA_ATTR_T OdbcTypeToDataAttr(SQLSMALLINT dataType, SQLULEN columnSize, 
         break;
     case SQL_WVARCHAR:
         attr.type = T_NVARCHAR;
+        break;
+    case SQL_WLONGVARCHAR:
+        attr.type = T_NCLOB;
         break;
     case SQL_DECIMAL:
     case SQL_NUMERIC:

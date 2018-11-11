@@ -1,3 +1,12 @@
+/*----------------------------------------------------------------------*
+ * Copyright(c) 2015 SAP SE. All rights reserved
+ * Author      : SAP Custom Development
+ * Description : Utility for auto clean-up at scope exit
+ *----------------------------------------------------------------------*
+ * Change - History : Change history
+ * Developer  Date      Description
+ * I078212    20160425  Initial creation
+ *----------------------------------------------------------------------*/
 
 #ifndef _RAPIDJSON_HELPER_H_
 #define _RAPIDJSON_HELPER_H_
