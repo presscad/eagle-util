@@ -60,3 +60,6 @@ bin/
 
 # Misc.
 *.bak
+
+# Visual Studio Code
+.vscode/
