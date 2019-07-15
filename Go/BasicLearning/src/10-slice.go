@@ -4,10 +4,9 @@ import "fmt"
 
 func main() {
 
-    // 不想数组，slice 的类型仅有它所包含的元素决定（不像
-    // 数组中还需要元素的个数）。要创建一个长度非零的空
-    // slice，需要使用内建的方法 `make`。这里我们创建了一
-    // 个长度为3的 `string` 类型 slice（初始化为零值）。
+    // 不像数组，slice 的类型仅有它所包含的元素决定（不像数组中还需要元素的个数）。
+    // 要创建一个长度非零的空 slice，需要使用内建的方法 `make`。这里我们创建了一个
+    // 长度为3的 `string` 类型 slice（初始化为零值）。
     s := make([]string, 3)
     fmt.Println("emp:", s)
 
@@ -53,8 +52,7 @@ func main() {
     t := []string{"g", "h", "i"}
     fmt.Println("dcl:", t)
 
-    // Slice 可以组成多维数据结构。内部的 slice 长度可以不
-    // 同，这和多位数组不同。
+    // Slice 可以组成多维数据结构。内部的 slice 长度可以不同，这和多维数组不同。
     twoD := make([][]int, 3)
     for i := 0; i < 3; i++ {
         innerLen := i + 1
