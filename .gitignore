@@ -63,3 +63,6 @@ bin/
 
 # Visual Studio Code
 .vscode/
+
+# Jetbrain
+.idea/
