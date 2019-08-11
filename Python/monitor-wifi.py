@@ -2,9 +2,9 @@
 import subprocess
 
 ADAPERS = [
-    ['48-8A-D2-75-12-60', 'aWiFi', 'Wi-Fi'],
-    ['50-89-65-01-C3-52', 'SAP-Internet', 'Wi-Fi 4'],
-    ['48-8A-D2-E0-9C-21', 'SmartOffice-5G', 'Wi-Fi 6']
+    ['48-8A-D2-75-12-60', 'aWiFi'],
+    ['50-89-65-01-C3-52', 'SmartOffice-5G'],
+    ['48-8A-D2-E0-9C-21', 'SAP-Internet']
 ]
 
 
@@ -50,16 +50,20 @@ def connected_ssids():
 
     name = ''
     ssid = ''
+    mac = ''
     for s in stdout.split('\r\n'):
         s = s.strip()
         subs = s.split(':')
         if len(subs) == 2 and subs[0].strip() == 'Name':
             name = subs[1].strip()
+        if len(subs) > 2 and subs[0].strip() == 'Physical address':
+            mac = s[s.find(':') + 1:].strip().upper().replace(':', '-')
         if len(subs) == 2 and subs[0].strip() == 'SSID':
             ssid = subs[1].strip()
-            connected.append((name, ssid))
+            connected.append([name, ssid, mac])
             name = ''
             ssid = ''
+            mac = ''
 
     return connected
 
@@ -88,15 +92,31 @@ def available_ssid():
 #from __future__ import print_function
 ssids = connected_ssids()
 print('Connected SSIDs: [', end='')
-for idx, (name, ssid) in enumerate(ssids):
-    print('"' + name + '"' + ': ' + '"' + ssid + '"', end='')
+for idx, (name, ssid, mac) in enumerate(ssids):
+    print('"%s": "%s" (%s)' %(name, ssid, mac), end='')
+    #print('"' + name + '": "' + ssid + '"', end='')
     if idx < len(ssids) - 1:
         print(', ', end='')
     else:
         print(']')
 
 
-#print('c:', ssids)
+# check if the connected SSID are matching the MAC address defined in ADAPERS
+def check_connected_ssids_valid(connected_ssids):
+    tuple_list = []
+    for e in connected_ssids:
+        tuple_list.append((e[1], e[2])) # (ssid, mac)
+
+    for adapter in ADAPERS:
+        if (adapter[1], adapter[0]) in tuple_list:
+            adapter.append(True)
+        else:
+            adapter.append(False)
+
+check_connected_ssids_valid(ssids)
+
 for adapter in ADAPERS:
+    if adapter[2] == False:
+        print('Device "%s" is not connnected to "%s"' %(adapter[0], adapter[1]))
     if (adapter[2], adapter[1]) not in ssids:
-        connect_to_network(adapter[2], adapter[1])
+        pass #connect_to_network(adapter[2], adapter[1])
