@@ -8,9 +8,9 @@ import datetime
 
 
 ADAPERS = [
-    ['48-8A-D2-75-12-60', 'aWiFi'],
-    ['50-89-65-01-C3-52', 'SmartOffice-5G'],
-    ['48-8A-D2-E0-9C-21', 'SAP-Internet']
+    ['48-8A-D2-75-12-60',   'aWiFi',            False],
+    ['50-89-65-01-C3-52',   'SmartOffice-5G',   False],
+    ['48-8A-D2-E0-9C-21',   'SAP-Internet',     False]
 ]
 
 def decode_bytes_to_str(bys):
@@ -100,9 +100,9 @@ def check_connected_ssids_valid(connected_ssids):
     result = True
     for adapter in ADAPERS:
         if (adapter[1], adapter[0]) in tuple_list:
-            adapter.append(True)
+            adapter[2] = True
         else:
-            adapter.append(False)
+            adapter[2] = False
             result = False
 
     return result
@@ -163,6 +163,6 @@ while True:
         print("Unexpected error:", traceback.format_exc())
 
     s = 40.0
-    print('Sleep %s seconds ...' %(s))
+    #print('Sleep %s seconds ...' %(s))
     sys.stdout.flush()
     time.sleep(s)
