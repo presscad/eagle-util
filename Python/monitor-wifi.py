@@ -145,7 +145,7 @@ def main():
         for adapter in ADAPERS:
             if adapter[2] == False:
                 mac, ssid = adapter[0], adapter[1]
-                print('Device "%s" is not connnected to "%s". Start connecting ...' %(mac, ssid))
+                print('Device "%s" is not connected to "%s". Start connecting ...' %(mac, ssid))
                 try:
                     adapter = mac2adapter[mac]
                 except KeyError:
@@ -164,5 +164,5 @@ while True:
 
     s = 40.0
     #print('Sleep %s seconds ...' %(s))
-    sys.stdout.flush()
+    #sys.stdout.flush()
     time.sleep(s)
